@@ -1,0 +1,8 @@
+/**
+ * Created by alexj on 15/2/2017.
+ */
+public enum Type {
+    TOKEN_INT, TOKEN_STRING,
+    TOKEN_EQUALS, TOKEN_SET, TOKEN_GT, TOKEN_GTEQ, TOKEN_LT, TOKEN_LTEQ, TOKEN_DIFF,
+    TOKEN_SUM, TOKEN_RES, TOKEN_DIV, TOKEN_MUL
+}

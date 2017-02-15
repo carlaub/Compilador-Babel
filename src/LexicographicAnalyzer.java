@@ -1,6 +1,7 @@
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class LexicographicAnalyzer {
     private static LexicographicAnalyzer instance;
@@ -16,8 +17,8 @@ public class LexicographicAnalyzer {
     }
 
     private LexicographicAnalyzer(String fileName) {
-      nLine = 0;
-      nChar = 0;
+        nLine = 0;
+        nChar = 0;
 
         try {
             file = new Scanner(new FileReader(fileName));
@@ -54,9 +55,9 @@ public class LexicographicAnalyzer {
                         state = 2;
                     } else if (character == '"') {
                         state = 3;
-                    } else if (character == '<' || character == '>' || character == '=') {
+                    } else if ("<>=".indexOf(character) != -1) {
                         state = 4;
-                    } else if (character == '/' || character == '+' || character == '-' || character == '*') {
+                    } else if ("/+-*".indexOf(character) != -1) {
                         state = 5;
                     } else {
                         state = 6;
@@ -77,7 +78,7 @@ public class LexicographicAnalyzer {
                         lexema = lexema + character;
                         nChar++;
                     } else {
-                        return new Token("TOKEN_INT", lexema);
+                        return new Token(Type.TOKEN_INT, lexema);
                     }
                     break;
                 case 3:
@@ -88,48 +89,45 @@ public class LexicographicAnalyzer {
                         character = line.charAt(nChar);
                     }while(character != '"');
 
-                    return new Token("TOKEN_STRING", lexema+'"');
+                    return new Token(Type.TOKEN_STRING, lexema+'"');
                 case 4:
                     switch (character){
                         case '=':
                             nChar++;
                             if(line.indexOf(nChar) == '='){
-                                return new Token("TOKEN_EQUALS", "==");
+                                return new Token(Type.TOKEN_EQUALS, "==");
                             } else {
-                                return new Token("TOKEN_SET","=");
+                                return new Token(Type.TOKEN_SET,"=");
                             }
                         case '>':
                             nChar++;
                             if(line.indexOf(nChar) == '='){
-                                return new Token("TOKEN_GTEQ", ">=");
+                                return new Token(Type.TOKEN_GTEQ, ">=");
                             } else {
-                                return new Token("TOKEN_GT", ">");
+                                return new Token(Type.TOKEN_GT, ">");
                             }
                         case '<':
                             nChar++;
                             if(line.indexOf(nChar) == '='){
-                                return new Token("TOKEN_LTEQ", "<=");
+                                return new Token(Type.TOKEN_LTEQ, "<=");
                             } else if (line.indexOf(nChar) == '>'){
-                                return new Token("TOKEN_DIFF", "<>");
+                                return new Token(Type.TOKEN_DIFF, "<>");
                             } else {
-                                return new Token("TOKEN_LT", "<");
+                                return new Token(Type.TOKEN_LT, "<");
                             }
                     }
 
                 case 5:
                     switch (character) {
                         case '+':
-                            return new Token("TOKEN_SUM", "+");
+                            return new Token(Type.TOKEN_SUM, "+");
                         case '-':
-                            return new Token("TOKEN_RES", "-");
+                            return new Token(Type.TOKEN_RES, "-");
                         case '/':
-                            return new Token("TOKEN_DIV", "/");
+                            return new Token(Type.TOKEN_DIV, "/");
                         case '*':
-                            return new Token("TOKEN_MUL", "*");
+                            return new Token(Type.TOKEN_MUL, "*");
                 }
-
-
-
             }
         }
     }

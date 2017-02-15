@@ -3,9 +3,15 @@
  */
 public class Token {
 
+    private Type token;
+    private String lexema;
+
     public Token(String lexema) {
+        this.lexema = lexema;
     }
 
-    public Token(String token, String lexema) {
+    public Token(Type token, String lexema) {
+        this.token = token;
+        this.lexema = lexema;
     }
 }
