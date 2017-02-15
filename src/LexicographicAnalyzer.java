@@ -117,7 +117,17 @@ public class LexicographicAnalyzer {
                     }
 
                 case 5:
-                    
+                    switch (character) {
+                        case '+':
+                            return new Token("TOKEN_SUM", "+");
+                        case '-':
+                            return new Token("TOKEN_RES", "-");
+                        case '/':
+                            return new Token("TOKEN_DIV", "/");
+                        case '*':
+                            return new Token("TOKEN_MUL", "*");
+                }
+
 
 
             }
