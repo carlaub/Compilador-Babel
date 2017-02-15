@@ -12,6 +12,7 @@ public class LexicographicAnalyzer {
 
 
     public static LexicographicAnalyzer getInstance(String fileName) {
+        System.out.println("nom f: " + fileName);
         if (instance == null) instance = new LexicographicAnalyzer(fileName);
         return instance;
     }
