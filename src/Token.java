@@ -8,10 +8,22 @@ public class Token {
 
     public Token(String lexema) {
         this.lexema = lexema;
+
+        //TEMPORAL//////////
+        this.token = Type.TOKEN_ID;
+        ////////////////////
     }
 
     public Token(Type token, String lexema) {
         this.token = token;
         this.lexema = lexema;
+    }
+
+    public String getLexema() {
+        return this.lexema;
+    }
+
+    public String getTokenName() {
+        return this.token.toString();
     }
 }

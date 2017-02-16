@@ -12,7 +12,6 @@ public class LexicographicAnalyzer {
 
 
     public static LexicographicAnalyzer getInstance(String fileName) {
-        System.out.println("nom f: " + fileName);
         if (instance == null) instance = new LexicographicAnalyzer(fileName);
         return instance;
     }
@@ -25,6 +24,9 @@ public class LexicographicAnalyzer {
             file = new Scanner(new FileReader(fileName));
             if(file.hasNext()){
                 line = file.nextLine();
+
+                //ADD '\n'
+                line = line + '\n';
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -37,7 +39,11 @@ public class LexicographicAnalyzer {
         int state = 0;
         String lexema = "";
         while(true) {
+
+
             character = line.charAt(nChar);
+
+
             switch (state) {
                 case 0:
                     if (character == ' ' || character == '\t') {
@@ -48,6 +54,13 @@ public class LexicographicAnalyzer {
                         nChar = 0;
                         if (file.hasNext()) {
                             line = file.nextLine();
+
+                            //ADD '\n'
+                            line = line + '\n';
+                        } else {
+
+                            // EOF !
+
                         }
                         state = 0;
                     } else if ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".indexOf(character) != -1) {
@@ -60,8 +73,18 @@ public class LexicographicAnalyzer {
                         state = 4;
                     } else if ("/+-*".indexOf(character) != -1) {
                         state = 5;
-                    } else {
+                    } else if ("()[],;:.".indexOf(character) != -1){
+                        //Special symbols
                         state = 6;
+                    } else {
+
+                        //ERROR, INVALID CHARACTER
+                        //(Class Error)
+
+                        System.out.println("ERROR CARACTER: "+ character);
+
+                        //PROVISIONAL
+                        return new Token(Type.TOKEN_ERR, "");
                     }
                     break;
                 case 1:
@@ -78,6 +101,7 @@ public class LexicographicAnalyzer {
                         state = 2;
                         lexema = lexema + character;
                         nChar++;
+
                     } else {
                         return new Token(Type.TOKEN_INT, lexema);
                     }
@@ -129,6 +153,40 @@ public class LexicographicAnalyzer {
                         case '*':
                             return new Token(Type.TOKEN_MUL, "*");
                 }
+
+                case 6:
+                    nChar++;
+                    switch(character) {
+                        //Case ".."
+                        case '.':
+                            if (line.charAt(nChar) == '.') {
+                                nChar ++;
+                                return new Token (Type.TOKEN_DPOINT, "..");
+                            } else {
+
+                                //CASE ONLY ".", ERROR!
+
+                                //TEMPORAL
+                                System.out.println("ERROR CARACTER: "+ character);
+                                return new Token(Type.TOKEN_ERR, "");
+                            }
+
+                        case '(':
+                            return new Token(Type.TOKEN_OPARENT, "(");
+                        case ')':
+                            return new Token(Type.TOKEN_CPARENT, ")");
+                        case '[':
+                            return new Token(Type.TOKEN_OCLAU, "[");
+                        case ']':
+                            return new Token(Type.TOKEN_CCLAU, "]");
+                        case ',':
+                            return new Token(Type.TOKEN_COMA, ",");
+                        case ';':
+                            return new Token(Type.TOKEN_SEMICOLON, ";");
+                        case ':':
+                            return new Token(Type.TOKEN_COLON, ":");
+
+                    }
             }
         }
     }
