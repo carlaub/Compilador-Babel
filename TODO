@@ -1,0 +1,2 @@
+-Crear una excepció pròpia que indiqui que es tracta d'un final de fitxer. O almenys algo que no sigui un "throw new Exception()"
+-Si es tracta d'un comentari, saltar línia.

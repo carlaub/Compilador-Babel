@@ -61,7 +61,7 @@ public class LexicographicAnalyzer {
                             //ADD '\n'
                             line = line + '\n';
                         } else {
-                            throw new Exception("");
+                            throw new Exception();
                             // EOF !
 
                         }
