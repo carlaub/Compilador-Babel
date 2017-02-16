@@ -1,5 +1,6 @@
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -16,8 +17,10 @@ public class LexicographicAnalyzer {
         return instance;
     }
 
+    public int getLine(){ return nLine;}
+
     private LexicographicAnalyzer(String fileName) {
-        nLine = 0;
+        nLine = 1;
         nChar = 0;
 
         try {
@@ -34,7 +37,7 @@ public class LexicographicAnalyzer {
 
     }
 
-    public Token getToken() {
+    public Token getToken() throws Exception {
         char character;
         int state = 0;
         String lexema = "";
@@ -58,7 +61,7 @@ public class LexicographicAnalyzer {
                             //ADD '\n'
                             line = line + '\n';
                         } else {
-
+                            throw new Exception("");
                             // EOF !
 
                         }
@@ -113,6 +116,7 @@ public class LexicographicAnalyzer {
                         nChar++;
                         character = line.charAt(nChar);
                     }while(character != '"');
+                    nChar++;
 
                     return new Token(Type.TOKEN_STRING, lexema+'"');
                 case 4:
@@ -143,6 +147,7 @@ public class LexicographicAnalyzer {
                     }
 
                 case 5:
+                    nChar++;
                     switch (character) {
                         case '+':
                             return new Token(Type.TOKEN_SUM, "+");

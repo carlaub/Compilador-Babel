@@ -1,0 +1,49 @@
+//const <id> = <exp>;
+const LINIA = 3;
+
+//var <id>: <tipus>;
+var variable: SENCER;
+var variable2: vector[0..10] de SENCER;
+
+//funcio <id>(<ll_param>): <tipus_simple>;
+//	var <id>: <tipus>;
+//	func
+//		<ll_instr>	
+//	fifunc;
+
+funcio suma(perval valor1: SENCER, perval valor2: SENCER): SENCER;
+	var resultat: SENCER;
+	func
+		resultat = valor1+valor2;
+		retornar resultat;
+	fifunc;
+
+//prog
+//	<ll_instr>
+//fiprog
+
+prog
+	var i: SENCER;
+	i=0;
+
+	mentre i<10 fer
+		escriure("Resultat de ", i, "+", 10-i, ": ", suma(i,10-i));
+		i=i+1;
+	fimentre
+
+	percada valor en variable2 fer
+		escriure(valor);
+	fiper
+
+	i=0;
+	cicle
+		si i<>2 llavors
+			escriure(variable2[i]);
+		sino
+			escriure("bah");
+		fisi
+	fins i==10
+
+fiprog
+
+
