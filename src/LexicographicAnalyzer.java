@@ -1,8 +1,7 @@
+import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.NoSuchElementException;
 import java.util.Scanner;
-import java.util.regex.Pattern;
 
 public class LexicographicAnalyzer {
     private static LexicographicAnalyzer instance;
@@ -17,7 +16,8 @@ public class LexicographicAnalyzer {
         return instance;
     }
 
-    public int getLine(){ return nLine;}
+    public int getActualLine(){ return nLine;}
+    public int getActualChar(){ return nChar;}
 
     private LexicographicAnalyzer(String fileName) {
         nLine = 1;
@@ -37,7 +37,7 @@ public class LexicographicAnalyzer {
 
     }
 
-    public Token getToken() throws Exception {
+    public Token getToken() throws EOFException {
         char character;
         int state = 0;
         String lexema = "";
@@ -61,7 +61,7 @@ public class LexicographicAnalyzer {
                             //ADD '\n'
                             line = line + '\n';
                         } else {
-                            throw new Exception();
+                            throw new EOFException();
                             // EOF !
 
                         }
@@ -154,10 +154,25 @@ public class LexicographicAnalyzer {
                         case '-':
                             return new Token(Type.TOKEN_RES, "-");
                         case '/':
-                            return new Token(Type.TOKEN_DIV, "/");
+                            if(line.charAt(nChar) == '/'){
+                                nLine++;
+                                nChar = 0;
+                                if (file.hasNext()) {
+                                    line = file.nextLine();
+                                    line = line + '\n';
+                                } else {
+                                    throw new EOFException();
+                                }
+                            }
+                            else{
+                                return new Token(Type.TOKEN_DIV, "/");
+                            }
+                            state = 0;
+                            break;
                         case '*':
                             return new Token(Type.TOKEN_MUL, "*");
-                }
+                    }
+                    break;
 
                 case 6:
                     nChar++;
