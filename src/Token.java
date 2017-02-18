@@ -1,8 +1,6 @@
 import java.util.HashMap;
 
-/**
- * Created by carlaurrea on 15/2/17.
- */
+
 public class Token {
 
     private Type token;

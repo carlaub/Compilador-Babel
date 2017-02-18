@@ -1,6 +1,4 @@
-import java.io.EOFException;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.util.Scanner;
 
 public class LexicographicAnalyzer {
@@ -9,6 +7,8 @@ public class LexicographicAnalyzer {
     private static int nChar;
     private static String line;
     private static Scanner file;
+
+    private static Error errorManagement;
 
 
     public static LexicographicAnalyzer getInstance(String fileName) {
@@ -24,6 +24,11 @@ public class LexicographicAnalyzer {
         nChar = 0;
 
         try {
+
+            //Instance of error class
+            errorManagement = Error.getInstance(fileName);
+
+            //Read code
             file = new Scanner(new FileReader(fileName));
             if(file.hasNext()){
                 line = file.nextLine();
@@ -32,6 +37,8 @@ public class LexicographicAnalyzer {
                 line = line + '\n';
             }
         } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -82,12 +89,15 @@ public class LexicographicAnalyzer {
                     } else {
 
                         //ERROR, INVALID CHARACTER
-                        //(Class Error)
+
+                        errorManagement.instertLexError(TypeError.ERR_LEX_1, character, getActualLine());
 
                         System.out.println("ERROR CARACTER: "+ character);
 
-                        //PROVISIONAL
-                        return new Token(Type.TOKEN_ERR, "");
+                        nChar++;
+                        state = 0;
+//                        //PROVISIONAL
+//                        return new Token(Type.TOKEN_ERR, "");
                     }
                     break;
                 case 1:
@@ -185,12 +195,14 @@ public class LexicographicAnalyzer {
                             } else {
 
                                 //CASE ONLY ".", ERROR!
-
+                                errorManagement.instertLexError(TypeError.ERR_LEX_1, character, getActualLine());
                                 //TEMPORAL
                                 System.out.println("ERROR CARACTER: "+ character);
-                                return new Token(Type.TOKEN_ERR, "");
-                            }
+                                state = 0;
 
+//                                return new Token(Type.TOKEN_ERR, "");
+                            }
+                            break;
                         case '(':
                             return new Token(Type.TOKEN_OPARENT, "(");
                         case ')':
@@ -209,6 +221,10 @@ public class LexicographicAnalyzer {
                     }
             }
         }
+    }
+
+    public void finalize() {
+        errorManagement.closeBuffer();
     }
 
 }

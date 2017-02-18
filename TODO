@@ -1,4 +1,15 @@
 -Crear una excepció pròpia que indiqui que es tracta d'un final de fitxer. O almenys algo que no sigui un "throw new Exception()"
 *Utilitzem la EOFException.
+
 -Si es tracta d'un comentari, saltar línia.
 *Resolt
+
+-Escriute el llistat de tokens detectats a un fitxer [nom-fitxer-entrada].lex
+*Fet, la gestio d'aquest fitxer la he fet desde el main, ja que es on es demana el token i seguidament ho escric al
+fitxer. Es suposa que es provisional per la correcció d'aquesta fase
+
+-Crear classe Error, detectar errors
+*Fet, ho he fet emprant instancies pensant que les classes futures del compilador també l'utilitzaran
+
+-Escriure els errors en un fitxer [nom-fitxer-entrada].err
+*Fet, ho gestiona la classe error
