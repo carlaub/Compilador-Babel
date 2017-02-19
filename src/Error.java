@@ -28,10 +28,10 @@ public class Error {
         }
     }
 
-    public void instertLexError(TypeError error, char character, int numLine) {
+    public void insertLexError(TypeError error, char character, int numLine) {
         try {
             //Write error into *.err file
-            bwErr.write("[" + error.toString() +"] "+ numLine + ", "+ "Caràcter ["+character+"] desconegut\n");
+            bwErr.write("[" + error.toString() +"] "+ numLine + ", Caràcter["+character+"] desconegut\n");
         } catch (IOException e) {
             e.printStackTrace();
         }

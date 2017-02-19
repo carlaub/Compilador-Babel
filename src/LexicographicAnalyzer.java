@@ -90,7 +90,7 @@ public class LexicographicAnalyzer {
 
                         //ERROR, INVALID CHARACTER
 
-                        errorManagement.instertLexError(TypeError.ERR_LEX_1, character, getActualLine());
+                        errorManagement.insertLexError(TypeError.ERR_LEX_1, character, getActualLine());
 
                         System.out.println("ERROR CARACTER: "+ character);
 
@@ -133,23 +133,23 @@ public class LexicographicAnalyzer {
                     switch (character){
                         case '=':
                             nChar++;
-                            if(line.indexOf(nChar) == '='){
+                            if(line.charAt(nChar) == '='){
                                 return new Token(Type.TOKEN_EQUALS, "==");
                             } else {
                                 return new Token(Type.TOKEN_SET,"=");
                             }
                         case '>':
                             nChar++;
-                            if(line.indexOf(nChar) == '='){
+                            if(line.charAt(nChar) == '='){
                                 return new Token(Type.TOKEN_GTEQ, ">=");
                             } else {
                                 return new Token(Type.TOKEN_GT, ">");
                             }
                         case '<':
                             nChar++;
-                            if(line.indexOf(nChar) == '='){
+                            if(line.charAt(nChar) == '='){
                                 return new Token(Type.TOKEN_LTEQ, "<=");
-                            } else if (line.indexOf(nChar) == '>'){
+                            } else if (line.charAt(nChar) == '>'){
                                 return new Token(Type.TOKEN_DIFF, "<>");
                             } else {
                                 return new Token(Type.TOKEN_LT, "<");
@@ -195,7 +195,7 @@ public class LexicographicAnalyzer {
                             } else {
 
                                 //CASE ONLY ".", ERROR!
-                                errorManagement.instertLexError(TypeError.ERR_LEX_1, character, getActualLine());
+                                errorManagement.insertLexError(TypeError.ERR_LEX_1, character, getActualLine());
                                 //TEMPORAL
                                 System.out.println("ERROR CARACTER: "+ character);
                                 state = 0;

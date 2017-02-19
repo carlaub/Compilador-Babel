@@ -1,4 +1,5 @@
--Crear una excepció pròpia que indiqui que es tracta d'un final de fitxer. O almenys algo que no sigui un "throw new Exception()"
+-Crear una excepció pròpia que indiqui que es tracta d'un final de fitxer. O almenys algo que no sigui
+un "throw new Exception()"
 *Utilitzem la EOFException.
 
 -Si es tracta d'un comentari, saltar línia.
@@ -13,3 +14,10 @@ fitxer. Es suposa que es provisional per la correcció d'aquesta fase
 
 -Escriure els errors en un fitxer [nom-fitxer-entrada].err
 *Fet, ho gestiona la classe error
+-Potser hauríem d'escriure també el número del caràcter de la línia on es troba l'error, rollo gcc
+-Res, acabo de veure l'enunciat penjat a l'eStudy, trec l'estil que havia afegit jo i ho deixo com estava, pero no me gusta :(
+
+-A la classe Error podem fer com a Token i ficar un HashMap que contingui el TypeError com a clau i un string amb la
+descripció com a valor.
+
+-He afegit un gitignore pels fitxers .lex i .err per no començar a omplir el projecte amb fitxers "inútils", te parece?

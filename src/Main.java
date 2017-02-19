@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 
 public class Main {
-    private static final String FILE_NAME = "test.bab";
+    private static final String FILE_NAME = "babelProg.bab";
     private static BufferedWriter bwLex;
 
     public static void main(String[] args) {
@@ -30,8 +30,9 @@ public class Main {
 
             }while (true);
 
-
-        }catch (EOFException e){System.out.println("FIPROGRAMA");} catch (IOException e1) {
+        }catch (EOFException e){
+            System.out.println("FIPROGRAMA");
+        } catch (IOException e1) {
             e1.printStackTrace();
         }finally{
             if (bwLex != null) {
