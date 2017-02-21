@@ -2,7 +2,7 @@
 const LINIA = 3;
 
 //var <id>: <tipus>;
-var variable: SENCER;
+var variableaaaaaaaaaaaaaaaaaaaaaaasssssssssssssssssssssssssseeeeeeeeeeeeeeeeee: SENCER;
 var variable2: vector[0..10] de SENCER;
 
 //funcio <id>(<ll_param>): <tipus_simple>;

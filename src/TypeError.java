@@ -1,4 +1,4 @@
 
 public enum TypeError {
-    ERR_LEX_1
+    WAR_LEX_1, ERR_LEX_1
 }

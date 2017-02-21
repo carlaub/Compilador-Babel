@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class LexicographicAnalyzer {
     private static LexicographicAnalyzer instance;
@@ -7,6 +8,7 @@ public class LexicographicAnalyzer {
     private static int nChar;
     private static String line;
     private static Scanner file;
+    private static BufferedWriter bwLex;
 
     private static Error errorManagement;
 
@@ -27,6 +29,9 @@ public class LexicographicAnalyzer {
 
             //Instance of error class
             errorManagement = Error.getInstance(fileName);
+            File lex = new File (fileName.split(Pattern.quote("."))[0] + ".lex");
+
+            bwLex = new BufferedWriter(new FileWriter(lex));
 
             //Read code
             file = new Scanner(new FileReader(fileName));
@@ -44,7 +49,19 @@ public class LexicographicAnalyzer {
 
     }
 
-    public Token getToken() throws EOFException {
+    public Token getToken() {
+        Token token = nextToken();
+        System.out.println(nLine + ":" + nChar
+                + "< " + token.getTokenName() + ", " + token.getLexema() + " >");
+        try {
+            bwLex.write("< " + token.getTokenName() + ", " + token.getLexema() + " >\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return token;
+    }
+
+    private Token nextToken(){
         char character;
         int state = 0;
         String lexema = "";
@@ -68,7 +85,7 @@ public class LexicographicAnalyzer {
                             //ADD '\n'
                             line = line + '\n';
                         } else {
-                            throw new EOFException();
+                            return new Token(Type.TOKEN_EOF, "EOF");
                             // EOF !
 
                         }
@@ -90,7 +107,7 @@ public class LexicographicAnalyzer {
 
                         //ERROR, INVALID CHARACTER
 
-                        errorManagement.insertLexError(TypeError.ERR_LEX_1, character, getActualLine());
+                        errorManagement.insertLexError(TypeError.ERR_LEX_1, getActualLine(), character);
 
                         System.out.println("ERROR CARACTER: "+ character);
 
@@ -106,6 +123,10 @@ public class LexicographicAnalyzer {
                         lexema = lexema + character;
                         nChar++;
                     } else {
+                        if(lexema.length()>32){
+                            errorManagement.insertLexError(TypeError.WAR_LEX_1, nLine, lexema);
+                            lexema = lexema.substring(0,31);
+                        }
                         return new Token(lexema);
                     }
                     break;
@@ -134,6 +155,7 @@ public class LexicographicAnalyzer {
                         case '=':
                             nChar++;
                             if(line.charAt(nChar) == '='){
+                                nChar++;
                                 return new Token(Type.TOKEN_EQUALS, "==");
                             } else {
                                 return new Token(Type.TOKEN_SET,"=");
@@ -141,6 +163,7 @@ public class LexicographicAnalyzer {
                         case '>':
                             nChar++;
                             if(line.charAt(nChar) == '='){
+                                nChar++;
                                 return new Token(Type.TOKEN_GTEQ, ">=");
                             } else {
                                 return new Token(Type.TOKEN_GT, ">");
@@ -148,8 +171,10 @@ public class LexicographicAnalyzer {
                         case '<':
                             nChar++;
                             if(line.charAt(nChar) == '='){
+                                nChar++;
                                 return new Token(Type.TOKEN_LTEQ, "<=");
                             } else if (line.charAt(nChar) == '>'){
+                                nChar++;
                                 return new Token(Type.TOKEN_DIFF, "<>");
                             } else {
                                 return new Token(Type.TOKEN_LT, "<");
@@ -171,7 +196,7 @@ public class LexicographicAnalyzer {
                                     line = file.nextLine();
                                     line = line + '\n';
                                 } else {
-                                    throw new EOFException();
+                                    return new Token(Type.TOKEN_EOF, "EOF");
                                 }
                             }
                             else{
@@ -195,7 +220,7 @@ public class LexicographicAnalyzer {
                             } else {
 
                                 //CASE ONLY ".", ERROR!
-                                errorManagement.insertLexError(TypeError.ERR_LEX_1, character, getActualLine());
+                                errorManagement.insertLexError(TypeError.ERR_LEX_1, getActualLine(), character);
                                 //TEMPORAL
                                 System.out.println("ERROR CARACTER: "+ character);
                                 state = 0;
@@ -225,6 +250,11 @@ public class LexicographicAnalyzer {
 
     public void finalize() {
         errorManagement.closeBuffer();
+        try {
+            bwLex.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
