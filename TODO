@@ -21,3 +21,7 @@ fitxer. Es suposa que es provisional per la correcció d'aquesta fase
 descripció com a valor.
 
 -He afegit un gitignore pels fitxers .lex i .err per no començar a omplir el projecte amb fitxers "inútils", te parece?
+
+-Ara el nom del fitxer s'ha d'escriure com a argument del programa, per a configurar-ho s'ha de fer:
+    Run -> Edit configurations... -> *Seleccionar el programa de la llista de l'esquerra* -> Program arguments -> *file.bab*
+

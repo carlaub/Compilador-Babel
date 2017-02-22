@@ -13,40 +13,39 @@ public class LexicographicAnalyzer {
     private static Error errorManagement;
 
 
-    public static LexicographicAnalyzer getInstance(String fileName) {
+    public static LexicographicAnalyzer getInstance(String fileName) throws IOException {
         if (instance == null) instance = new LexicographicAnalyzer(fileName);
         return instance;
     }
 
     public int getActualLine(){ return nLine;}
-    public int getActualChar(){ return nChar;}
 
-    private LexicographicAnalyzer(String fileName) {
+    private LexicographicAnalyzer(String fileName) throws IOException {
         nLine = 1;
         nChar = 0;
 
-        try {
+        //try {
 
-            //Instance of error class
-            errorManagement = Error.getInstance(fileName);
-            File lex = new File (fileName.split(Pattern.quote("."))[0] + ".lex");
+        //Instance of error class
+        errorManagement = Error.getInstance(fileName);
+        File lex = new File (fileName.split(Pattern.quote("."))[0] + ".lex");
 
-            bwLex = new BufferedWriter(new FileWriter(lex));
+        bwLex = new BufferedWriter(new FileWriter(lex));
 
-            //Read code
-            file = new Scanner(new FileReader(fileName));
-            if(file.hasNext()){
-                line = file.nextLine();
+        //Read code
+        file = new Scanner(new FileReader(fileName));
+        if(file.hasNext()){
+            line = file.nextLine();
 
-                //ADD '\n'
-                line = line + '\n';
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            //ADD '\n'
+            line = line + '\n';
+        }
+    /*    } catch (FileNotFoundException e) {
+            //e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+*/
     }
 
     public Token getToken() {

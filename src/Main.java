@@ -4,21 +4,33 @@ import java.util.regex.Pattern;
 
 
 public class Main {
-    private static final String FILE_NAME = "test.bab";
 
     public static void main(String[] args) {
 
-        LexicographicAnalyzer lexic = LexicographicAnalyzer.getInstance(FILE_NAME);
-        Token token;
+        if(args.length == 0){
+            System.out.println("Es requereix el nom del fitxer com a paràmetre.");
+            return;
+        } else if(args.length > 1){
+            System.out.println("Es requereix el nom d'un únic fitxer com a paràmetre.");
+            return;
+        }
+
+        String filename = args[0];
+
+        try {
+            LexicographicAnalyzer lexic = LexicographicAnalyzer.getInstance(filename);
+
+            Token token;
 
             do{
                 token = lexic.getToken();
-
-                //write token information to the *.lex file
-                //bwLex.write("< " + token.getTokenName() + ", " + token.getLexema() + " >\n");
-
             }while (token.getToken() != Type.TOKEN_EOF);
+
             lexic.finalize();
+
+        } catch (IOException e) {
+            System.out.println("No s'ha pogut obrir l'arxiu.");
+        }
 
     }
 }
