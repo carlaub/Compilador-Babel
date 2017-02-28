@@ -1,3 +1,5 @@
+package Analyzer;
+
 import java.io.*;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -99,21 +101,21 @@ public class LexicographicAnalyzer {
                         state = 4;
                     } else if ("/+-*".indexOf(character) != -1) {
                         state = 5;
-                    } else if ("()[],;:.".indexOf(character) != -1){
+                    } else if ("()[],;:.?".indexOf(character) != -1){
                         //Special symbols
                         state = 6;
                     } else {
 
                         //ERROR, INVALID CHARACTER
 
-                        errorManagement.insertLexError(TypeError.ERR_LEX_1, getActualLine(), character);
+                        errorManagement.insertLexError(TypeError.ERR_LEX_UNK_CHAR, getActualLine(), character);
 
                         System.out.println("ERROR CARACTER: "+ character);
 
                         nChar++;
                         state = 0;
 //                        //PROVISIONAL
-//                        return new Token(Type.TOKEN_ERR, "");
+//                        return new Analyzer.Token(Analyzer.Type.TOKEN_ERR, "");
                     }
                     break;
                 case 1:
@@ -123,7 +125,7 @@ public class LexicographicAnalyzer {
                         nChar++;
                     } else {
                         if(lexema.length()>32){
-                            errorManagement.insertLexError(TypeError.WAR_LEX_1, nLine, lexema);
+                            errorManagement.insertLexError(TypeError.WAR_LEX_MAX_LEGTH, nLine, lexema);
                             lexema = lexema.substring(0,31);
                         }
                         return new Token(lexema);
@@ -215,16 +217,16 @@ public class LexicographicAnalyzer {
                         case '.':
                             if (line.charAt(nChar) == '.') {
                                 nChar ++;
-                                return new Token (Type.TOKEN_DPOINT, "..");
+                                return new Token(Type.TOKEN_DPOINT, "..");
                             } else {
 
                                 //CASE ONLY ".", ERROR!
-                                errorManagement.insertLexError(TypeError.ERR_LEX_1, getActualLine(), character);
+                                errorManagement.insertLexError(TypeError.ERR_LEX_UNK_CHAR, getActualLine(), character);
                                 //TEMPORAL
                                 System.out.println("ERROR CARACTER: "+ character);
                                 state = 0;
 
-//                                return new Token(Type.TOKEN_ERR, "");
+//                                return new Analyzer.Token(Analyzer.Type.TOKEN_ERR, "");
                             }
                             break;
                         case '(':
@@ -241,6 +243,8 @@ public class LexicographicAnalyzer {
                             return new Token(Type.TOKEN_SEMICOLON, ";");
                         case ':':
                             return new Token(Type.TOKEN_COLON, ":");
+                        case '?':
+                            return new Token(Type.TOKEN_TERNARY, "?");
 
                     }
             }

@@ -1,6 +1,8 @@
-import java.io.*;
-import java.util.regex.Pattern;
+import Analyzer.LexicographicAnalyzer;
+import Analyzer.Token;
+import Analyzer.Type;
 
+import java.io.*;
 
 
 public class Main {

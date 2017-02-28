@@ -1,3 +1,5 @@
+package Analyzer;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -5,9 +7,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 
+import static Analyzer.TypeError.*;
+import static Analyzer.TypeError.ERR_LEX_UNK_CHAR;
+
 
 public class Error {
-    private TypeError idError;
     private static HashMap<TypeError, String> errorCodes;
     private static Error instance;
     private static File err;
@@ -33,15 +37,16 @@ public class Error {
 
     private void loadCodes() {
         errorCodes = new HashMap<>();
-        errorCodes.put(TypeError.ERR_LEX_1,"Unknown character");
-        errorCodes.put(TypeError.WAR_LEX_1, "Max length reached");
+        errorCodes.put(ERR_LEX_UNK_CHAR,"Unknown character");
+        errorCodes.put(WAR_LEX_MAX_LEGTH, "Max length reached");
     }
 
     public void insertLexError(TypeError error, int numLine, char character) {
         try {
             //Write error into *.err file
             switch (error){
-                case ERR_LEX_1:
+
+                case ERR_LEX_UNK_CHAR:
                     bwErr.write("[" + error.toString() +"] "+ numLine + ", Caràcter["+character+"] desconegut\n");
                     break;
             }
@@ -54,7 +59,7 @@ public class Error {
         try {
             //Write error into *.err file
             switch (error){
-                case WAR_LEX_1:
+                case WAR_LEX_MAX_LEGTH:
                     bwErr.write("[" + error.toString() +"] "+ numLine + ", Llargada màxima és 32 caràcters.\n");
                     bwErr.write("Canvi de "+string+" a "+string.substring(0, 31));
                     break;
