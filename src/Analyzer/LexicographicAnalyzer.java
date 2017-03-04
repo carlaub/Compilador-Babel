@@ -23,7 +23,7 @@ public class LexicographicAnalyzer {
         return instance;
     }
 
-    public int getActualLine(){ return nLine;}
+    private int getActualLine(){ return nLine;}
 
     private LexicographicAnalyzer(String fileName) throws IOException {
         nLine = 1;
@@ -104,15 +104,12 @@ public class LexicographicAnalyzer {
                     } else {
 
                         //ERROR, INVALID CHARACTER
-
                         errorManagement.insertLexError(TypeError.ERR_LEX_1, getActualLine(), character);
 
                         System.out.println("ERROR CARACTER: "+ character);
 
                         nChar++;
                         state = 0;
-//                        //PROVISIONAL
-//                        return new Analyzer.Token(Analyzer.Type.TOKEN_ERR, "");
                     }
                     break;
                 case 1:
@@ -216,14 +213,11 @@ public class LexicographicAnalyzer {
                                 nChar ++;
                                 return new Token(Type.DPOINT, "..");
                             } else {
-
                                 //CASE ONLY ".", ERROR!
                                 errorManagement.insertLexError(TypeError.ERR_LEX_1, getActualLine(), character);
-                                //TEMPORAL
+
                                 System.out.println("ERROR CARACTER: "+ character);
                                 state = 0;
-
-//                                return new Analyzer.Token(Analyzer.Type.TOKEN_ERR, "");
                             }
                             break;
                         case '(':
@@ -249,6 +243,7 @@ public class LexicographicAnalyzer {
     }
 
     public void finalize() {
+        //Close error buffer
         errorManagement.closeBuffer();
         try {
             bwLex.close();
