@@ -26,7 +26,7 @@ public class Main {
 
             do{
                 token = lexic.getToken();
-            }while (token.getToken() != Type.TOKEN_EOF);
+            }while (token.getToken() != Type.EOF);
 
             lexic.finalize();
 

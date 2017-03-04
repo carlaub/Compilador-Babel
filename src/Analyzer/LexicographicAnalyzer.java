@@ -1,5 +1,8 @@
 package Analyzer;
 
+import utils.Error;
+import utils.TypeError;
+
 import java.io.*;
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -26,7 +29,6 @@ public class LexicographicAnalyzer {
         nLine = 1;
         nChar = 0;
 
-        //try {
 
         //Instance of error class
         errorManagement = Error.getInstance(fileName);
@@ -42,12 +44,7 @@ public class LexicographicAnalyzer {
             //ADD '\n'
             line = line + '\n';
         }
-    /*    } catch (FileNotFoundException e) {
-            //e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-*/
+
     }
 
     public Token getToken() {
@@ -86,7 +83,7 @@ public class LexicographicAnalyzer {
                             //ADD '\n'
                             line = line + '\n';
                         } else {
-                            return new Token(Type.TOKEN_EOF, "EOF");
+                            return new Token(Type.EOF, "EOF");
                             // EOF !
 
                         }
@@ -108,7 +105,7 @@ public class LexicographicAnalyzer {
 
                         //ERROR, INVALID CHARACTER
 
-                        errorManagement.insertLexError(TypeError.ERR_LEX_UNK_CHAR, getActualLine(), character);
+                        errorManagement.insertLexError(TypeError.ERR_LEX_1, getActualLine(), character);
 
                         System.out.println("ERROR CARACTER: "+ character);
 
@@ -125,7 +122,7 @@ public class LexicographicAnalyzer {
                         nChar++;
                     } else {
                         if(lexema.length()>32){
-                            errorManagement.insertLexError(TypeError.WAR_LEX_MAX_LEGTH, nLine, lexema);
+                            errorManagement.insertLexError(TypeError.WAR_LEX_1, nLine, lexema);
                             lexema = lexema.substring(0,31);
                         }
                         return new Token(lexema);
@@ -138,7 +135,7 @@ public class LexicographicAnalyzer {
                         nChar++;
 
                     } else {
-                        return new Token(Type.TOKEN_INT, lexema);
+                        return new Token(Type.SENCER_CST, lexema);
                     }
                     break;
                 case 3:
@@ -150,35 +147,35 @@ public class LexicographicAnalyzer {
                     }while(character != '"');
                     nChar++;
 
-                    return new Token(Type.TOKEN_STRING, lexema+'"');
+                    return new Token(Type.CADENA, lexema+'"');
                 case 4:
                     switch (character){
                         case '=':
                             nChar++;
                             if(line.charAt(nChar) == '='){
                                 nChar++;
-                                return new Token(Type.TOKEN_EQUALS, "==");
+                                return new Token(Type.OP_RELACIONAL, "==");
                             } else {
-                                return new Token(Type.TOKEN_SET,"=");
+                                return new Token(Type.IGUAL,"=");
                             }
                         case '>':
                             nChar++;
                             if(line.charAt(nChar) == '='){
                                 nChar++;
-                                return new Token(Type.TOKEN_GTEQ, ">=");
+                                return new Token(Type.OP_RELACIONAL, ">=");
                             } else {
-                                return new Token(Type.TOKEN_GT, ">");
+                                return new Token(Type.OP_RELACIONAL, ">");
                             }
                         case '<':
                             nChar++;
                             if(line.charAt(nChar) == '='){
                                 nChar++;
-                                return new Token(Type.TOKEN_LTEQ, "<=");
+                                return new Token(Type.OP_RELACIONAL, "<=");
                             } else if (line.charAt(nChar) == '>'){
                                 nChar++;
-                                return new Token(Type.TOKEN_DIFF, "<>");
+                                return new Token(Type.OP_RELACIONAL, "<>");
                             } else {
-                                return new Token(Type.TOKEN_LT, "<");
+                                return new Token(Type.OP_RELACIONAL, "<");
                             }
                     }
 
@@ -186,9 +183,9 @@ public class LexicographicAnalyzer {
                     nChar++;
                     switch (character) {
                         case '+':
-                            return new Token(Type.TOKEN_SUM, "+");
+                            return new Token(Type.SUMA, "+");
                         case '-':
-                            return new Token(Type.TOKEN_RES, "-");
+                            return new Token(Type.RESTA, "-");
                         case '/':
                             if(line.charAt(nChar) == '/'){
                                 nLine++;
@@ -197,16 +194,16 @@ public class LexicographicAnalyzer {
                                     line = file.nextLine();
                                     line = line + '\n';
                                 } else {
-                                    return new Token(Type.TOKEN_EOF, "EOF");
+                                    return new Token(Type.EOF, "EOF");
                                 }
                             }
                             else{
-                                return new Token(Type.TOKEN_DIV, "/");
+                                return new Token(Type.DIV, "/");
                             }
                             state = 0;
                             break;
                         case '*':
-                            return new Token(Type.TOKEN_MUL, "*");
+                            return new Token(Type.MUL, "*");
                     }
                     break;
 
@@ -217,11 +214,11 @@ public class LexicographicAnalyzer {
                         case '.':
                             if (line.charAt(nChar) == '.') {
                                 nChar ++;
-                                return new Token(Type.TOKEN_DPOINT, "..");
+                                return new Token(Type.DPOINT, "..");
                             } else {
 
                                 //CASE ONLY ".", ERROR!
-                                errorManagement.insertLexError(TypeError.ERR_LEX_UNK_CHAR, getActualLine(), character);
+                                errorManagement.insertLexError(TypeError.ERR_LEX_1, getActualLine(), character);
                                 //TEMPORAL
                                 System.out.println("ERROR CARACTER: "+ character);
                                 state = 0;
@@ -230,21 +227,21 @@ public class LexicographicAnalyzer {
                             }
                             break;
                         case '(':
-                            return new Token(Type.TOKEN_OPARENT, "(");
+                            return new Token(Type.OPARENT, "(");
                         case ')':
-                            return new Token(Type.TOKEN_CPARENT, ")");
+                            return new Token(Type.CPARENT, ")");
                         case '[':
-                            return new Token(Type.TOKEN_OCLAU, "[");
+                            return new Token(Type.OCLAU, "[");
                         case ']':
-                            return new Token(Type.TOKEN_CCLAU, "]");
+                            return new Token(Type.CCLAU, "]");
                         case ',':
-                            return new Token(Type.TOKEN_COMA, ",");
+                            return new Token(Type.COMA, ",");
                         case ';':
-                            return new Token(Type.TOKEN_SEMICOLON, ";");
+                            return new Token(Type.SEMICOLON, ";");
                         case ':':
-                            return new Token(Type.TOKEN_COLON, ":");
+                            return new Token(Type.COLON, ":");
                         case '?':
-                            return new Token(Type.TOKEN_TERNARY, "?");
+                            return new Token(Type.TERNARIA, "?");
 
                     }
             }

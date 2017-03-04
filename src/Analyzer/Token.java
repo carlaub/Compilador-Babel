@@ -10,13 +10,13 @@ public class Token {
     private static HashMap<String, Type> tokenCodes;
 
     public Token(String lexema) {
-        this.lexema = lexema;
+        this.lexema = lexema.toUpperCase();
 
         if(tokenCodes == null) loadTypes();
 
         token = tokenCodes.get(lexema.toUpperCase());
         if(token == null) {
-            this.token = Type.TOKEN_ID;
+            this.token = Type.ID;
         }
 
     }
@@ -30,45 +30,43 @@ public class Token {
 
         tokenCodes = new HashMap<>();
 
-        tokenCodes.put("CERT", Type.TOKEN_LOGIC_CST);
-        tokenCodes.put("FALS", Type.TOKEN_LOGIC_CST);
+        tokenCodes.put("CERT", Type.LOGIC_CST);
+        tokenCodes.put("FALS", Type.LOGIC_CST);
 
-        tokenCodes.put("AND", Type.TOKEN_LOGIC_OP);
-        tokenCodes.put("OR", Type.TOKEN_LOGIC_OP);
-        tokenCodes.put("NOT", Type.TOKEN_LOGIC_OP);
+        tokenCodes.put("AND", Type.AND);
+        tokenCodes.put("OR", Type.OR);
+        tokenCodes.put("NOT", Type.NOT);
 
-        tokenCodes.put("PERREF", Type.TOKEN_PARAM);
-        tokenCodes.put("PERVAL", Type.TOKEN_PARAM);
+        tokenCodes.put("PERREF", Type.PERREF);
+        tokenCodes.put("PERVAL", Type.PERVAL);
 
-        tokenCodes.put("CONST", Type.TOKEN_DEC_CONST);
-        tokenCodes.put("VAR", Type.TOKEN_DEC_VAR);
-        tokenCodes.put("SENCER", Type.TOKEN_INT_TYPE);
-        tokenCodes.put("LOGIC", Type.TOKEN_LOGIC_TYPE);
-        tokenCodes.put("PROG", Type.TOKEN_PROG_INIT);
-        tokenCodes.put("FIPROG", Type.TOKEN_PROG_END);
-        tokenCodes.put("FUNCIO", Type.TOKEN_FUNC);
-        tokenCodes.put("FUNC", Type.TOKEN_FUNC_INIT);
-        tokenCodes.put("FIFUNC", Type.TOKEN_FUNC_END);
-        tokenCodes.put("VECTOR", Type.TOKEN_VECTOR);
-        tokenCodes.put("DE", Type.TOKEN_OF);
-        tokenCodes.put("ESCRIURE", Type.TOKEN_WRITE);
-        tokenCodes.put("LLEGIR", Type.TOKEN_READ);
-        tokenCodes.put("CICLE", Type.TOKEN_DO_INIT);
-        tokenCodes.put("FINS", Type.TOKEN_DO_END);
-        tokenCodes.put("MENTRE", Type.TOKEN_WHILE);
-        tokenCodes.put("FER", Type.TOKEN_BUCLE_INIT);
-        //tokenCodes.put("FER",Analyzer.Type.TOKEN_WHILE_INIT);
-        tokenCodes.put("FIMENTRE", Type.TOKEN_WHILE_END);
-        tokenCodes.put("SI", Type.TOKEN_IF);
-        tokenCodes.put("LLAVORS", Type.TOKEN_IF_INIT);
-        tokenCodes.put("SINO", Type.TOKEN_ELSE);
-        tokenCodes.put("FISI", Type.TOKEN_IF_END);
-        tokenCodes.put("RETORNAR", Type.TOKEN_RETURN);
-        tokenCodes.put("PERCADA", Type.TOKEN_FOR);
-        tokenCodes.put("EN", Type.TOKEN_IN);
-        //tokenCodes.put("FER",Analyzer.Type.TOKEN_FOR_INIT);
-        tokenCodes.put("FIPER", Type.TOKEN_FOR_END);
-        tokenCodes.put("?", Type.TOKEN_TERNARY);
+        tokenCodes.put("CONST", Type.CONST);
+        tokenCodes.put("VAR", Type.VAR);
+        tokenCodes.put("SENCER", Type.TIPUS_SIMPLE);
+        tokenCodes.put("LOGIC", Type.TIPUS_SIMPLE);
+        tokenCodes.put("PROG", Type.PROG);
+        tokenCodes.put("FIPROG", Type.FIPROG);
+        tokenCodes.put("FUNCIO", Type.FUNCIO);
+        tokenCodes.put("FUNC", Type.FUNC);
+        tokenCodes.put("FIFUNC", Type.FIFUNC);
+        tokenCodes.put("VECTOR", Type.VECTOR);
+        tokenCodes.put("DE", Type.DE);
+        tokenCodes.put("ESCRIURE", Type.ESCRIURE);
+        tokenCodes.put("LLEGIR", Type.LLEGIR);
+        tokenCodes.put("CICLE", Type.CICLE);
+        tokenCodes.put("FINS", Type.FINS);
+        tokenCodes.put("MENTRE", Type.MENTRE);
+        tokenCodes.put("FER", Type.FER);
+        tokenCodes.put("FIMENTRE", Type.FIMENTRE);
+        tokenCodes.put("SI", Type.SI);
+        tokenCodes.put("LLAVORS", Type.LLAVORS);
+        tokenCodes.put("SINO", Type.SINO);
+        tokenCodes.put("FISI", Type.FISI);
+        tokenCodes.put("RETORNAR", Type.RETORNAR);
+        tokenCodes.put("PERCADA", Type.PERCADA);
+        tokenCodes.put("EN", Type.EN);
+        tokenCodes.put("FIPER", Type.FIPER);
+        tokenCodes.put("?", Type.TERNARIA);
     }
 
 

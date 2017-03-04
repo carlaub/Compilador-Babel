@@ -9,7 +9,7 @@ un "throw new Exception()"
 *Fet, la gestio d'aquest fitxer la he fet desde el main, ja que es on es demana el token i seguidament ho escric al
 fitxer. Es suposa que es provisional per la correcció d'aquesta fase
 
--Crear classe Analyzer.Error, detectar errors
+-Crear classe utils.Error, detectar errors
 *Fet, ho he fet emprant instancies pensant que les classes futures del compilador també l'utilitzaran
 
 -Escriure els errors en un fitxer [nom-fitxer-entrada].err
@@ -17,7 +17,7 @@ fitxer. Es suposa que es provisional per la correcció d'aquesta fase
 -Potser hauríem d'escriure també el número del caràcter de la línia on es troba l'error, rollo gcc
 -Res, acabo de veure l'enunciat penjat a l'eStudy, trec l'estil que havia afegit jo i ho deixo com estava, pero no me gusta :(
 
--A la classe Analyzer.Error podem fer com a Analyzer.Token i ficar un HashMap que contingui el Analyzer.TypeError com a clau i un string amb la
+-A la classe utils.Error podem fer com a Analyzer.Token i ficar un HashMap que contingui el utils.TypeError com a clau i un string amb la
 descripció com a valor.
 
 -He afegit un gitignore pels fitxers .lex i .err per no començar a omplir el projecte amb fitxers "inútils", te parece?
