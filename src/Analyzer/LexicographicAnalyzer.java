@@ -112,29 +112,29 @@ public class LexicographicAnalyzer {
                         state = 0;
                     }
                     break;
-                case 1:
-                    if ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_".indexOf(character) != -1) {
-                        state = 1;
-                        lexema = lexema + character;
-                        nChar++;
-                    } else {
-                        if(lexema.length()>32){
-                            errorManagement.insertLexError(TypeError.WAR_LEX_1, nLine, lexema);
-                            lexema = lexema.substring(0,31);
-                        }
-                        return new Token(lexema);
-                    }
-                    break;
-                case 2:
-                    if ("0123456789".indexOf(character) != -1) {
-                        state = 2;
-                        lexema = lexema + character;
-                        nChar++;
 
-                    } else {
-                        return new Token(Type.SENCER_CST, lexema);
+                case 1:
+                    do{
+                        lexema = lexema + character;
+                        nChar++;
+                        character = line.charAt(nChar);
+                    }while("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_".indexOf(character) != -1);
+
+                    if (lexema.length()>32){
+                        errorManagement.insertLexError(TypeError.WAR_LEX_1, nLine, lexema);
+                        lexema = lexema.substring(0,31);
                     }
-                    break;
+
+                    return new Token(lexema);
+
+                case 2:
+                    do{
+                        lexema = lexema + character;
+                        nChar++;
+                        character = line.charAt(nChar);
+                    }while("0123456789".indexOf(character) != -1);
+                    return new Token(Type.SENCER_CST, lexema);
+
                 case 3:
 
                     do{
