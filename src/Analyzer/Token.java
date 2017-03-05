@@ -2,30 +2,44 @@ package Analyzer;
 
 import java.util.HashMap;
 
-
+/**
+ * Classe per a representar un token i el seu lexema.
+ */
 public class Token {
 
     private Type token;
     private String lexema;
     private static HashMap<String, Type> tokenCodes;
 
+    /**
+     * Constructor públic de {@link Token}. Obté el codi de token a partir del lexema.
+     * @param lexema Lexema del token
+     */
     public Token(String lexema) {
         this.lexema = lexema.toUpperCase();
 
         if(tokenCodes == null) loadTypes();
 
-        token = tokenCodes.get(lexema.toUpperCase());
+        token = tokenCodes.get(this.lexema);
         if(token == null) {
             this.token = Type.ID;
         }
 
     }
 
+    /**
+     * Constructor públic de token.
+     * @param token Codi del token
+     * @param lexema Lexema del token
+     */
     public Token(Type token, String lexema) {
         this.token = token;
         this.lexema = lexema;
     }
 
+    /**
+     * Mètode privat per a carregar a {@link #tokenCodes} els codis de tots els tokens segons el seu lexema.
+     */
     private void loadTypes() {
 
         tokenCodes = new HashMap<>();
@@ -33,17 +47,16 @@ public class Token {
         tokenCodes.put("CERT", Type.LOGIC_CST);
         tokenCodes.put("FALS", Type.LOGIC_CST);
 
+        tokenCodes.put("SENCER", Type.TIPUS_SIMPLE);
+        tokenCodes.put("LOGIC", Type.TIPUS_SIMPLE);
+
         tokenCodes.put("AND", Type.AND);
         tokenCodes.put("OR", Type.OR);
         tokenCodes.put("NOT", Type.NOT);
-
         tokenCodes.put("PERREF", Type.PERREF);
         tokenCodes.put("PERVAL", Type.PERVAL);
-
         tokenCodes.put("CONST", Type.CONST);
         tokenCodes.put("VAR", Type.VAR);
-        tokenCodes.put("SENCER", Type.TIPUS_SIMPLE);
-        tokenCodes.put("LOGIC", Type.TIPUS_SIMPLE);
         tokenCodes.put("PROG", Type.PROG);
         tokenCodes.put("FIPROG", Type.FIPROG);
         tokenCodes.put("FUNCIO", Type.FUNCIO);

@@ -1,5 +1,8 @@
 package Analyzer;
 
+/**
+ * Classe enum per a codificar tots els possibles tokens.
+ */
 public enum Type {
     SENCER_CST, CADENA, ID, LOGIC_CST, TIPUS_SIMPLE,
 

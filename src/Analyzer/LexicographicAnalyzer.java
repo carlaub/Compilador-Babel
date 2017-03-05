@@ -7,6 +7,10 @@ import java.io.*;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
+/**
+ * Analitzador lexicogràfic.
+ * S'encarrega de llegir un fitxer de text pla i extreure'n els tokens.
+ */
 public class LexicographicAnalyzer {
     private static LexicographicAnalyzer instance;
     private static int nLine;
@@ -14,10 +18,15 @@ public class LexicographicAnalyzer {
     private static String line;
     private static Scanner file;
     private static BufferedWriter bwLex;
-
     private static Error errorManagement;
 
-
+    /**
+     * Mètode públic per a obtenir una instància de l'analitzador lexicogràfic.
+     * Com que s'utilitza el patró Singleton sempre retorna la mateixa instància.
+     * @param fileName Arxiu que conté el programa a compilar
+     * @return Instància única de {@link LexicographicAnalyzer}
+     * @throws IOException Quan no es pot obrir l'arxiu a compilar.
+     */
     public static LexicographicAnalyzer getInstance(String fileName) throws IOException {
         if (instance == null) instance = new LexicographicAnalyzer(fileName);
         return instance;
@@ -25,10 +34,14 @@ public class LexicographicAnalyzer {
 
     private int getActualLine(){ return nLine;}
 
+    /**
+     * Constructor privat de LexicographicAnalyzer. Privat a causa del patró Singleton.
+     * @param fileName Arxiu que conté el programa a compilar
+     * @throws IOException Quan no es pot obrir l'arxiu a compilar.
+     */
     private LexicographicAnalyzer(String fileName) throws IOException {
         nLine = 1;
         nChar = 0;
-
 
         //Instance of error class
         errorManagement = Error.getInstance(fileName);
@@ -47,6 +60,11 @@ public class LexicographicAnalyzer {
 
     }
 
+    /**
+     * Mètode públic per a obtenir el següent token del programa.
+     * Actua de capa intermitja entre l'obtenció d'un token i el retorn d'aquest. S'utilitza per a escriure al fitxer .lex
+     * @return Següent token de l'arxiu.
+     */
     public Token getToken() {
         Token token = nextToken();
         System.out.println(nLine + ":" + nChar
@@ -59,6 +77,10 @@ public class LexicographicAnalyzer {
         return token;
     }
 
+    /**
+     * Mètode privat que obté el següent token de l'arxiu i el retorna.
+     * @return Següent token de l'arxiu.
+     */
     private Token nextToken(){
         char character;
         int state = 0;
@@ -246,7 +268,10 @@ public class LexicographicAnalyzer {
         }
     }
 
-    public void finalize() {
+    /**
+     * Mètode per a finalitzar l'ús de l'analitzador.
+     */
+    public void close() {
         //Close error buffer
         errorManagement.closeBuffer();
         try {

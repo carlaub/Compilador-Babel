@@ -28,7 +28,7 @@ public class Main {
                 token = lexic.getToken();
             }while (token.getToken() != Type.EOF);
 
-            lexic.finalize();
+            lexic.close();
 
         } catch (IOException e) {
             System.out.println("No s'ha pogut obrir l'arxiu.");
