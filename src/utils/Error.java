@@ -36,6 +36,7 @@ public class Error {
         errorCodes = new HashMap<>();
         errorCodes.put(TypeError.ERR_LEX_1,"Unknown character");
         errorCodes.put(TypeError.WAR_LEX_1, "Max length reached");
+        errorCodes.put(TypeError.WAR_LEX_2, "String not closed");
     }
 
     public void insertLexError(TypeError error, int numLine, char character) {
@@ -46,6 +47,7 @@ public class Error {
                 case ERR_LEX_1:
                     bwErr.write("[" + error.toString() +"] "+ numLine + ", Caràcter["+character+"] desconegut\n");
                     break;
+
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -56,10 +58,17 @@ public class Error {
         try {
             //Write error into *.err file
             switch (error){
+
                 case WAR_LEX_1:
                     bwErr.write("[" + error.toString() +"] "+ numLine + ", Llargada màxima és 32 caràcters.\n");
                     bwErr.write("Canvi de "+string+" a "+string.substring(0, 31) + "\n");
                     break;
+
+                case WAR_LEX_2:
+                    bwErr.write("[" + error.toString() +"] "+ numLine + ", Falta tancar la cadena.\n");
+                    bwErr.write("Canvi de <"+string+"> a <"+string + "\">\n");
+                    break;
+
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -141,6 +141,10 @@ public class LexicographicAnalyzer {
                         lexema = lexema + character;
                         nChar++;
                         character = line.charAt(nChar);
+                        if(character == '\n'){
+                            errorManagement.insertLexError(TypeError.WAR_LEX_2, getActualLine(), lexema);
+                            return new Token(Type.CADENA, lexema+'"');
+                        }
                     }while(character != '"');
                     nChar++;
 
