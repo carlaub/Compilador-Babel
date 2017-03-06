@@ -67,8 +67,8 @@ public class LexicographicAnalyzer {
      */
     public Token getToken() {
         Token token = nextToken();
-        System.out.println(nLine + ":" + nChar
-                + "< " + token.getTokenName() + ", " + token.getLexema() + " >");
+//        System.out.println(nLine + ":" + nChar
+//                + "< " + token.getTokenName() + ", " + token.getLexema() + " >");
         try {
             bwLex.write("< " + token.getTokenName() + ", " + token.getLexema() + " >\n");
         } catch (IOException e) {
@@ -128,7 +128,7 @@ public class LexicographicAnalyzer {
                         //ERROR, INVALID CHARACTER
                         errorManagement.insertLexError(TypeError.ERR_LEX_1, getActualLine(), character);
 
-                        System.out.println("ERROR CARACTER: "+ character);
+//                        System.out.println("ERROR CARACTER: "+ character);
 
                         nChar++;
                         state = 0;
@@ -242,7 +242,7 @@ public class LexicographicAnalyzer {
                                 //CASE ONLY ".", ERROR!
                                 errorManagement.insertLexError(TypeError.ERR_LEX_1, getActualLine(), character);
 
-                                System.out.println("ERROR CARACTER: "+ character);
+//                                System.out.println("ERROR CARACTER: "+ character);
                                 state = 0;
                             }
                             break;

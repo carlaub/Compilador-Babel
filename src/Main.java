@@ -29,6 +29,7 @@ public class Main {
             }while (token.getToken() != Type.EOF);
 
             lexic.close();
+            System.out.println("Anàlisi lexicogràfic realitzat correctament.");
 
         } catch (IOException e) {
             System.out.println("No s'ha pogut obrir l'arxiu.");
