@@ -167,6 +167,10 @@ public class LexicographicAnalyzer {
                             errorManagement.insertLexError(TypeError.WAR_LEX_2, getActualLine(), lexema);
                             return new Token(Type.CADENA, lexema+'"');
                         }
+                        while (character == '\t' || character == '\r' || character == '\f'){
+                            nChar++;
+                            character = line.charAt(nChar);
+                        }
                     }while(character != '"');
                     nChar++;
 
