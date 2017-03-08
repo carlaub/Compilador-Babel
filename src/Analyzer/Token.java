@@ -53,8 +53,8 @@ public class Token {
         tokenCodes.put("AND", Type.AND);
         tokenCodes.put("OR", Type.OR);
         tokenCodes.put("NOT", Type.NOT);
-        tokenCodes.put("PERREF", Type.PERREF);
-        tokenCodes.put("PERVAL", Type.PERVAL);
+        tokenCodes.put("PERREF", Type.TIPUS_PARAM);
+        tokenCodes.put("PERVAL", Type.TIPUS_PARAM);
         tokenCodes.put("CONST", Type.CONST);
         tokenCodes.put("VAR", Type.VAR);
         tokenCodes.put("PROG", Type.PROG);

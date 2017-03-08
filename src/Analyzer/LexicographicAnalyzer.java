@@ -43,11 +43,6 @@ public class LexicographicAnalyzer {
         nLine = 1;
         nChar = 0;
 
-        //Instance of error class
-        errorManagement = Error.getInstance(fileName);
-        File lex = new File (fileName.split(Pattern.quote("."))[0] + ".lex");
-
-        bwLex = new BufferedWriter(new FileWriter(lex));
 
         //Read code
         file = new Scanner(new FileReader(fileName));
@@ -57,6 +52,11 @@ public class LexicographicAnalyzer {
             //ADD '\n'
             line = line + '\n';
         }
+
+        //Instance of error class
+        errorManagement = Error.getInstance(fileName);
+        File lex = new File (fileName.split(Pattern.quote("."))[0] + ".lex");
+        bwLex = new BufferedWriter(new FileWriter(lex));
 
     }
 

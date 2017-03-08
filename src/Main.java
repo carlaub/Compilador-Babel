@@ -1,4 +1,5 @@
 import Analyzer.LexicographicAnalyzer;
+import Analyzer.SyntacticAnalyzer;
 import Analyzer.Token;
 import Analyzer.Type;
 
@@ -20,16 +21,19 @@ public class Main {
         String filename = args[0];
 
         try {
-            LexicographicAnalyzer lexic = LexicographicAnalyzer.getInstance(filename);
+            SyntacticAnalyzer syntactic = SyntacticAnalyzer.getInstance(filename);
 
-            Token token;
-
-            do{
-                token = lexic.getToken();
-            }while (token.getToken() != Type.EOF);
-
-            lexic.close();
-            System.out.println("Anàlisi lexicogràfic realitzat correctament.");
+            syntactic.programa();
+//            LexicographicAnalyzer lexic = LexicographicAnalyzer.getInstance(filename);
+//
+//            Token token;
+//
+//            do{
+//                token = lexic.getToken();
+//            }while (token.getToken() != Type.EOF);
+//
+//            lexic.close();
+//            System.out.println("Anàlisi lexicogràfic realitzat correctament.");
 
         } catch (IOException e) {
             System.out.println("No s'ha pogut obrir l'arxiu.");
