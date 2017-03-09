@@ -24,16 +24,6 @@ public class Main {
             SyntacticAnalyzer syntactic = SyntacticAnalyzer.getInstance(filename);
 
             syntactic.programa();
-//            LexicographicAnalyzer lexic = LexicographicAnalyzer.getInstance(filename);
-//
-//            Token token;
-//
-//            do{
-//                token = lexic.getToken();
-//            }while (token.getToken() != Type.EOF);
-//
-//            lexic.close();
-//            System.out.println("Anàlisi lexicogràfic realitzat correctament.");
 
         } catch (IOException e) {
             System.out.println("No s'ha pogut obrir l'arxiu.");

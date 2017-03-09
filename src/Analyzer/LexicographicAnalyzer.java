@@ -32,7 +32,7 @@ public class LexicographicAnalyzer {
         return instance;
     }
 
-    private int getActualLine(){ return nLine;}
+    public int getActualLine(){ return nLine;}
 
     /**
      * Constructor privat de LexicographicAnalyzer. Privat a causa del patró Singleton.

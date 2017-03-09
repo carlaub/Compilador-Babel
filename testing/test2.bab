@@ -4,6 +4,7 @@ const LINIA = 3;
 //var <id>: <tipus>;
 var variable1: SENCER;
 var variable2: vector[0..10] de SENCER;
+var i: SENCER;
 
 //funcio <id>(<ll_param>): <tipus_simple>;
 //	var <id>: <tipus>;
@@ -22,8 +23,8 @@ funcio suma(perval valor1: SENCER, perval valor2: SENCER): SENCER;
 //	<ll_instr>
 //fiprog
 
+
 prog
-	var i: SENCER;
 	i=0;
 
 	mentre i<10 fer
@@ -41,8 +42,8 @@ prog
 			escriure(variable2[i]);
 		sino
 			escriure("bah");
-		fisi
-	fins i==10
+		fisi;
+	fins i==10;
 
 fiprog
 
