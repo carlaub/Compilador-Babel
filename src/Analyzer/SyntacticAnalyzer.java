@@ -50,6 +50,7 @@ public class SyntacticAnalyzer {
                 accept(Type.IGUAL);
                 exp();
                 accept(Type.SEMICOLON);
+
                 break;
             case VAR:
                 accept(Type.VAR);
@@ -130,6 +131,7 @@ public class SyntacticAnalyzer {
                 accept(Type.DE);
                 accept(Type.TIPUS_SIMPLE);
                 break;
+            default: //ERROR
         }
     }
 
@@ -139,7 +141,10 @@ public class SyntacticAnalyzer {
     }
 
     private void exp_simple() {
-        switch (lookahead.getToken()) {
+        op_unari();
+        terme();
+        terme_simple();
+        /*switch (lookahead.getToken()) {
 			//TERME
 			case SENCER_CST:
 			case LOGIC_CST:
@@ -161,13 +166,37 @@ public class SyntacticAnalyzer {
                 accept(Type.NOT);
                 terme();
                 break;
+
+            default: //ERROR
         }
-        terme_simple();
+        terme_simple();*/
+    }
+
+    private void op_unari() {
+        switch(lookahead.getToken()) {
+            case SUMA:
+                accept(Type.SUMA);
+                break;
+            case RESTA:
+                accept(Type.RESTA);
+                break;
+            case NOT:
+                accept(Type.NOT);
+                break;
+            default:
+                return;
+        }
     }
 
 	private void terme_simple(){
 		switch (lookahead.getToken()){
-			case SUMA:
+            case SUMA:
+            case RESTA:
+            case OR:
+                op_aux();
+                terme();
+                terme_simple();
+			/*case SUMA:
 				accept(Type.SUMA);
 				terme();
 				terme_simple();
@@ -181,10 +210,29 @@ public class SyntacticAnalyzer {
 				accept(Type.OR);
 				terme();
 				terme_simple();
-				break;
+				break;*/
+			    break;
 			default:return;
 		}
 	}
+
+	private void op_aux() {
+	    switch(lookahead.getToken()) {
+            case SUMA:
+                accept(Type.SUMA);
+                break;
+            case RESTA:
+                accept(Type.RESTA);
+                break;
+
+            case OR:
+                accept(Type.OR);
+                break;
+            default:
+
+                return;
+        }
+    }
 
     private void terme(){
 		switch (lookahead.getToken()) {
@@ -207,13 +255,14 @@ public class SyntacticAnalyzer {
 				accept(Type.ID);
 				factor_aux();
 				break;
+            default: //ERROR
 		}
 		terme_aux();
 	}
 
 	private void terme_aux(){
     	switch (lookahead.getToken()){
-			case MUL:
+			/*case MUL:
 				accept(Type.MUL);
 				terme();
 				break;
@@ -224,11 +273,33 @@ public class SyntacticAnalyzer {
 			case AND:
 				accept(Type.AND);
 				terme();
-				break;
+				break;*/
+            case MUL:
+            case DIV:
+            case AND:
+                op_binaria();
+                terme();
+                break;
 			default:
 				return;
 		}
 	}
+
+	private void op_binaria() {
+	    switch(lookahead.getToken()) {
+            case MUL:
+                accept(Type.MUL);
+                break;
+            case DIV:
+                accept(Type.DIV);
+                break;
+            case AND:
+                accept(Type.AND);
+                break;
+            default:
+                return;
+        }
+    }
 
 	private void factor_aux(){
     	switch (lookahead.getToken()){
@@ -252,7 +323,7 @@ public class SyntacticAnalyzer {
 				accept(Type.COMA);
 				llista_exp();
 				break;
-			default:
+			default: //ERROR
 				return;
 		}
 	}
@@ -365,7 +436,8 @@ public class SyntacticAnalyzer {
 
 	private void igual_aux(){
 		switch (lookahead.getToken()){
-			case OPARENT:
+			case SI:
+			    accept(Type.SI);
 				accept(Type.OPARENT);
 				exp();
 				accept(Type.CPARENT);
@@ -374,8 +446,17 @@ public class SyntacticAnalyzer {
 				accept(Type.COLON);
 				exp();
 				break;
+            case SUMA:
+            case RESTA:
+            case NOT:
+            case SENCER_CST:
+            case LOGIC_CST:
+            case CADENA:
+            case ID:
+            case OPARENT:
+                exp();
 			default:
-				exp();
+				//ERROR
 				break;
 		}
 	}
