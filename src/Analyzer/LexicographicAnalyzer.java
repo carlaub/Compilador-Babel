@@ -126,7 +126,7 @@ public class LexicographicAnalyzer {
                     } else {
 
                         //ERROR, INVALID CHARACTER
-                        errorManagement.insertLexError(TypeError.ERR_LEX_1, getActualLine(), character);
+                        errorManagement.insertError(TypeError.ERR_LEX_1, getActualLine(), character);
 
 //                        System.out.println("ERROR CARACTER: "+ character);
 
@@ -143,7 +143,7 @@ public class LexicographicAnalyzer {
                     }while("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_".indexOf(character) != -1);
 
                     if (lexema.length()>32){
-                        errorManagement.insertLexError(TypeError.WAR_LEX_1, nLine, lexema);
+                        errorManagement.insertError(TypeError.WAR_LEX_1, nLine, lexema);
                         lexema = lexema.substring(0,31);
                     }
 
@@ -164,7 +164,7 @@ public class LexicographicAnalyzer {
                         nChar++;
                         character = line.charAt(nChar);
                         if(character == '\n'){
-                            errorManagement.insertLexError(TypeError.WAR_LEX_2, getActualLine(), lexema);
+                            errorManagement.insertError(TypeError.WAR_LEX_2, getActualLine(), lexema);
                             return new Token(Type.CADENA, lexema+'"');
                         }
                         while (character == '\t'){
@@ -244,7 +244,7 @@ public class LexicographicAnalyzer {
                                 return new Token(Type.DPOINT, "..");
                             } else {
                                 //CASE ONLY ".", ERROR!
-                                errorManagement.insertLexError(TypeError.ERR_LEX_1, getActualLine(), character);
+                                errorManagement.insertError(TypeError.ERR_LEX_1, getActualLine(), character);
 
 //                                System.out.println("ERROR CARACTER: "+ character);
                                 state = 0;

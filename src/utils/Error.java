@@ -16,6 +16,10 @@ public class Error {
     private static Error instance;
     private static BufferedWriter bwErr;
 
+    public static Error getInstance( ) {
+        return instance;
+    }
+
     /**
      * Mètode públic per a obtenir una instància del descriptor d'errors.
      * Com que s'utilitza el patró Singleton sempre retorna la mateixa instància.
@@ -60,7 +64,7 @@ public class Error {
      * @param numLine Número de la línia on s'ha trobat l'error
      * @param character Caràcter causant de l'error
      */
-    public void insertLexError(TypeError error, int numLine, char character) {
+    public void insertError(TypeError error, int numLine, char character) {
         try {
             //Write error into *.err file
             switch (error){
@@ -68,7 +72,6 @@ public class Error {
                 case ERR_LEX_1:
                     bwErr.write("[" + error.toString() +"] "+ numLine + ", Caràcter["+character+"] desconegut\n");
                     break;
-
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -81,7 +84,7 @@ public class Error {
      * @param numLine Número de la línia on s'ha trobat l'error
      * @param string String causant de l'error
      */
-    public void insertLexError(TypeError error, int numLine, String string) {
+    public void insertError(TypeError error, int numLine, String string) {
         try {
             //Write error into *.err file
             switch (error){
@@ -95,11 +98,45 @@ public class Error {
                     bwErr.write("[" + error.toString() +"] "+ numLine + ", Falta tancar la cadena.\n");
                     bwErr.write("Canvi de <"+string+"> a <"+string + "\">\n");
                     break;
+                case ERR_SIN_1:
+                    bwErr.write("[" + error.toString() +"] "+ numLine + ", Falta tancar la cadena.\n");
+                    break;
+
 
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void insertError(TypeError error, int numLine) {
+        try {
+            switch(error) {
+                case ERR_SIN_3:
+                    bwErr.write("[" + error.toString() +"] "+ numLine + ", La construcció de la declaració de la " +
+                            "constant no és correcta.\n");
+
+                    break;
+                case ERR_SIN_4:
+                    bwErr.write("[" + error.toString() +"] "+ numLine + ", La construcció de la declaració de la " +
+                            "variable no és correcta.\n");
+                    break;
+                case ERR_SIN_5:
+                    bwErr.write("[" + error.toString() +"] "+ numLine + ", La capçalera de la funció conté errors.\n");
+                    break;
+                case ERR_SIN_6:
+                    bwErr.write("[" + error.toString() +"] "+ numLine + ", Hi ha codi després de fi del programa.\n");
+                    break;
+                case ERR_SIN_9:
+                    bwErr.write("[" + error.toString() +"] " + "El procediment principal conté errors.\n");
+                    break;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
+
+
     }
 
     /**

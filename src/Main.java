@@ -2,6 +2,7 @@ import Analyzer.LexicographicAnalyzer;
 import Analyzer.SyntacticAnalyzer;
 import Analyzer.Token;
 import Analyzer.Type;
+import utils.ParseException;
 
 import java.io.*;
 
@@ -22,7 +23,6 @@ public class Main {
 
         try {
             SyntacticAnalyzer syntactic = SyntacticAnalyzer.getInstance(filename);
-
             syntactic.programa();
 
         } catch (IOException e) {

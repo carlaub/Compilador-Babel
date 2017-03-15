@@ -1,5 +1,8 @@
 package Analyzer;
 
+import utils.*;
+import utils.Error;
+
 import java.io.IOException;
 
 import static Analyzer.Type.SUMA;
@@ -8,6 +11,9 @@ public class SyntacticAnalyzer {
     private static SyntacticAnalyzer instance;
     private static LexicographicAnalyzer lexic;
     private static Token lookahead;
+    private static Error error;
+
+    private static Type[] cjn_var = {Type.SEMICOLON, Type.FUNCIO, Type.VAR, Type.CONST, Type.PROG};
 
     public static SyntacticAnalyzer getInstance(String fileName) throws IOException {
         if (instance == null) instance = new SyntacticAnalyzer(fileName);
@@ -16,55 +22,92 @@ public class SyntacticAnalyzer {
 
     private SyntacticAnalyzer(String fileName) throws IOException {
 		lexic = LexicographicAnalyzer.getInstance(fileName);
+		error = Error.getInstance();
 	}
 
-    private void accept(Type type) {
+    private void accept(Type type) throws ParseException{
     	System.out.println(lexic.getActualLine()+": "+type+" - "+lookahead.getToken());
 		if(lookahead.getToken() == type){
 			lookahead = lexic.getToken();
 
 		}else{
 			System.out.println("ERROR");
+			throw new ParseException(TypeError.ERR_SIN_1);
 		}
     }
+
+    private void consumer(Type[] cnj) {
+    	do {
+    		for(Type token : cnj){
+    			if (token == lookahead.getToken()) {
+    				return;
+				}
+			}
+			lookahead = lexic.getToken();
+		} while(lookahead.getToken() != Type.EOF);
+	}
 
     public void programa () {
         lookahead = lexic.getToken();
 
-        decl();
-        accept(Type.PROG);
-        llista_inst();
-        accept(Type.FIPROG);
+        try {
+			decl();
+			accept(Type.PROG);
+			llista_inst();
+			accept(Type.FIPROG);
+			try{
+				accept(Type.EOF);
+			}catch (ParseException e){
+				error.insertError(TypeError.ERR_SIN_6, lexic.getActualLine());
+			}
+		} catch (ParseException e) {
+			error.insertError(TypeError.ERR_SIN_9, 0);
+		}
+
+		lexic.close();
+
     }
 
-    private void decl() {
+    private void decl() throws ParseException {
         decl_cte_var();
         decl_func();
     }
 
-    private void decl_cte_var() {
+    private void decl_cte_var() throws ParseException{
         switch(lookahead.getToken()) {
             case CONST:
                 accept(Type.CONST);
-                accept(Type.ID);
-                accept(Type.IGUAL);
-                exp();
-                accept(Type.SEMICOLON);
+                try {
+					accept(Type.ID);
+					accept(Type.IGUAL);
+					exp();
+					accept(Type.SEMICOLON);
+				} catch (ParseException e) {
+					error.insertError(TypeError.ERR_SIN_3, lexic.getActualLine());
+					e.printStackTrace();
+				}
+
 
                 break;
             case VAR:
                 accept(Type.VAR);
-                accept(Type.ID);
-                accept(Type.COLON);
-                tipus();
-                accept(Type.SEMICOLON);
+                try {
+					accept(Type.ID);
+					accept(Type.COLON);
+					tipus();
+					accept(Type.SEMICOLON);
+				} catch (ParseException e) {
+					error.insertError(TypeError.ERR_SIN_4, lexic.getActualLine());
+					e.printStackTrace();
+				}
+
                 break;
             default: return;
         }
         decl_cte_var();
     }
 
-    private void decl_func() {
+    private void decl_func() throws ParseException{
         switch (lookahead.getToken()) {
             case FUNCIO:
                 accept(Type.FUNCIO);
@@ -87,7 +130,7 @@ public class SyntacticAnalyzer {
     }
 
 
-    private void llista_param() {
+    private void llista_param() throws ParseException {
         switch (lookahead.getToken()) {
             case TIPUS_PARAM:
                 llista_param_aux();
@@ -97,7 +140,7 @@ public class SyntacticAnalyzer {
 
     }
 
-    private void llista_param_aux() {
+    private void llista_param_aux() throws ParseException{
         accept(Type.TIPUS_PARAM);
         accept(Type.ID);
         accept(Type.COLON);
@@ -106,7 +149,7 @@ public class SyntacticAnalyzer {
 
     }
 
-    private void param_aux() {
+    private void param_aux() throws ParseException {
         switch (lookahead.getToken()) {
             case COMA:
                 accept(Type.COMA);
@@ -116,7 +159,7 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private void tipus() {
+    private void tipus() throws ParseException {
         switch (lookahead.getToken()) {
             case TIPUS_SIMPLE:
                 accept(Type.TIPUS_SIMPLE);
@@ -135,44 +178,19 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private void exp() {
+    private void exp() throws ParseException {
         exp_simple();
         exp_aux();
     }
 
-    private void exp_simple() {
+    private void exp_simple() throws ParseException {
         op_unari();
         terme();
         terme_simple();
-        /*switch (lookahead.getToken()) {
-			//TERME
-			case SENCER_CST:
-			case LOGIC_CST:
-			case CADENA:
-			case OPARENT:
-			case ID:
-				terme();
-				break;
-            //EXP_SIMPLE
-            case SUMA:
-                accept(SUMA);
-                terme();
-                break;
-            case RESTA:
-                accept(Type.RESTA);
-                terme();
-                break;
-            case NOT:
-                accept(Type.NOT);
-                terme();
-                break;
 
-            default: //ERROR
-        }
-        terme_simple();*/
     }
 
-    private void op_unari() {
+    private void op_unari() throws ParseException {
         switch(lookahead.getToken()) {
             case SUMA:
                 accept(Type.SUMA);
@@ -188,7 +206,7 @@ public class SyntacticAnalyzer {
         }
     }
 
-	private void terme_simple(){
+	private void terme_simple() throws ParseException {
 		switch (lookahead.getToken()){
             case SUMA:
             case RESTA:
@@ -196,27 +214,13 @@ public class SyntacticAnalyzer {
                 op_aux();
                 terme();
                 terme_simple();
-			/*case SUMA:
-				accept(Type.SUMA);
-				terme();
-				terme_simple();
-				break;
-			case RESTA:
-				accept(Type.RESTA);
-				terme();
-				terme_simple();
-				break;
-			case OR:
-				accept(Type.OR);
-				terme();
-				terme_simple();
-				break;*/
+
 			    break;
 			default:return;
 		}
 	}
 
-	private void op_aux() {
+	private void op_aux() throws ParseException {
 	    switch(lookahead.getToken()) {
             case SUMA:
                 accept(Type.SUMA);
@@ -234,7 +238,7 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private void terme(){
+    private void terme() throws ParseException {
 		switch (lookahead.getToken()) {
 			//FACTOR
 			case SENCER_CST:
@@ -260,20 +264,8 @@ public class SyntacticAnalyzer {
 		terme_aux();
 	}
 
-	private void terme_aux(){
+	private void terme_aux() throws ParseException {
     	switch (lookahead.getToken()){
-			/*case MUL:
-				accept(Type.MUL);
-				terme();
-				break;
-			case DIV:
-				accept(Type.DIV);
-				terme();
-				break;
-			case AND:
-				accept(Type.AND);
-				terme();
-				break;*/
             case MUL:
             case DIV:
             case AND:
@@ -285,7 +277,7 @@ public class SyntacticAnalyzer {
 		}
 	}
 
-	private void op_binaria() {
+	private void op_binaria() throws ParseException {
 	    switch(lookahead.getToken()) {
             case MUL:
                 accept(Type.MUL);
@@ -301,7 +293,7 @@ public class SyntacticAnalyzer {
         }
     }
 
-	private void factor_aux(){
+	private void factor_aux() throws ParseException {
     	switch (lookahead.getToken()){
 			case OPARENT:
 				accept(Type.OPARENT);
@@ -316,7 +308,7 @@ public class SyntacticAnalyzer {
     	}
 	}
 
-	private void llista_exp(){
+	private void llista_exp() throws ParseException {
 		exp();
 		switch (lookahead.getToken()){
 			case COMA:
@@ -328,7 +320,7 @@ public class SyntacticAnalyzer {
 		}
 	}
 
-	private void variable_aux(){
+	private void variable_aux() throws ParseException {
 		switch (lookahead.getToken()){
 			case OCLAU:
 				accept(Type.OCLAU);
@@ -340,7 +332,7 @@ public class SyntacticAnalyzer {
 		}
 	}
 
-    private void exp_aux() {
+    private void exp_aux() throws ParseException {
         switch(lookahead.getToken()) {
             case OP_RELACIONAL:
                 accept(Type.OP_RELACIONAL);
@@ -350,14 +342,14 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private void llista_inst() {
+    private void llista_inst() throws ParseException{
 		inst();
 
 		accept(Type.SEMICOLON);
 		llista_inst_aux();
     }
 
-    private void llista_inst_aux(){
+    private void llista_inst_aux() throws ParseException{
 		switch (lookahead.getToken()){
 			case ID:
 			case ESCRIURE:
@@ -374,7 +366,7 @@ public class SyntacticAnalyzer {
 		}
 	}
 
-	private void inst(){
+	private void inst() throws ParseException{
 		switch (lookahead.getToken()) {
 			case ID:
 				accept(Type.ID);
@@ -434,7 +426,7 @@ public class SyntacticAnalyzer {
 		}
 	}
 
-	private void igual_aux(){
+	private void igual_aux() throws ParseException{
 		switch (lookahead.getToken()){
 			case SI:
 			    accept(Type.SI);
@@ -461,7 +453,7 @@ public class SyntacticAnalyzer {
 		}
 	}
 
-	private void param_escriure(){
+	private void param_escriure() throws ParseException{
 		exp();
 		switch (lookahead.getToken()){
 			case COMA:
@@ -473,7 +465,7 @@ public class SyntacticAnalyzer {
 		}
 	}
 
-	private void param_llegir(){
+	private void param_llegir() throws ParseException{
 		accept(Type.ID);
 		variable_aux();
 		switch (lookahead.getToken()){
@@ -486,7 +478,7 @@ public class SyntacticAnalyzer {
 		}
 	}
 
-	private void fi_aux(){
+	private void fi_aux() throws ParseException{
 		switch (lookahead.getToken()){
 			case SINO:
 				accept(Type.SINO);
