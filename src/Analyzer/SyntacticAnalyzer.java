@@ -4,16 +4,23 @@ import utils.*;
 import utils.Error;
 
 import java.io.IOException;
-
-import static Analyzer.Type.SUMA;
+import java.util.Arrays;
 
 public class SyntacticAnalyzer {
     private static SyntacticAnalyzer instance;
     private static LexicographicAnalyzer lexic;
     private static Token lookahead;
     private static Error error;
+    //Si agafem el valor de la línia de l'últim token acceptat correctament aleshores encertarem la línia si
+	//l'usuari s'ha deixat el SEMICOLON
+	//Crec que com a paràmetre de nLina hauriem de passar:
+	// - Si es tracta d'un error a accept: la línia de l'últim token correcte
+	// - Si es tracta d'un error a un default (no hi ha E però s'hi ha arribat): lexic.getActualLine()
+	//El primer cas és per evitar l'error en cas de que falti l'últim token mentre que el segon pel cas en que falti el primer
+//    private static int errorLine = 0;
 
-    private static Type[] cjn_var = {Type.SEMICOLON, Type.FUNCIO, Type.VAR, Type.CONST, Type.PROG};
+    private static Type[] cjn_var_const = {Type.SEMICOLON, Type.FUNCIO, Type.VAR, Type.CONST, Type.PROG};
+	private static Type[] cjn_decl_func = {Type.SEMICOLON, Type.FUNC, Type.VAR, Type.CONST};
 
     public static SyntacticAnalyzer getInstance(String fileName) throws IOException {
         if (instance == null) instance = new SyntacticAnalyzer(fileName);
@@ -27,24 +34,29 @@ public class SyntacticAnalyzer {
 
     private void accept(Type type) throws ParseException{
     	System.out.println(lexic.getActualLine()+": "+type+" - "+lookahead.getToken());
-		if(lookahead.getToken() == type){
+		if(lookahead.getToken().equals(type)){
+//			errorLine = lexic.getActualLine();
 			lookahead = lexic.getToken();
-
 		}else{
 			System.out.println("ERROR");
 			throw new ParseException(TypeError.ERR_SIN_1);
 		}
     }
 
-    private void consumer(Type[] cnj) {
+    private void consume(Type[] cnj) {
     	do {
-    		for(Type token : cnj){
-    			if (token == lookahead.getToken()) {
-    				return;
-				}
+			if(Arrays.asList(cnj).contains(lookahead.getToken())){
+				return;
 			}
+//			for(Type token : cnj){
+//    			if (lookahead.getToken().equals(token)) {
+//    				return;
+//				}
+//			}
 			lookahead = lexic.getToken();
-		} while(lookahead.getToken() != Type.EOF);
+
+		} while(!lookahead.getToken().equals(Type.EOF));
+    	System.out.println("FOUND EOF");
 	}
 
     public void programa () {
@@ -61,7 +73,7 @@ public class SyntacticAnalyzer {
 				error.insertError(TypeError.ERR_SIN_6, lexic.getActualLine());
 			}
 		} catch (ParseException e) {
-			error.insertError(TypeError.ERR_SIN_9, 0);
+			error.insertError(TypeError.ERR_SIN_9, lexic.getActualLine());
 		}
 
 		lexic.close();
@@ -83,11 +95,13 @@ public class SyntacticAnalyzer {
 					exp();
 					accept(Type.SEMICOLON);
 				} catch (ParseException e) {
+                	//Si l'exepció salta a accept(SEMICOLON) es mostra el número de línia del següent token
 					error.insertError(TypeError.ERR_SIN_3, lexic.getActualLine());
-					e.printStackTrace();
+//					error.insertError(TypeError.ERR_SIN_3, errorLine);
+					consume(cjn_var_const);
+					//Ens mengem el SEMICOLON per a començar la següent instrucció
+					if(lookahead.getToken().equals(Type.SEMICOLON)) lookahead = lexic.getToken();
 				}
-
-
                 break;
             case VAR:
                 accept(Type.VAR);
@@ -97,8 +111,10 @@ public class SyntacticAnalyzer {
 					tipus();
 					accept(Type.SEMICOLON);
 				} catch (ParseException e) {
+					//Si l'exepció salta a accept(SEMICOLON) es mostra el número de línia del següent token
 					error.insertError(TypeError.ERR_SIN_4, lexic.getActualLine());
-					e.printStackTrace();
+					consume(cjn_var_const);
+					if(lookahead.getToken().equals(Type.SEMICOLON)) lookahead = lexic.getToken();
 				}
 
                 break;
@@ -110,19 +126,50 @@ public class SyntacticAnalyzer {
     private void decl_func() throws ParseException{
         switch (lookahead.getToken()) {
             case FUNCIO:
-                accept(Type.FUNCIO);
-                accept(Type.ID);
-                accept(Type.OPARENT);
-                llista_param();
-                accept(Type.CPARENT);
-                accept(Type.COLON);
-                accept(Type.TIPUS_SIMPLE);
-                accept(Type.SEMICOLON);
-                decl_cte_var();
+				accept(Type.FUNCIO);
+				//Sabies que amb "sout<TAB>" s'escriu "System.out.println();" ? Ho acabo de descobrir
+				try {
+					accept(Type.ID);
+					accept(Type.OPARENT);
+					llista_param();
+					accept(Type.CPARENT);
+					accept(Type.COLON);
+					accept(Type.TIPUS_SIMPLE);
+					accept(Type.SEMICOLON);
+				}catch (ParseException e){
+					error.insertError(TypeError.ERR_SIN_5, lexic.getActualLine());
+					consume(cjn_decl_func);
+					if(lookahead.getToken().equals(Type.SEMICOLON)) lookahead = lexic.getToken();
+				}
+				decl_cte_var();
+
                 accept(Type.FUNC);
+
                 llista_inst();
-                accept(Type.FIFUNC);
-                accept(Type.SEMICOLON);
+
+                //Realment necessaria tanta merda per tant poca cosa?
+				//Si volem diferenciar entre ERR_SIN_1 i ERR_SIN_2 me parece que si...
+				try{
+					accept(Type.FIFUNC);
+				}catch (ParseException e){
+					try{
+						accept(Type.SEMICOLON);
+						error.insertError(TypeError.ERR_SIN_2, lexic.getActualLine(), Type.FIFUNC);
+						decl_func();	//Atenció a la guarrada
+						break;
+					}catch (ParseException f){
+						error.insertError(TypeError.ERR_SIN_1, lexic.getActualLine(), new Type[]{Type.FIFUNC}, lookahead.getToken());
+						consume(new Type[]{Type.SEMICOLON, Type.PROG, Type.FUNC});
+					}
+				}
+				try{
+					accept(Type.SEMICOLON);
+				}catch (ParseException e){
+					error.insertError(TypeError.ERR_SIN_1, lexic.getActualLine(), new Type[]{Type.SEMICOLON}, lookahead.getToken());
+					consume(new Type[]{Type.SEMICOLON, Type.PROG, Type.FUNC});
+					if(lookahead.getToken().equals(Type.SEMICOLON)) lookahead = lexic.getToken();
+				}
+
                 decl_func();
                 break;
             default: return;
@@ -175,6 +222,7 @@ public class SyntacticAnalyzer {
                 accept(Type.TIPUS_SIMPLE);
                 break;
             default: //ERROR
+				throw new ParseException(TypeError.ERR_SIN_1);
         }
     }
 
@@ -259,7 +307,8 @@ public class SyntacticAnalyzer {
 				accept(Type.ID);
 				factor_aux();
 				break;
-            default: //ERROR
+            default: //ERROR - CODI PENDENT DE REVISIÓ
+				throw new ParseException(TypeError.ERR_SIN_8);
 		}
 		terme_aux();
 	}
