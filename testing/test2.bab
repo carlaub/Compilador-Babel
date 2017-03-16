@@ -30,8 +30,7 @@ prog
 
 	mentre i<10 fer
 		escriure("Resultat de ", i, "+", 10-i, ": ", suma(i,10-i));
-		i=i+1;
-
+		i=i+1;	//Si traiem el '+' peta
 	fimentre;
 
 	percada valor en variable2 fer

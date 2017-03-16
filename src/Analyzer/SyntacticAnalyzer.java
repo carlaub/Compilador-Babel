@@ -19,9 +19,11 @@ public class SyntacticAnalyzer {
 	//El primer cas és per evitar l'error en cas de que falti l'últim token mentre que el segon pel cas en que falti el primer
 //    private static int errorLine = 0;
 
-    private static Type[] cjn_var_const = {Type.SEMICOLON, Type.FUNCIO, Type.VAR, Type.CONST, Type.PROG};
-	private static Type[] cjn_decl_func = {Type.SEMICOLON, Type.FUNC, Type.VAR, Type.CONST};
-	private static Type[] cjn_exp = {Type.SUMA, Type.RESTA, Type.NOT, Type.SENCER_CST, Type.LOGIC_CST, Type.CADENA, Type.ID, Type.OPARENT, Type.SEMICOLON};
+    private static Type[] cnj_var_const = {Type.SEMICOLON, Type.FUNCIO, Type.VAR, Type.CONST, Type.PROG};
+	private static Type[] cnj_decl_func = {Type.SEMICOLON, Type.FUNC, Type.VAR, Type.CONST};
+	private static Type[] cnj_exp = {Type.SUMA, Type.RESTA, Type.NOT, Type.SENCER_CST, Type.LOGIC_CST, Type.CADENA, Type.ID, Type.OPARENT, Type.SEMICOLON};
+	private static Type[] cnj_inst = {Type.SEMICOLON, Type.ID, Type.ESCRIURE, Type.LLEGIR, Type.CICLE, Type.MENTRE, Type.SI, Type.RETORNAR, Type.PERCADA,
+			Type.FIPER, Type.FISI, Type.FIMENTRE, Type.SINO, Type.FINS};
 
     public static SyntacticAnalyzer getInstance(String fileName) throws IOException {
         if (instance == null) instance = new SyntacticAnalyzer(fileName);
@@ -95,7 +97,7 @@ public class SyntacticAnalyzer {
                 	//Si l'exepció salta a accept(SEMICOLON) es mostra el número de línia del següent token
 					error.insertError(TypeError.ERR_SIN_3, lexic.getActualLine());
 //					error.insertError(TypeError.ERR_SIN_3, errorLine);
-					consume(cjn_var_const);
+					consume(cnj_var_const);
 					//Ens mengem el SEMICOLON per a començar la següent instrucció
 					if(lookahead.getToken().equals(Type.SEMICOLON)) lookahead = lexic.getToken();
 				}
@@ -110,7 +112,7 @@ public class SyntacticAnalyzer {
 				} catch (ParseException e) {
 					//Si l'exepció salta a accept(SEMICOLON) es mostra el número de línia del següent token
 					error.insertError(TypeError.ERR_SIN_4, lexic.getActualLine());
-					consume(cjn_var_const);
+					consume(cnj_var_const);
 					if(lookahead.getToken().equals(Type.SEMICOLON)) lookahead = lexic.getToken();
 				}
 
@@ -135,7 +137,7 @@ public class SyntacticAnalyzer {
 					accept(Type.SEMICOLON);
 				}catch (ParseException e){
 					error.insertError(TypeError.ERR_SIN_5, lexic.getActualLine());
-					consume(cjn_decl_func);
+					consume(cnj_decl_func);
 					if(lookahead.getToken().equals(Type.SEMICOLON)) lookahead = lexic.getToken();
 				}
 				decl_cte_var();
@@ -229,8 +231,8 @@ public class SyntacticAnalyzer {
     	try{
 			exp_simple();
 		}catch (ParseException e){
-    		error.insertError(TypeError.ERR_SIN_8, lexic.getActualLine(), cjn_exp, lookahead.getToken());
-    		consume(cjn_exp);
+    		error.insertError(TypeError.ERR_SIN_8, lexic.getActualLine(), cnj_exp, lookahead.getToken());
+    		consume(cnj_exp);
 		}
 		exp_aux();	//No salta excepció
     }
@@ -266,7 +268,6 @@ public class SyntacticAnalyzer {
                 op_aux();
                 terme();
                 terme_simple();
-
 			    break;
 			default:return;
 		}
@@ -398,8 +399,12 @@ public class SyntacticAnalyzer {
     private void llista_inst() throws ParseException{
 
 		inst();
-
-    	accept(Type.SEMICOLON);
+		try{
+			accept(Type.SEMICOLON);
+		} catch (ParseException e){
+			error.insertError(TypeError.ERR_SIN_2, lexic.getActualLine(), Type.SEMICOLON);
+			consume(cnj_inst);
+		}
 		llista_inst_aux();
     }
 
@@ -430,9 +435,7 @@ public class SyntacticAnalyzer {
 					igual_aux();
 				}catch (ParseException e){
 					error.insertError(TypeError.ERR_SIN_7, lexic.getActualLine(), Type.ID);
-					consume(new Type[]{Type.SEMICOLON, Type.ID, Type.ESCRIURE, Type.LLEGIR,
-							Type.CICLE, Type.MENTRE, Type.SI, Type.RETORNAR, Type.PERCADA,
-							Type.FIPER, Type.FISI, Type.FIMENTRE, Type.SINO, Type.FINS});
+					consume(cnj_inst);
 				}
 				break;
 			case ESCRIURE:
