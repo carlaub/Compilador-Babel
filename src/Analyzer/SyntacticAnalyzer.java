@@ -47,10 +47,11 @@ public class SyntacticAnalyzer {
     private void consume(Type[] cnj) {
     	do {
     		//TODO: arreglar aquest getToken().
-			lookahead = lexic.getToken();
+			//lookahead = lexic.getToken();
 			if(Arrays.asList(cnj).contains(lookahead.getToken())){
 				return;
 			}
+			lookahead = lexic.getToken();
 		} while(!lookahead.getToken().equals(Type.EOF));
     	System.out.println("FOUND EOF");
 	}
