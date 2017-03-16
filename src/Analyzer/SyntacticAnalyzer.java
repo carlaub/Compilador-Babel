@@ -21,6 +21,7 @@ public class SyntacticAnalyzer {
 
     private static Type[] cjn_var_const = {Type.SEMICOLON, Type.FUNCIO, Type.VAR, Type.CONST, Type.PROG};
 	private static Type[] cjn_decl_func = {Type.SEMICOLON, Type.FUNC, Type.VAR, Type.CONST};
+	private static Type[] cjn_exp = {Type.SUMA, Type.RESTA, Type.NOT, Type.SENCER_CST, Type.LOGIC_CST, Type.CADENA, Type.ID, Type.OPARENT, Type.SEMICOLON};
 
     public static SyntacticAnalyzer getInstance(String fileName) throws IOException {
         if (instance == null) instance = new SyntacticAnalyzer(fileName);
@@ -33,7 +34,7 @@ public class SyntacticAnalyzer {
 	}
 
     private void accept(Type type) throws ParseException{
-    	System.out.println(lexic.getActualLine()+": "+type+" - "+lookahead.getToken());
+    	System.out.println(lexic.getActualLine()+": "+ "Espera: "+ type+" - "+ "Rep: "+lookahead.getToken());
 		if(lookahead.getToken().equals(type)){
 //			errorLine = lexic.getActualLine();
 			lookahead = lexic.getToken();
@@ -45,16 +46,11 @@ public class SyntacticAnalyzer {
 
     private void consume(Type[] cnj) {
     	do {
+    		//TODO: arreglar aquest getToken().
+			lookahead = lexic.getToken();
 			if(Arrays.asList(cnj).contains(lookahead.getToken())){
 				return;
 			}
-//			for(Type token : cnj){
-//    			if (lookahead.getToken().equals(token)) {
-//    				return;
-//				}
-//			}
-			lookahead = lexic.getToken();
-
 		} while(!lookahead.getToken().equals(Type.EOF));
     	System.out.println("FOUND EOF");
 	}
@@ -149,6 +145,8 @@ public class SyntacticAnalyzer {
 
                 //Realment necessaria tanta merda per tant poca cosa?
 				//Si volem diferenciar entre ERR_SIN_1 i ERR_SIN_2 me parece que si...
+//				accept(Type.FIFUNC);
+//				accept(Type.SEMICOLON);
 				try{
 					accept(Type.FIFUNC);
 				}catch (ParseException e){
@@ -227,8 +225,13 @@ public class SyntacticAnalyzer {
     }
 
     private void exp() throws ParseException {
-        exp_simple();
-        exp_aux();
+    	try{
+			exp_simple();
+		}catch (ParseException e){
+    		error.insertError(TypeError.ERR_SIN_8, lexic.getActualLine(), cjn_exp, lookahead.getToken());
+    		consume(cjn_exp);
+		}
+		exp_aux();	//No salta excepció
     }
 
     private void exp_simple() throws ParseException {
@@ -392,9 +395,10 @@ public class SyntacticAnalyzer {
     }
 
     private void llista_inst() throws ParseException{
+
 		inst();
 
-		accept(Type.SEMICOLON);
+    	accept(Type.SEMICOLON);
 		llista_inst_aux();
     }
 
@@ -419,42 +423,69 @@ public class SyntacticAnalyzer {
 		switch (lookahead.getToken()) {
 			case ID:
 				accept(Type.ID);
-				variable_aux();
-				accept(Type.IGUAL);
-				igual_aux();
+				try {
+					variable_aux();
+					accept(Type.IGUAL);
+					igual_aux();
+				}catch (ParseException e){
+					error.insertError(TypeError.ERR_SIN_7, lexic.getActualLine(), Type.ID);
+					consume(new Type[]{Type.SEMICOLON, Type.ID, Type.ESCRIURE, Type.LLEGIR,
+							Type.CICLE, Type.MENTRE, Type.SI, Type.RETORNAR, Type.PERCADA,
+							Type.FIPER, Type.FISI, Type.FIMENTRE, Type.SINO, Type.FINS});
+				}
 				break;
 			case ESCRIURE:
 				accept(Type.ESCRIURE);
-				accept(Type.OPARENT);
-				param_escriure();
-				accept(Type.CPARENT);
+				try{
+					accept(Type.OPARENT);
+					param_escriure();
+					accept(Type.CPARENT);
+				}catch (ParseException e){
+					error.insertError(TypeError.ERR_SIN_7, lexic.getActualLine(), Type.ESCRIURE);
+				}
 				break;
 			case LLEGIR:
 				accept(Type.LLEGIR);
-				accept(Type.OPARENT);
-				param_llegir();
-				accept(Type.CPARENT);
+				try{
+					accept(Type.OPARENT);
+					param_llegir();
+					accept(Type.CPARENT);
+				}catch (ParseException e){
+					error.insertError(TypeError.ERR_SIN_7, lexic.getActualLine(), Type.LLEGIR);
+				}
 				break;
 			case CICLE:
 				accept(Type.CICLE);
-				llista_inst();
-				accept(Type.FINS);
-				exp();
+				try{
+					llista_inst();
+					accept(Type.FINS);
+					exp();
+				}catch (ParseException e){
+					error.insertError(TypeError.ERR_SIN_7, lexic.getActualLine(), Type.CICLE);
+				}
 				break;
 			case MENTRE:
 				accept(Type.MENTRE);
-				exp();
-				accept(Type.FER);
-				llista_inst();
-				accept(Type.FIMENTRE);
+				try{
+					exp();
+					accept(Type.FER);
+					llista_inst();
+					accept(Type.FIMENTRE);
+				}catch (ParseException e){
+					error.insertError(TypeError.ERR_SIN_7, lexic.getActualLine(), Type.MENTRE);
+				}
 				break;
 			case SI:
 				accept(Type.SI);
-				exp();
-				accept(Type.LLAVORS);
-				llista_inst();
-				fi_aux();
-				accept(Type.FISI);
+				try {
+					exp();
+					accept(Type.LLAVORS);
+					llista_inst();
+					fi_aux();
+					accept(Type.FISI);
+				}catch (ParseException e){
+					error.insertError(TypeError.ERR_SIN_7, lexic.getActualLine(), Type.SI);
+				}
 				break;
 			case RETORNAR:
 				accept(Type.RETORNAR);
@@ -462,16 +493,20 @@ public class SyntacticAnalyzer {
 				break;
 			case PERCADA:
 				accept(Type.PERCADA);
-				accept(Type.ID);
-				accept(Type.EN);
-				accept(Type.ID);
-				accept(Type.FER);
-				llista_inst();
-				accept(Type.FIPER);
+				try{
+					accept(Type.ID);
+					accept(Type.EN);
+					accept(Type.ID);
+					accept(Type.FER);
+					llista_inst();
+					accept(Type.FIPER);
+				}catch (ParseException e){
+					error.insertError(TypeError.ERR_SIN_7, lexic.getActualLine(), Type.PERCADA);
+				}
 				break;
 			default:
 				//ERROR
-				return;
+				throw new ParseException(TypeError.ERR_SIN_7);
 		}
 	}
 
