@@ -169,6 +169,8 @@ public class Error {
                 case ERR_SIN_9:
                     bwErr.write("[" + error +"] " + "El procediment principal conté errors.\n");
                     break;
+				case ERR_SIN_10:
+					bwErr.write("[" + error +"] "+ numLine  + ", El format de la instrucció és invàlid.\n");
             }
         } catch (IOException e) {
             e.printStackTrace();
