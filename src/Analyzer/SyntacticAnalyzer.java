@@ -404,6 +404,7 @@ public class SyntacticAnalyzer {
 		} catch (ParseException e){
 			error.insertError(TypeError.ERR_SIN_2, lexic.getActualLine(), Type.SEMICOLON);
 			consume(cnj_inst);
+            if(lookahead.getToken().equals(Type.SEMICOLON)) lookahead = lexic.getToken();
 		}
 		llista_inst_aux();
     }
