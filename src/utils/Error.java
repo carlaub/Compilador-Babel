@@ -141,7 +141,7 @@ public class Error {
 					bwErr.write("[" + error +"] "+ numLine + ", Falta el token " + token+".\n");
 					break;
 				case ERR_SIN_7:
-					bwErr.write("[" + error +"] "+ numLine+", Instrucció "+token+" mal construida.\n");
+					bwErr.write("[" + error +"] "+ numLine+", Construcció d'instrucció "+token+" incorrecta.\n");
 					break;
 			}
 		} catch (IOException e) {

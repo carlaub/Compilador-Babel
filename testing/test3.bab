@@ -1,0 +1,25 @@
+const Num = 4;
+var edat : SENCER;
+const num2 = 23;
+var var1 : vector [0..12] de LOGIC;
+
+funcio sumaEdat(perref var2: SENCER, perval edat1 : SENCER, perval edat2: SENCER): SENCER;
+	var resultat: SENCER;
+	func
+		resultat = edat1+edat2;
+		retornar resultat;
+	fifunc;
+
+prog
+
+    si edat ==  llavors
+		escriure("patata");
+    fisi;
+
+    mentre x  2 fer
+        x = x + 1;
+    fimentre;
+
+fiprog
+
+
