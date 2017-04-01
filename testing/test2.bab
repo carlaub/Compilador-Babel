@@ -13,7 +13,7 @@ var i: SENCER;
 //		<ll_instr>	
 //	fifunc;
 
-funcio suma(perval valor1: SENCER, perval valor2: SENCER): SENCER;
+funcio sumaperval valor1: SENCER, perval valor2: SENCER): SENCER;
 	var resultat: SENCER;
 	func
 		resultat = valor1+valor2;

@@ -11,6 +11,12 @@ public class SyntacticAnalyzer {
     private static LexicographicAnalyzer lexic;
     private static Token lookahead;
     private static Error error;
+
+	private static int nCicle = 0;	//cicle, mentre, si, percada (no té sentit controlar funció)
+	private static int nMentre = 0;
+	private static int nSi = 0;
+	private static int nPercada = 0;
+
     //Si agafem el valor de la línia de l'últim token acceptat correctament aleshores encertarem la línia si
 	//l'usuari s'ha deixat el SEMICOLON
 	//Crec que com a paràmetre de nLina hauriem de passar:
@@ -21,11 +27,11 @@ public class SyntacticAnalyzer {
 
     private static Type[] cnj_var_const = {Type.SEMICOLON, Type.FUNCIO, Type.VAR, Type.CONST, Type.PROG, Type.FUNC, Type.EOF};
 	private static Type[] cnj_var_const_prev = {Type.FUNCIO, Type.VAR, Type.CONST, Type.PROG, Type.FUNC, Type.EOF};
-	private static Type[] cnj_decl_func = {Type.SEMICOLON, Type.FUNCIO, Type.PROG, Type.EOF};
+	private static Type[] cnj_decl_func = {Type.SEMICOLON, Type.FUNCIO, Type.PROG, Type.EOF, Type.FUNC};
 	private static Type[] cnj_decl_func_prev = {Type.PROG, Type.FUNCIO, Type.EOF};
 	private static Type[] cnj_exp = {Type.SUMA, Type.RESTA, Type.NOT, Type.SENCER_CST, Type.LOGIC_CST, Type.CADENA, Type.ID, Type.OPARENT, Type.SEMICOLON, Type.EOF};
 	private static Type[] cnj_inst = {Type.SEMICOLON, Type.ID, Type.ESCRIURE, Type.LLEGIR, Type.CICLE, Type.MENTRE, Type.SI, Type.RETORNAR, Type.PERCADA,
-			Type.FIPER, Type.FISI, Type.FIMENTRE, Type.SINO, Type.FINS, Type.EOF};
+			Type.FIPER, Type.FISI, Type.FIMENTRE, Type.SINO, Type.FINS, Type.EOF, Type.FIPROG};
 	private static Type[] cnj_inst_prev = {Type.ID, Type.ESCRIURE, Type.LLEGIR, Type.CICLE, Type.MENTRE, Type.SI, Type.RETORNAR, Type.PERCADA,
 			Type.FIPER, Type.FISI, Type.FIMENTRE, Type.SINO, Type.FINS, Type.FIFUNC, Type.FIPROG, Type.EOF};
 
@@ -158,13 +164,14 @@ public class SyntacticAnalyzer {
 					if(lookahead.getToken().equals(Type.SEMICOLON)) lookahead = lexic.getToken();
 				}
 				decl_cte_var();
-
-                accept(Type.FUNC);
+				try {
+					accept(Type.FUNC);
+				} catch (ParseException e){
+					consume(cnj_inst_prev);
+				}
 
                 llista_inst();
 
-                //Realment necessaria tanta merda per tant poca cosa?
-				//Si volem diferenciar entre ERR_SIN_1 i ERR_SIN_2 me parece que si...
 				try {
 					accept(Type.FIFUNC);
 					accept(Type.SEMICOLON);
@@ -436,7 +443,43 @@ public class SyntacticAnalyzer {
 				llista_inst();
 				break;
 			default:
-				return;
+				//COMPROVAR SI ES TRACTA DEL FINAL D'UNA ESTRUCTURA.
+				//SI N > 0 TOT BÉ, SI N == 0 LIADA. EN TEORIA NO S'HAURIA DE PODER DONAR EL N < 0.
+				//També podria arribar a controlar aquelles situacions que hi ha un mentre dintre d'un cicle i es troba abans
+				//el ficicle i coses d'aquestes, però ara no sé com fer-ho i em sembla massa ja
+				switch (lookahead.getToken()){
+					//Faig un altre switch per a mantenir una estructuració de codi consistent,
+					//però realment podria ser el mateix switch
+					case FIMENTRE:
+						if(nMentre == 0){
+							System.out.println("ERROR A MENTRE");
+							lookahead = lexic.getToken();
+							llista_inst();
+						}
+						break;
+					case FISI:
+						if (nSi == 0){
+							System.out.println("ERROR A SI");
+							lookahead = lexic.getToken();
+							llista_inst();
+						}
+						break;
+					case FIPER:
+						if (nPercada == 0){
+							System.out.println("ERROR A PERCADA");
+							lookahead = lexic.getToken();
+							llista_inst();
+						}
+						break;
+					case FINS:
+						if (nCicle == 0){
+							System.out.println("ERROR A CICLE");
+							lookahead = lexic.getToken();
+							llista_inst();
+						}
+						break;
+				}
+//				return;
 		}
 	}
 
@@ -481,9 +524,11 @@ public class SyntacticAnalyzer {
 			case CICLE:
 				accept(Type.CICLE);
 				try{
+					nCicle++;
 					llista_inst();
 					accept(Type.FINS);
 					exp();
+					nCicle--;
 				}catch (ParseException e){
 					error.insertError(TypeError.ERR_SIN_7, lexic.getActualLine(), Type.CICLE);
 					consume(cnj_inst);
@@ -495,8 +540,10 @@ public class SyntacticAnalyzer {
 				try{
 					exp();
 					accept(Type.FER);
+					nMentre++;
 					llista_inst();
 					accept(Type.FIMENTRE);
+					nMentre--;
 				}catch (ParseException e){
 					error.insertError(TypeError.ERR_SIN_7, lexic.getActualLine(), Type.MENTRE);
 					consume(cnj_inst);
@@ -508,9 +555,11 @@ public class SyntacticAnalyzer {
 				try {
 					exp();
 					accept(Type.LLAVORS);
+					nSi++;
 					llista_inst();
 					fi_aux();
 					accept(Type.FISI);
+					nSi--;
 				}catch (ParseException e){
 					error.insertError(TypeError.ERR_SIN_7, lexic.getActualLine(), Type.SI);
 					consume(cnj_inst);
@@ -528,8 +577,10 @@ public class SyntacticAnalyzer {
 					accept(Type.EN);
 					accept(Type.ID);
 					accept(Type.FER);
+					nPercada++;
 					llista_inst();
 					accept(Type.FIPER);
+					nPercada--;
 				}catch (ParseException e){
 					error.insertError(TypeError.ERR_SIN_7, lexic.getActualLine(), Type.PERCADA);
 					consume(cnj_inst);
