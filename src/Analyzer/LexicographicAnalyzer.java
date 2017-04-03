@@ -35,7 +35,7 @@ public class LexicographicAnalyzer {
     public int getActualLine(){ return nLine;}
 
     /**
-     * Constructor privat de LexicographicAnalyzer. Privat a causa del patró Singleton.
+     * Constructor privat de {@link LexicographicAnalyzer}. Privat a causa del patró Singleton.
      * @param fileName Arxiu que conté el programa a compilar
      * @throws IOException Quan no es pot obrir l'arxiu a compilar.
      */
@@ -273,7 +273,7 @@ public class LexicographicAnalyzer {
     }
 
     /**
-     * Mètode per a finalitzar l'ús de l'analitzador.
+     * Mètode públic per a finalitzar l'ús de l'analitzador.
      */
     public void close() {
         //Close error buffer

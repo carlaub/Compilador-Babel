@@ -117,6 +117,13 @@ public class Error {
         }
     }
 
+	/**
+	 * Mètode per a escriure un error al fitxer d'errors.
+	 * @param error Codi de l'error
+	 * @param numLine Número de la línia on s'ha trobat l'error
+	 * @param types Conjunt de tokens esperats
+	 * @param token Token causant de l'error
+	 */
     public void insertError(TypeError error, int numLine, Type[] types, Type token) {
         try {
             //Si realment no cridarem aquesta funció en cap altre situació ens podem estalviar el switch
@@ -133,6 +140,12 @@ public class Error {
         }
     }
 
+	/**
+	 * Mètode per a escriure un error al fitxer d'errors.
+	 * @param error Codi de l'error
+	 * @param numLine Número de la línia on s'ha trobat l'error
+	 * @param token Token causant de l'error
+	 */
 	public void insertError(TypeError error, int numLine, Type token) {
 		try {
 			//Si realment no cridarem aquesta funció en cap altre situació ens podem estalviar el switch
@@ -149,6 +162,11 @@ public class Error {
 		}
 	}
 
+	/**
+	 * Mètode per a escriure un error al fitxer d'errors.
+	 * @param error Codi de l'error
+	 * @param numLine Número de la línia on s'ha trobat l'error
+	 */
     public void insertError(TypeError error, int numLine) {
         try {
             switch(error) {

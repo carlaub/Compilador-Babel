@@ -6,6 +6,11 @@ import utils.Error;
 import java.io.IOException;
 import java.util.Arrays;
 
+/**
+ * Analitzador sintàctic.
+ * S'encarrega de demanar tokens al {@link LexicographicAnalyzer} per tal de poder parsejar el codi font
+ * i construir un arbre top-down mitjançant crides recursives.
+ */
 public class SyntacticAnalyzer {
     private static SyntacticAnalyzer instance;
     private static LexicographicAnalyzer lexic;
@@ -35,16 +40,34 @@ public class SyntacticAnalyzer {
 	private static Type[] cnj_inst_prev = {Type.ID, Type.ESCRIURE, Type.LLEGIR, Type.CICLE, Type.MENTRE, Type.SI, Type.RETORNAR, Type.PERCADA,
 			Type.FIPER, Type.FISI, Type.FIMENTRE, Type.SINO, Type.FINS, Type.FIFUNC, Type.FIPROG, Type.EOF};
 
+	/**
+	 * Mètode públic per a obtenir una instància de l'analitzador sintàctic.
+	 * Com que s'utilitza el patró Singleton sempre retorna la mateixa instància.
+	 * @param fileName Arxiu que conté el programa a compilar
+	 * @return Instància única de {@link SyntacticAnalyzer}
+	 * @throws IOException Quan no es pot obrir l'arxiu a compilar.
+	 */
     public static SyntacticAnalyzer getInstance(String fileName) throws IOException {
         if (instance == null) instance = new SyntacticAnalyzer(fileName);
         return instance;
     }
 
+    /**
+	 * Constructor privat de {@link SyntacticAnalyzer}. Privat a causa del patró Singleton.
+	 * @param fileName Arxiu que conté el programa a compilar
+	 * @throws IOException Quan no es pot obrir l'arxiu a compilar.
+	 */
     private SyntacticAnalyzer(String fileName) throws IOException {
 		lexic = LexicographicAnalyzer.getInstance(fileName);
 		error = Error.getInstance();
 	}
 
+	/**
+	 * Mètode per a acceptar el token actual de lookahead. És a dir, comprovem que el token actual trobat al codi font
+	 * ({@link SyntacticAnalyzer#lookahead}) és realment el que hauríem de trobar segons l'arbre construït ({@code type}).
+	 * @param type Token esperat
+	 * @throws ParseException Excepció amb el codi del tipus d'error ({@link TypeError}) donat.
+	 */
     private void accept(Type type) throws ParseException{
     	System.out.println(lexic.getActualLine()+": "+ "Espera: "+ type+" - "+ "Rep: "+lookahead.getToken());
 		if(lookahead.getToken().equals(type)){
@@ -56,7 +79,14 @@ public class SyntacticAnalyzer {
 		}
     }
 
-    private boolean consume(Type[] cnj) {
+	/**
+	 * Mètode per a la recuperació d'errors. Aquest mètode consumeix tokens fins a trobar-ne un que estigui
+	 * al conjunt de tokens rebut. D'aquesta manera aconseguim tornar a sincronitzar l'analitzador amb el codi font.
+	 * @param cnj Conjunt de tokens a càrrec de la sincronització. Trobar un d'aquests tokens aquival a haver trobat un
+	 *            punt del codi per on continuar analitzant.
+	 * @return Booleà indicant si ha consumit algun token.
+	 */
+	private boolean consume(Type[] cnj) {
     	boolean flag = false;
     	do {
 
@@ -71,6 +101,9 @@ public class SyntacticAnalyzer {
 		return true;
 	}
 
+	/**
+	 * Mètode públic per a iniciar la construcció de crides recursives per a construir l'arbre sintàctic.
+	 */
     public void programa () {
         lookahead = lexic.getToken();
 
@@ -91,9 +124,9 @@ public class SyntacticAnalyzer {
 			}
 		} catch (ParseException e) {
 			error.insertError(TypeError.ERR_SIN_9, lexic.getActualLine());
+		} finally {
+			lexic.close();
 		}
-
-		lexic.close();
 
     }
 
@@ -185,7 +218,6 @@ public class SyntacticAnalyzer {
             default: return;
         }
     }
-
 
     private void llista_param() throws ParseException {
         switch (lookahead.getToken()) {
@@ -452,6 +484,7 @@ public class SyntacticAnalyzer {
 					//però realment podria ser el mateix switch
 					case FIMENTRE:
 						if(nMentre == 0){
+
 							System.out.println("ERROR A MENTRE");
 							lookahead = lexic.getToken();
 							llista_inst();
@@ -654,6 +687,5 @@ public class SyntacticAnalyzer {
 				return;
 		}
 	}
-
 
 }
