@@ -48,10 +48,12 @@ public class LexicographicAnalyzer {
         file = new Scanner(new FileReader(fileName));
         if(file.hasNext()){
             line = file.nextLine();
-
             //ADD '\n'
             line = line + '\n';
+        } else {
+            line = "\n";
         }
+
 
         //Instance of error class
         errorManagement = Error.getInstance(fileName);
@@ -87,9 +89,7 @@ public class LexicographicAnalyzer {
         String lexema = "";
         while(true) {
 
-
             character = line.charAt(nChar);
-
 
             switch (state) {
                 case 0:
@@ -105,6 +105,7 @@ public class LexicographicAnalyzer {
                             //ADD '\n'
                             line = line + '\n';
                         } else {
+
                             return new Token(Type.EOF, "EOF");
                             // EOF !
 

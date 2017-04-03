@@ -16,7 +16,7 @@ public class SyntacticAnalyzer {
     private static LexicographicAnalyzer lexic;
     private static Token lookahead;
     private static Error error;
-
+	private static int errorLine = 0;
 	private static int nCicle = 0;	//cicle, mentre, si, percada (no té sentit controlar funció)
 	private static int nMentre = 0;
 	private static int nSi = 0;
@@ -71,7 +71,7 @@ public class SyntacticAnalyzer {
     private void accept(Type type) throws ParseException{
     	System.out.println(lexic.getActualLine()+": "+ "Espera: "+ type+" - "+ "Rep: "+lookahead.getToken());
 		if(lookahead.getToken().equals(type)){
-//			errorLine = lexic.getActualLine();
+			errorLine = lexic.getActualLine();
 			lookahead = lexic.getToken();
 		}else{
 			System.out.println("ERROR");
@@ -89,7 +89,6 @@ public class SyntacticAnalyzer {
 	private boolean consume(Type[] cnj) {
     	boolean flag = false;
     	do {
-
 			//lookahead = lexic.getToken();
 			if(Arrays.asList(cnj).contains(lookahead.getToken())){
 				return flag;
@@ -107,7 +106,7 @@ public class SyntacticAnalyzer {
     public void programa () {
         lookahead = lexic.getToken();
 
-        try {
+		try {
         	int nlinia = lexic.getActualLine();
         	if(consume(cnj_var_const_prev)){
         		error.insertError(TypeError.ERR_SIN_10, nlinia);
@@ -447,7 +446,7 @@ public class SyntacticAnalyzer {
 		try{
 			accept(Type.SEMICOLON);
 		} catch (ParseException e){
-			error.insertError(TypeError.ERR_SIN_2, lexic.getActualLine(), Type.SEMICOLON);
+			error.insertError(TypeError.ERR_SIN_2, errorLine, Type.SEMICOLON);
 			consume(cnj_inst);
             if(lookahead.getToken().equals(Type.SEMICOLON)) lookahead = lexic.getToken();
 		}

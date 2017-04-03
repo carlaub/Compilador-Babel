@@ -12,8 +12,8 @@ funcio sumaEdat(perref var2: SENCER, perval edat1 : SENCER, perval edat2: SENCER
 
 prog
 
-    si edat == 3 llavors
-		escriure("patata");
+    si edat == 4 llavors
+		escriure("patata")
     fisi;
 
     mentre x  2 fer
