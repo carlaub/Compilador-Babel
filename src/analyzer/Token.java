@@ -1,4 +1,4 @@
-package Analyzer;
+package analyzer;
 
 import java.util.HashMap;
 

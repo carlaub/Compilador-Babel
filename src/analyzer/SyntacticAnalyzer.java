@@ -1,4 +1,4 @@
-package Analyzer;
+package analyzer;
 
 import utils.*;
 import utils.Error;
@@ -31,7 +31,7 @@ public class SyntacticAnalyzer {
 //    private static int errorLine = 0;
 
     private static Type[] cnj_var_const = {Type.SEMICOLON, Type.FUNCIO, Type.VAR, Type.CONST, Type.PROG, Type.FUNC, Type.EOF};
-	private static Type[] cnj_var_const_prev = {Type.FUNCIO, Type.VAR, Type.CONST, Type.PROG, Type.FUNC, Type.EOF};
+	private static Type[] cnj_var_const_prev = {Type.FUNCIO, Type.VAR, Type.CONST, Type.PROG, Type.FUNC, Type.EOF, };
 	private static Type[] cnj_decl_func = {Type.SEMICOLON, Type.FUNCIO, Type.PROG, Type.EOF, Type.FUNC};
 	private static Type[] cnj_decl_func_prev = {Type.PROG, Type.FUNCIO, Type.EOF};
 	private static Type[] cnj_exp = {Type.SUMA, Type.RESTA, Type.NOT, Type.SENCER_CST, Type.LOGIC_CST, Type.CADENA, Type.ID, Type.OPARENT, Type.SEMICOLON, Type.EOF};
@@ -39,6 +39,8 @@ public class SyntacticAnalyzer {
 			Type.FIPER, Type.FISI, Type.FIMENTRE, Type.SINO, Type.FINS, Type.EOF, Type.FIPROG};
 	private static Type[] cnj_inst_prev = {Type.ID, Type.ESCRIURE, Type.LLEGIR, Type.CICLE, Type.MENTRE, Type.SI, Type.RETORNAR, Type.PERCADA,
 			Type.FIPER, Type.FISI, Type.FIMENTRE, Type.SINO, Type.FINS, Type.FIFUNC, Type.FIPROG, Type.EOF};
+	private static Type[] cnj_param = {Type.TIPUS_PARAM, Type.COMA, Type.CPARENT, Type.SEMICOLON, Type.EOF};
+	private static Type[] cnj_param_prev = {Type.TIPUS_PARAM, Type.CPARENT, Type.EOF};
 
 	/**
 	 * Mètode públic per a obtenir una instància de l'analitzador sintàctic.
@@ -69,7 +71,7 @@ public class SyntacticAnalyzer {
 	 * @throws ParseException Excepció amb el codi del tipus d'error ({@link TypeError}) donat.
 	 */
     private void accept(Type type) throws ParseException{
-    	System.out.println(lexic.getActualLine()+": "+ "Espera: "+ type+" - "+ "Rep: "+lookahead.getToken());
+    	System.out.println(lexic.getActualLine()+": "+ "Espera: "+ type+" - "+ "Rep: "+lookahead.getToken() +" - "+lookahead.getLexema());
 		if(lookahead.getToken().equals(type)){
 			errorLine = lexic.getActualLine();
 			lookahead = lexic.getToken();
@@ -135,6 +137,10 @@ public class SyntacticAnalyzer {
     }
 
     private void decl_cte_var() throws ParseException{
+		int nlinia = lexic.getActualLine();
+		if(consume(cnj_var_const_prev)){
+			error.insertError(TypeError.ERR_SIN_10, nlinia);
+		}
         switch(lookahead.getToken()) {
             case CONST:
                 accept(Type.CONST);
@@ -218,24 +224,48 @@ public class SyntacticAnalyzer {
         }
     }
 
-    private void llista_param() throws ParseException {
-        switch (lookahead.getToken()) {
-            case TIPUS_PARAM:
-                llista_param_aux();
-                break;
-            default: return;
-        }
+	private void llista_param() throws ParseException {
 
-    }
+		int nlinia = lexic.getActualLine();
+		Type token = lookahead.getToken();
+		if(consume(cnj_param)){
+			error.insertError(TypeError.ERR_SIN_1, nlinia, cnj_param_prev, token);
+			if (lookahead.getToken().equals(Type.COMA)){
+				lookahead = lexic.getToken();
+				llista_param();
+			}
+		}
+		switch (lookahead.getToken()) {
+			case TIPUS_PARAM:
+				llista_param_aux();
+				break;
+			default:
+				return;
+		}
+	}
 
-    private void llista_param_aux() throws ParseException{
-        accept(Type.TIPUS_PARAM);
-        accept(Type.ID);
-        accept(Type.COLON);
-        tipus();
-        param_aux();
+	private void llista_param_aux() throws ParseException{
 
-    }
+		int nlinia = lexic.getActualLine();
+		Type token = lookahead.getToken();
+		if(consume(cnj_param)){
+			error.insertError(TypeError.ERR_SIN_1, nlinia, cnj_param_prev, token);
+//			if (lookahead.getToken().equals(Type.COMA)) lookahead = lexic.getToken();
+			param_aux();
+		}else {
+
+			try {
+				accept(token = Type.TIPUS_PARAM);
+				accept(token = Type.ID);
+				accept(token = Type.COLON);
+				tipus();
+			} catch (ParseException e) {
+				error.insertError(TypeError.ERR_SIN_1, nlinia, new Type[]{token}, lookahead.getToken());
+				consume(cnj_param);
+			}
+			param_aux();
+		}
+	}
 
     private void param_aux() throws ParseException {
         switch (lookahead.getToken()) {

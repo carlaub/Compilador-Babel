@@ -1,4 +1,4 @@
-package Analyzer;
+package analyzer;
 
 /**
  * Classe enum per a codificar tots els possibles tokens.

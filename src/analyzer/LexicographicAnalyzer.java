@@ -1,4 +1,4 @@
-package Analyzer;
+package analyzer;
 
 import utils.Error;
 import utils.TypeError;

@@ -2,7 +2,7 @@ package utils;
 
 /**
  * Excepció creada amb l'objectiu d'identificar aquelles excepcions donades a l'hora de parsejar el codi font.
- * L'encarregat de fer aquest parse és l'analitzador sintàctic, així que serà la classe {@link Analyzer.SyntacticAnalyzer}
+ * L'encarregat de fer aquest parse és l'analitzador sintàctic, així que serà la classe {@link analyzer.SyntacticAnalyzer}
  * la que utilitzarà aquesta excepció.
  */
 public class ParseException extends Exception {

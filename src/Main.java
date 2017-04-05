@@ -1,8 +1,4 @@
-import Analyzer.LexicographicAnalyzer;
-import Analyzer.SyntacticAnalyzer;
-import Analyzer.Token;
-import Analyzer.Type;
-import utils.ParseException;
+import analyzer.SyntacticAnalyzer;
 
 import java.io.*;
 
