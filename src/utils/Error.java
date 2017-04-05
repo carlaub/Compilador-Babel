@@ -129,6 +129,7 @@ public class Error {
             switch (error){
 				case ERR_SIN_1:
 				case ERR_SIN_8:
+
                     bwErr.write("[" + error +"] "+ numLine + ", Esperava <"+
 							Arrays.toString(types).replaceAll("[\\[\\]]","")+
 							"> però he trobat <"+token+">.\n");

@@ -1,10 +1,13 @@
 package analyzer;
 
+import com.sun.deploy.util.ArrayUtil;
 import utils.*;
 import utils.Error;
 
 import java.io.IOException;
 import java.util.Arrays;
+
+import static analyzer.Sincronization.*;
 
 /**
  * Analitzador sintàctic.
@@ -22,6 +25,7 @@ public class SyntacticAnalyzer {
 	private static int nSi = 0;
 	private static int nPercada = 0;
 
+
     //Si agafem el valor de la línia de l'últim token acceptat correctament aleshores encertarem la línia si
 	//l'usuari s'ha deixat el SEMICOLON
 	//Crec que com a paràmetre de nLina hauriem de passar:
@@ -29,18 +33,6 @@ public class SyntacticAnalyzer {
 	// - Si es tracta d'un error a un default (no hi ha E però s'hi ha arribat): lexic.getActualLine()
 	//El primer cas és per evitar l'error en cas de que falti l'últim token mentre que el segon pel cas en que falti el primer
 //    private static int errorLine = 0;
-
-    private static Type[] cnj_var_const = {Type.SEMICOLON, Type.FUNCIO, Type.VAR, Type.CONST, Type.PROG, Type.FUNC, Type.EOF};
-	private static Type[] cnj_var_const_prev = {Type.FUNCIO, Type.VAR, Type.CONST, Type.PROG, Type.FUNC, Type.EOF, };
-	private static Type[] cnj_decl_func = {Type.SEMICOLON, Type.FUNCIO, Type.PROG, Type.EOF, Type.FUNC};
-	private static Type[] cnj_decl_func_prev = {Type.PROG, Type.FUNCIO, Type.EOF};
-	private static Type[] cnj_exp = {Type.SUMA, Type.RESTA, Type.NOT, Type.SENCER_CST, Type.LOGIC_CST, Type.CADENA, Type.ID, Type.OPARENT, Type.SEMICOLON, Type.EOF};
-	private static Type[] cnj_inst = {Type.SEMICOLON, Type.ID, Type.ESCRIURE, Type.LLEGIR, Type.CICLE, Type.MENTRE, Type.SI, Type.RETORNAR, Type.PERCADA,
-			Type.FIPER, Type.FISI, Type.FIMENTRE, Type.SINO, Type.FINS, Type.EOF, Type.FIPROG};
-	private static Type[] cnj_inst_prev = {Type.ID, Type.ESCRIURE, Type.LLEGIR, Type.CICLE, Type.MENTRE, Type.SI, Type.RETORNAR, Type.PERCADA,
-			Type.FIPER, Type.FISI, Type.FIMENTRE, Type.SINO, Type.FINS, Type.FIFUNC, Type.FIPROG, Type.EOF};
-	private static Type[] cnj_param = {Type.TIPUS_PARAM, Type.COMA, Type.CPARENT, Type.SEMICOLON, Type.EOF};
-	private static Type[] cnj_param_prev = {Type.TIPUS_PARAM, Type.CPARENT, Type.EOF};
 
 	/**
 	 * Mètode públic per a obtenir una instància de l'analitzador sintàctic.
