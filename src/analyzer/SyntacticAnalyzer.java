@@ -174,10 +174,11 @@ public class SyntacticAnalyzer {
 					accept(Type.ID);
 
 					accept(Type.COLON);
-					tipus();
+					ITipus tipus = tipus();
 					accept(Type.SEMICOLON);
 					Variable variable = new Variable();
 					variable.setNom(id);
+					variable.setTipus(tipus);
 					//TODO: Afegir tipus a variable
 					taulaSimbols.obtenirBloc(taulaSimbols.getBlocActual()).inserirVariable(variable);
 
@@ -207,12 +208,6 @@ public class SyntacticAnalyzer {
 				try {
 					String id = lookahead.getLexema();
 					accept(Type.ID);
-					accept(Type.OPARENT);
-					llista_param();
-					accept(Type.CPARENT);
-					accept(Type.COLON);
-					accept(Type.TIPUS_SIMPLE);
-					accept(Type.SEMICOLON);
 
 					Funcio funcio = new Funcio();
 					funcio.setNom(id);
@@ -220,6 +215,14 @@ public class SyntacticAnalyzer {
 					taulaSimbols.obtenirBloc(taulaSimbols.getBlocActual()).inserirProcediment(funcio);
 					Bloc bloc = new Bloc();
 					taulaSimbols.inserirBloc(bloc);
+
+					accept(Type.OPARENT);
+					llista_param(id);
+					accept(Type.CPARENT);
+					accept(Type.COLON);
+					accept(Type.TIPUS_SIMPLE);
+					accept(Type.SEMICOLON);
+
 					taulaSimbols.setBlocActual(1);
 					//TODO: Afegir paràmetres a la llista de variables del bloc
 
@@ -240,7 +243,8 @@ public class SyntacticAnalyzer {
 				try {
 					accept(Type.FIFUNC);
 					accept(Type.SEMICOLON);
-					taulaSimbols.esborrarBloc(1);
+					//TODO: Esborrar bloc en producció
+					//taulaSimbols.esborrarBloc(1);
 					taulaSimbols.setBlocActual(0);
 				} catch (ParseException e){
 					consume(cnj_decl_func);
@@ -253,7 +257,7 @@ public class SyntacticAnalyzer {
         }
     }
 
-	private void llista_param() throws ParseException {
+	private void llista_param(String idFuncio) throws ParseException {
 
 		int nlinia = lexic.getActualLine();
 		Type token = lookahead.getToken();
@@ -261,66 +265,87 @@ public class SyntacticAnalyzer {
 			error.insertError(TypeError.ERR_SIN_1, nlinia, cnj_param_prev, token);
 			if (lookahead.getToken().equals(Type.COMA)){
 				lookahead = lexic.getToken();
-				llista_param();
+				llista_param(idFuncio);
 			}
 		}
 		switch (lookahead.getToken()) {
 			case TIPUS_PARAM:
-				llista_param_aux();
+				llista_param_aux(idFuncio);
 				break;
 			default:
 				return;
 		}
 	}
 
-	private void llista_param_aux() throws ParseException{
+	private void llista_param_aux(String idFuncio) throws ParseException{
 
 		int nlinia = lexic.getActualLine();
 		Type token = lookahead.getToken();
 		if(consume(cnj_param)){
 			error.insertError(TypeError.ERR_SIN_1, nlinia, cnj_param_prev, token);
 //			if (lookahead.getToken().equals(Type.COMA)) lookahead = lexic.getToken();
-			param_aux();
+			param_aux(idFuncio);
 		}else {
 
 			try {
+				String tipusParam = lookahead.getLexema();
 				accept(token = Type.TIPUS_PARAM);
+				String id = lookahead.getLexema();
 				accept(token = Type.ID);
 				accept(token = Type.COLON);
-				tipus();
+				ITipus tipus = tipus();
+
+				Parametre parametre = new Parametre();
+				parametre.setNom(id);
+				parametre.setTipus(tipus);
+				parametre.setTipusPasParametre(new TipusPasParametre(tipusParam));
+
+				//TODO: Afegir el tipus al paràmetre i el tipus de paràmetre
+				taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio).inserirParametre(parametre);
+				taulaSimbols.obtenirBloc(1).inserirVariable(parametre);
+
 			} catch (ParseException e) {
 				error.insertError(TypeError.ERR_SIN_1, nlinia, new Type[]{token}, lookahead.getToken());
 				consume(cnj_param);
 			}
-			param_aux();
+			param_aux(idFuncio);
 		}
 	}
 
-    private void param_aux() throws ParseException {
+    private void param_aux(String idFuncio) throws ParseException {
         switch (lookahead.getToken()) {
             case COMA:
                 accept(Type.COMA);
-                llista_param_aux();
+                llista_param_aux(idFuncio);
                 break;
             default: return;
         }
     }
 
-    private void tipus() throws ParseException {
+    private ITipus tipus() throws ParseException {
+		String tipus;
         switch (lookahead.getToken()) {
             case TIPUS_SIMPLE:
+            	tipus = lookahead.getLexema();
                 accept(Type.TIPUS_SIMPLE);
-                break;
+                //TODO: Canviar mida del tipus
+                TipusSimple tipusSimple = new TipusSimple(tipus, 0);
+                return tipusSimple;
             case VECTOR:
                 accept(Type.VECTOR);
                 accept(Type.OCLAU);
-                exp();
+//                int exp1 = exp();
+				exp();
                 accept(Type.DPOINT);
+//                int exp2 = exp();
                 exp();
                 accept(Type.CCLAU);
                 accept(Type.DE);
+				tipus = lookahead.getLexema();
                 accept(Type.TIPUS_SIMPLE);
-                break;
+                //TODO: Ficar el nom correcte, la mida correcta i el tamany del tipus simple correcte
+                TipusArray tipusArray = new TipusArray("", 0/*exp2-exp1*/, new TipusSimple(tipus, 0));
+                return tipusArray;
             default: //ERROR
 				throw new ParseException(TypeError.ERR_SIN_1);
         }

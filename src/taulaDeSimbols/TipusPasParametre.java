@@ -20,7 +20,7 @@ public class TipusPasParametre {
 	 * Constructor de la classe TipusPasParametre
 	 * @param nom
 	 */
-	private TipusPasParametre(String nom) {
+	public TipusPasParametre(String nom) {
 		this.nom = nom;
 	}
 	

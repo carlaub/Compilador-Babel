@@ -63,11 +63,12 @@ public class Parametre extends Variable {
 	 * <p>Obt� tota la informaci� del objecte en format XML</p>
 	 * @return String
 	 */
-    public String toXml() {        
-    	String result = "<Parametre Nom=\"" + getNom() + 
-    		"\" Desplacament=\"" + getDesplacament() + 
-    		"\" TipusPasParametre=\"" + tipusPas.toString() + "\">";
-    	result += getTipus().toXml();
+    public String toXml() {
+    	String result = "";
+		result = "<Parametre Nom=\"" + getNom() +
+				"\" Desplacament=\"" + getDesplacament();
+    	if (tipusPas != null) result += "\" TipusPasParametre=\"" + tipusPas.toString() + "\">";
+    	if (getTipus() != null) result += getTipus().toXml();
     	result += "</Parametre>";
         return result;
     } 
