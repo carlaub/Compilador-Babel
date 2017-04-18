@@ -293,8 +293,11 @@ public class SyntacticAnalyzer {
     	try{
 			exp_simple();
 		}catch (ParseException e){
-    		error.insertError(TypeError.ERR_SIN_8, lexic.getActualLine(), cnj_exp, lookahead.getToken());
-    		consume(cnj_exp);
+    		//Aquest conjunt que li passem és incorrecte
+			error.insertError(TypeError.ERR_SIN_8, lexic.getActualLine(), cnj_exp, lookahead.getToken());
+			System.out.println(lookahead.getToken());
+			consume(cnj_exp);
+			System.out.println(lookahead.getToken());
 		}
 		exp_aux();	//No salta excepció
     }
@@ -343,13 +346,11 @@ public class SyntacticAnalyzer {
             case RESTA:
                 accept(Type.RESTA);
                 break;
-
             case OR:
                 accept(Type.OR);
                 break;
             default:
-
-                return;
+            	break;
         }
     }
 
@@ -375,6 +376,7 @@ public class SyntacticAnalyzer {
 				factor_aux();
 				break;
             default: //ERROR - CODI PENDENT DE REVISIÓ
+				System.out.println("ERROR " + lookahead.getToken());
 				throw new ParseException(TypeError.ERR_SIN_8);
 		}
 		terme_aux();
