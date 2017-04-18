@@ -15,12 +15,14 @@ prog
 
     si edat == 4 llavors
 		escriure("patata");
-    fisi;
+    fii;
 
     mentre x > 2 fer
         x = x + 1;
     fimentre;
 
 fiprog
+
+
 
 

@@ -1,3 +1,5 @@
+//Error en declaració de constants i variables
+
 //const <id> = <exp>;
 const LINIA = 3;
 
@@ -10,7 +12,7 @@ var i: SENCER;
 //funcio <id>(<ll_param>): <tipus_simple>;
 //	var <id>: <tipus>;
 //	func
-//		<ll_instr>	
+//		<ll_instr>
 //	fifunc;
 
 funcio suma(perval valor1: SENCER, perval valor2: SENCER): SENCER;
@@ -58,4 +60,3 @@ prog
 	fins i==10;
 
 fiprog
-

@@ -1,0 +1,40 @@
+const CTE1 = "F2P3.bab" ;
+CONST CTE2 = ((3 - 1) * 4  2;		//falta )
+					//falta operador
+
+
+VaR v5: vector [MIN . MAX] dr sencer;	// dr en lugar de de
+					// . en lugar de ..
+VaR v5: vector [MIN . MAX] de  sencer;		// falta tipo
+					// . en lugar de ..
+
+
+
+funcio F(perval ba11:sencr , perval va11: vector[1.10]de sencer , perref ref1: logic ): sencer;
+		//sencer mal escrito
+		//. en lugar de ..
+	const N = MAX - 1;
+	var sencer i;
+var sencer j;
+inici
+	
+	cicle
+		escriure("Enter a number (-1 exits)","holaquetal", x 2, y - );
+					// falta un operador en la segunda expresion
+					//falta un operando en la tercera expresion
+		
+			percada k+ en MAX+  Fer	// la segunda expresion esta mal
+	 					// la primera expresion esta mal
+				i = i / 1	// FALTA ;
+				j = -1 * i;
+			fiPer;
+			retornar s(val1, i);
+		
+	ficicle; //FALTA FICICLE
+	
+fifunc;
+
+prog
+	v1 = F(v2, v3, v4);			
+fiprog
+i = i + 1

@@ -425,13 +425,30 @@ public class SyntacticAnalyzer {
 	}
 
 	private void llista_exp() throws ParseException {
-		exp();
+    	switch (lookahead.getToken()){
+			case SUMA:
+			case RESTA:
+			case NOT:
+			case SENCER_CST:
+			case LOGIC_CST:
+			case CADENA:
+			case ID:
+			case OPARENT:
+				exp();
+				llista_exp_aux();
+            default:
+                return;
+		}
+
+	}
+
+	private void llista_exp_aux() throws ParseException{
 		switch (lookahead.getToken()){
 			case COMA:
 				accept(Type.COMA);
 				llista_exp();
 				break;
-			default: //ERROR
+			default:
 				return;
 		}
 	}
