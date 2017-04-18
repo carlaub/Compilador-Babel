@@ -90,7 +90,7 @@ public class Constant {
     	else
     		result += " Valor=\"null\">";
     	
-    	result += tipus.toXml();
+    	if (tipus != null) result += tipus.toXml();
     	result += "</Constant>";
         return result;
     } 

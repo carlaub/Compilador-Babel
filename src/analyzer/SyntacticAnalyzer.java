@@ -1,6 +1,7 @@
 package analyzer;
 
 import com.sun.deploy.util.ArrayUtil;
+import taulaDeSimbols.*;
 import utils.*;
 import utils.Error;
 
@@ -19,6 +20,8 @@ public class SyntacticAnalyzer {
     private static LexicographicAnalyzer lexic;
     private static Token lookahead;
     private static Error error;
+    private static TaulaSimbols taulaSimbols;
+
 	private static int errorLine = 0;
 	private static int nCicle = 0;	//cicle, mentre, si, percada (no té sentit controlar funció)
 	private static int nMentre = 0;
@@ -99,6 +102,11 @@ public class SyntacticAnalyzer {
 	 */
     public void programa () {
         lookahead = lexic.getToken();
+		taulaSimbols = new TaulaSimbols();
+		Bloc bloc = new Bloc();
+		taulaSimbols.inserirBloc(bloc);
+		taulaSimbols.setBlocActual(0);
+		System.out.println(taulaSimbols.toXml());
 
 		try {
         	int nlinia = lexic.getActualLine();
@@ -120,8 +128,8 @@ public class SyntacticAnalyzer {
 		} finally {
 			lexic.close();
 		}
-
-    }
+		System.out.println(taulaSimbols.toXml());
+	}
 
     private void decl() throws ParseException {
         decl_cte_var();
@@ -137,11 +145,19 @@ public class SyntacticAnalyzer {
             case CONST:
                 accept(Type.CONST);
                 try {
+
+					String id = lookahead.getLexema();
 					accept(Type.ID);
+
 					accept(Type.IGUAL);
 					exp();
 					accept(Type.SEMICOLON);
-				} catch (ParseException e) {
+					Constant constant = new Constant();
+					//TODO: Afegir tipus i valor a la constant
+					constant.setNom(id);
+					taulaSimbols.obtenirBloc(taulaSimbols.getBlocActual()).inserirConstant(constant);
+
+                } catch (ParseException e) {
                 	//Si l'exepció salta a accept(SEMICOLON) es mostra el número de línia del següent token
 					error.insertError(TypeError.ERR_SIN_3, lexic.getActualLine());
 //					error.insertError(TypeError.ERR_SIN_3, errorLine);
@@ -153,10 +169,18 @@ public class SyntacticAnalyzer {
             case VAR:
                 accept(Type.VAR);
                 try {
+
+					String id = lookahead.getLexema();
 					accept(Type.ID);
+
 					accept(Type.COLON);
 					tipus();
 					accept(Type.SEMICOLON);
+					Variable variable = new Variable();
+					variable.setNom(id);
+					//TODO: Afegir tipus a variable
+					taulaSimbols.obtenirBloc(taulaSimbols.getBlocActual()).inserirVariable(variable);
+
 				} catch (ParseException e) {
 					//Si l'exepció salta a accept(SEMICOLON) es mostra el número de línia del següent token
 					error.insertError(TypeError.ERR_SIN_4, lexic.getActualLine());
@@ -181,6 +205,7 @@ public class SyntacticAnalyzer {
 				accept(Type.FUNCIO);
 				//Sabies que amb "sout<TAB>" s'escriu "System.out.println();" ? Ho acabo de descobrir
 				try {
+					String id = lookahead.getLexema();
 					accept(Type.ID);
 					accept(Type.OPARENT);
 					llista_param();
@@ -188,6 +213,16 @@ public class SyntacticAnalyzer {
 					accept(Type.COLON);
 					accept(Type.TIPUS_SIMPLE);
 					accept(Type.SEMICOLON);
+
+					Funcio funcio = new Funcio();
+					funcio.setNom(id);
+					//TODO: Afegir llista paràmetres
+					taulaSimbols.obtenirBloc(taulaSimbols.getBlocActual()).inserirProcediment(funcio);
+					Bloc bloc = new Bloc();
+					taulaSimbols.inserirBloc(bloc);
+					taulaSimbols.setBlocActual(1);
+					//TODO: Afegir paràmetres a la llista de variables del bloc
+
 				}catch (ParseException e){
 					error.insertError(TypeError.ERR_SIN_5, lexic.getActualLine());
 					consume(cnj_decl_func);
@@ -205,6 +240,8 @@ public class SyntacticAnalyzer {
 				try {
 					accept(Type.FIFUNC);
 					accept(Type.SEMICOLON);
+					taulaSimbols.esborrarBloc(1);
+					taulaSimbols.setBlocActual(0);
 				} catch (ParseException e){
 					consume(cnj_decl_func);
 					if(lookahead.getToken().equals(Type.SEMICOLON)) lookahead = lexic.getToken();

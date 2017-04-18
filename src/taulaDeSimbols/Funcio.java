@@ -108,7 +108,7 @@ public class Funcio extends Procediment {
     	for (int i=0; i<getNumeroParametres(); i++)
     		result += obtenirParametre(i).toXml();
     	result += "</Parametres>";
-    	result += tipus.toXml();
+    	if (tipus != null) result += tipus.toXml();
     	result += "</Funcio>";
         return result;
     } 
