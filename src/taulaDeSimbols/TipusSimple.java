@@ -127,4 +127,10 @@ public class TipusSimple extends ITipus {
 		str += "</TipusSimple>";
 		return str;
 	}
+	public String toString() {
+		String str = "<TipusSimple Nom=\"" + nom + "\"" +
+				" Tamany=\"" + tamany + "\"";
+
+		return "<TipusSimple Nom=\"" + nom + "\"/>";
+	}
 }

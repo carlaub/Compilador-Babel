@@ -1,11 +1,14 @@
 //Error en declaració de constants i variables
 
 //const <id> = <exp>;
-const LINIA = 3;
+const LINIA = -3;
 
 //var <id>: <tipus>;
 var variable1 : SENCER;
-const patata = 4+7;
+const patata = 4*7;
+const patata = 4*7*3;
+const patata = 4*7/2;
+const patata = -4*7;
 var variable2: vector[0..10] de SENCER;
 var i: SENCER;
 

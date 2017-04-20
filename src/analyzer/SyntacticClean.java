@@ -31,7 +31,6 @@ public class SyntacticClean {
 
 	public void programa () {
 		lookahead = lexic.getToken();
-		System.out.println(semantic);
 
 		decl();
 
@@ -190,31 +189,39 @@ public class SyntacticClean {
 		}
 	}
 
-	private void exp(){
-		exp_simple();
-		exp_aux();	//No salta excepció
+	private Data exp(){
+		Data data = exp_simple();
+		exp_aux(data);	//No salta excepció
+		return data;
 	}
 
-	private void exp_simple(){
-		op_unari();
-		terme();
+	private Data exp_simple(){
+		Data data = op_unari();
+		terme(data);
+//		System.out.println(data.getAttributes());
 		terme_simple();
+		return null;
 	}
 
-	private void op_unari(){
+	private Data op_unari(){
+		Data data = new Data();
 		switch(lookahead.getToken()) {
 			case SUMA:
+				data.setValue("op_unari.vs", TypeVar.SUMA);
 				accept(Type.SUMA);
 				break;
 			case RESTA:
+				data.setValue("op_unari.vs", TypeVar.RESTA);
 				accept(Type.RESTA);
 				break;
 			case NOT:
+				data.setValue("op_unari.vs", TypeVar.NOT);
 				accept(Type.NOT);
 				break;
 			default:
-				return;
+				break;
 		}
+		return data;
 	}
 
 	private void terme_simple(){
@@ -223,10 +230,11 @@ public class SyntacticClean {
 			case RESTA:
 			case OR:
 				op_aux();
-				terme();
+				terme(new Data());
 				terme_simple();
 				break;
-			default:return;
+			default:
+				return;
 		}
 	}
 
@@ -246,44 +254,81 @@ public class SyntacticClean {
 		}
 	}
 
-	private void terme(){
+	private void terme(Data data){
+		System.out.println(data.getAttributes());
+		TipusSimple tipus = new TipusSimple();
 		switch (lookahead.getToken()) {
 			//FACTOR
 			case SENCER_CST:
+				//TODO: Afegir tamany, min i max
+				tipus.setNom("SENCER");
+				data.setValue("terme.vs", lookahead.getLexema());
+				data.setValue("terme.ts", tipus);
+				data.setValue("terme.es", true);
 				accept(Type.SENCER_CST);
+				semantic.checkOp_binari(data);
+				System.out.println(data.getAttributes());
 				break;
 			case LOGIC_CST:
+				tipus.setNom("LOGIC");
+				data.setValue("terme.vs", lookahead.getLexema());
+				data.setValue("terme.ts", tipus);
+				data.setValue("terme.es", true);
 				accept(Type.LOGIC_CST);
 				break;
 			case CADENA:
+				tipus.setNom("CADENA");
+				data.setValue("terme.vs", lookahead.getLexema());
+				data.setValue("terme.ts", tipus);
+				data.setValue("terme.es", true);
 				accept(Type.CADENA);
 				break;
 			case OPARENT:
 				accept(Type.OPARENT);
+				//TODO
 				exp();
 				accept(Type.CPARENT);
 				break;
 			case ID:
+				//TODO
 				accept(Type.ID);
 				factor_aux();
 				break;
 			default: //ERROR
 				System.out.println("ERROR");
 		}
-		terme_aux();
+		terme_aux(data);
 	}
 
-	private void terme_aux(){
+	private Data terme_aux(Data data){
+		Data terme;
+		String value = (String) data.getValue("terme.vs");
+		TipusSimple tipus = new TipusSimple();
 		switch (lookahead.getToken()){
 			case MUL:
+				op_binaria();
+				data.setValue("terme.vh", data.getValue("terme.vs"));
+				data.setValue("terme.th", data.getValue("terme.ts"));
+				data.setValue("terme.eh", data.getValue("terme.es"));
+				data.setValue("MUL", true);
+				terme(data);
+				break;
 			case DIV:
+				op_binaria();
+				data.setValue("terme.vh", data.getValue("terme.vs"));
+				data.setValue("terme.th", data.getValue("terme.ts"));
+				data.setValue("terme.eh", data.getValue("terme.es"));
+				data.setValue("DIV", true);
+				terme(data);
+				break;
 			case AND:
 				op_binaria();
-				terme();
+				terme(data);
 				break;
 			default:
-				return;
+				return data;
 		}
+		return data;
 	}
 
 	private void op_binaria(){
@@ -298,7 +343,7 @@ public class SyntacticClean {
 				accept(Type.AND);
 				break;
 			default:
-				return;
+				break;
 		}
 	}
 
@@ -358,14 +403,16 @@ public class SyntacticClean {
 		}
 	}
 
-	private void exp_aux() {
+	private Data exp_aux(Data data) {
 		switch(lookahead.getToken()) {
 			case OP_RELACIONAL:
 				accept(Type.OP_RELACIONAL);
 				exp_simple();
 				break;
-			default: return;
+			default:
+				break;
 		}
+		return data;
 	}
 
 	private void llista_inst(){

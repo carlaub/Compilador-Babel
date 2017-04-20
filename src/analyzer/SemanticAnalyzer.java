@@ -69,4 +69,49 @@ public class SemanticAnalyzer {
 				.inserirParametre(parametre);
 		taulaSimbols.obtenirBloc(1).inserirVariable(parametre);
 	}
+
+	public void checkOp_binari(Data data){
+		//TODO: Afegir comprovacions
+		if (data.getValue("MUL") != null && (boolean)data.getValue("MUL")){
+			int op1 = Integer.parseInt((String)data.getValue("terme.vh"));
+			int op2 = Integer.parseInt((String)data.getValue("terme.vs"));
+			int resultat = op1 * op2;
+			data.setValue("terme.vs", Integer.toString(resultat));
+			data.setValue("MUL", false);
+		} else if(data.getValue("DIV") != null && (boolean)data.getValue("DIV")){
+			int op1 = Integer.parseInt((String)data.getValue("terme.vh"));
+			int op2 = Integer.parseInt((String)data.getValue("terme.vs"));
+			int resultat = op1 / op2;
+			data.setValue("terme.vs", Integer.toString(resultat));
+			data.setValue("DIV", false);
+		}
+	}
+
+	/*public void checkMul(Data data, Data value_terme){
+		if (((ITipus)data.getValue("terme.ts")).getNom().equals("SENCER")
+				&&((ITipus)value_terme.getValue("terme.ts")).getNom().equals("SENCER") ){
+			System.out.println(value_terme.getValue("terme.vs"));
+			data.setValue("terme.vs",
+					Integer.parseInt((String) data.getValue("terme.vs")) *
+							Integer.parseInt((String)value_terme.getValue("terme.vs")));
+			//TODO: Canviar tamany
+			data.setValue("terme_aux.ts",new TipusSimple("SENCER", 0));
+		}
+		else {
+			data.setValue("terme.ts", new TipusIndefinit());
+		}
+	}
+
+	public void checkDiv(Data data, Data terme){
+		if (((ITipus)data.getValue("terme.ts")).getNom().equals("SENCER")
+				&&((ITipus)terme.getValue("terme.ts")).getNom().equals("SENCER") ){
+			data.setValue("terme_aux.vs",
+					Integer.parseInt((String) data.getValue("terme.vs")) / Integer.parseInt((String)terme.getValue("terme.vs")));
+			data.setValue("terme_aux.ts",new TipusSimple("SENCER", 0));
+		}
+		else {
+			data.setValue("terme.ts", new TipusIndefinit());
+		}
+
+	}*/
 }

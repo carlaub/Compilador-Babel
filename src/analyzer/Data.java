@@ -83,16 +83,5 @@ public class Data {
 
 	}
 
-	public String toString() {
-
-		return "Valor: "+getValue("VALOR")+
-				"; Estatic: "+getValue("ESTATIC")+
-				"; Tipus: "+getValue("TIPUS")+
-				"; Oper: "+getValue("OPERADOR")+
-				"; Comp: "+getValue("COMPARACIO")+
-				"; Linea: "+getValue("LINEA")+
-				"; Columna: "+getValue("COLUMNA")+
-				"; Registre: "+getValue("REG");
-	}
 
 }
