@@ -1,4 +1,5 @@
 import analyzer.SyntacticAnalyzer;
+import analyzer.SyntacticClean;
 
 import java.io.*;
 
@@ -18,7 +19,8 @@ public class Main {
         String filename = args[0];
 
         try {
-            SyntacticAnalyzer syntactic = SyntacticAnalyzer.getInstance(filename);
+//            SyntacticAnalyzer syntactic = SyntacticAnalyzer.getInstance(filename);
+            SyntacticClean syntactic = SyntacticClean.getInstance(filename);
             syntactic.programa();
 
         } catch (IOException e) {

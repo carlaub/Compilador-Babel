@@ -18,9 +18,10 @@ import static analyzer.Sincronization.*;
 public class SyntacticAnalyzer {
     private static SyntacticAnalyzer instance;
     private static LexicographicAnalyzer lexic;
+    private static SemanticAnalyzer semantic;
     private static Token lookahead;
     private static Error error;
-    private static TaulaSimbols taulaSimbols;
+//    private static TaulaSimbols taulaSimbols;
 
 	private static int errorLine = 0;
 	private static int nCicle = 0;	//cicle, mentre, si, percada (no té sentit controlar funció)
@@ -57,6 +58,7 @@ public class SyntacticAnalyzer {
     private SyntacticAnalyzer(String fileName) throws IOException {
 		lexic = LexicographicAnalyzer.getInstance(fileName);
 		error = Error.getInstance();
+		semantic = new SemanticAnalyzer();
 	}
 
 	/**
@@ -102,11 +104,12 @@ public class SyntacticAnalyzer {
 	 */
     public void programa () {
         lookahead = lexic.getToken();
-		taulaSimbols = new TaulaSimbols();
-		Bloc bloc = new Bloc();
-		taulaSimbols.inserirBloc(bloc);
-		taulaSimbols.setBlocActual(0);
-		System.out.println(taulaSimbols.toXml());
+//		taulaSimbols = new TaulaSimbols();
+//		Bloc bloc = new Bloc();
+//		taulaSimbols.inserirBloc(bloc);
+//		taulaSimbols.setBlocActual(0);
+//		System.out.println(taulaSimbols.toXml());
+		System.out.println(semantic);
 
 		try {
         	int nlinia = lexic.getActualLine();
@@ -128,7 +131,7 @@ public class SyntacticAnalyzer {
 		} finally {
 			lexic.close();
 		}
-		System.out.println(taulaSimbols.toXml());
+		System.out.println(semantic);
 	}
 
     private void decl() throws ParseException {
@@ -146,16 +149,15 @@ public class SyntacticAnalyzer {
                 accept(Type.CONST);
                 try {
 
-					String id = lookahead.getLexema();
+					//TODO: Afegir tipus i valor a data
+					Data data = new Data();
+					data.setValue("name", lookahead.getLexema());
 					accept(Type.ID);
-
 					accept(Type.IGUAL);
 					exp();
 					accept(Type.SEMICOLON);
-					Constant constant = new Constant();
-					//TODO: Afegir tipus i valor a la constant
-					constant.setNom(id);
-					taulaSimbols.obtenirBloc(taulaSimbols.getBlocActual()).inserirConstant(constant);
+
+					semantic.checkConstant(data);
 
                 } catch (ParseException e) {
                 	//Si l'exepció salta a accept(SEMICOLON) es mostra el número de línia del següent token
@@ -169,18 +171,20 @@ public class SyntacticAnalyzer {
             case VAR:
                 accept(Type.VAR);
                 try {
-
-					String id = lookahead.getLexema();
+					Data data = new Data();
+					data.setValue("name", lookahead.getLexema());
+//					String id = lookahead.getLexema();
 					accept(Type.ID);
 
 					accept(Type.COLON);
-					ITipus tipus = tipus();
+					data.setValue("type", tipus());
+//					ITipus tipus = tipus();
 					accept(Type.SEMICOLON);
-					Variable variable = new Variable();
-					variable.setNom(id);
-					variable.setTipus(tipus);
-					//TODO: Afegir tipus a variable
-					taulaSimbols.obtenirBloc(taulaSimbols.getBlocActual()).inserirVariable(variable);
+//					Variable variable = new Variable();
+//					variable.setNom(id);
+//					variable.setTipus(tipus);
+//					taulaSimbols.obtenirBloc(taulaSimbols.getBlocActual()).inserirVariable(variable);
+					semantic.checkVariable(data);
 
 				} catch (ParseException e) {
 					//Si l'exepció salta a accept(SEMICOLON) es mostra el número de línia del següent token
@@ -206,24 +210,24 @@ public class SyntacticAnalyzer {
 				accept(Type.FUNCIO);
 				//Sabies que amb "sout<TAB>" s'escriu "System.out.println();" ? Ho acabo de descobrir
 				try {
-					String id = lookahead.getLexema();
+					Data data = new Data();
+					data.setValue("name", lookahead.getLexema());
+
 					accept(Type.ID);
 
-					Funcio funcio = new Funcio();
-					funcio.setNom(id);
 					//TODO: Afegir llista paràmetres
-					taulaSimbols.obtenirBloc(taulaSimbols.getBlocActual()).inserirProcediment(funcio);
-					Bloc bloc = new Bloc();
-					taulaSimbols.inserirBloc(bloc);
+
+					semantic.checkFuncio(data);
+					semantic.nextBloc();
 
 					accept(Type.OPARENT);
-					llista_param(id);
+
+					llista_param((String)data.getValue("name"));
+
 					accept(Type.CPARENT);
 					accept(Type.COLON);
 					accept(Type.TIPUS_SIMPLE);
 					accept(Type.SEMICOLON);
-
-					taulaSimbols.setBlocActual(1);
 					//TODO: Afegir paràmetres a la llista de variables del bloc
 
 				}catch (ParseException e){
@@ -243,9 +247,9 @@ public class SyntacticAnalyzer {
 				try {
 					accept(Type.FIFUNC);
 					accept(Type.SEMICOLON);
-					//TODO: Esborrar bloc en producció
-					//taulaSimbols.esborrarBloc(1);
-					taulaSimbols.setBlocActual(0);
+
+					semantic.previousBloc();
+
 				} catch (ParseException e){
 					consume(cnj_decl_func);
 					if(lookahead.getToken().equals(Type.SEMICOLON)) lookahead = lexic.getToken();
@@ -288,21 +292,27 @@ public class SyntacticAnalyzer {
 		}else {
 
 			try {
-				String tipusParam = lookahead.getLexema();
+				Data data = new Data();
+				data.setValue("idFunction", idFuncio);
+				data.setValue("typeParam", lookahead.getLexema());
+//				String tipusParam = lookahead.getLexema();
 				accept(token = Type.TIPUS_PARAM);
-				String id = lookahead.getLexema();
+				data.setValue("name", lookahead.getLexema());
+//				String id = lookahead.getLexema();
 				accept(token = Type.ID);
 				accept(token = Type.COLON);
-				ITipus tipus = tipus();
+				data.setValue("type", tipus());
+//				ITipus tipus = tipus();
 
-				Parametre parametre = new Parametre();
-				parametre.setNom(id);
-				parametre.setTipus(tipus);
-				parametre.setTipusPasParametre(new TipusPasParametre(tipusParam));
+//				Parametre parametre = new Parametre();
+//				parametre.setNom(id);
+//				parametre.setTipus(tipus);
+//				parametre.setTipusPasParametre(new TipusPasParametre(tipusParam));
 
 				//TODO: Afegir el tipus al paràmetre i el tipus de paràmetre
-				taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio).inserirParametre(parametre);
-				taulaSimbols.obtenirBloc(1).inserirVariable(parametre);
+//				taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio).inserirParametre(parametre);
+				semantic.addParameter(data);
+//				taulaSimbols.obtenirBloc(1).inserirVariable(parametre);
 
 			} catch (ParseException e) {
 				error.insertError(TypeError.ERR_SIN_1, nlinia, new Type[]{token}, lookahead.getToken());

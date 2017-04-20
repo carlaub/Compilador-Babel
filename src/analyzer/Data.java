@@ -6,12 +6,12 @@ package analyzer;
 
 import java.util.Hashtable;
 
-public class Semantic {
+public class Data {
 	private Hashtable attributes = new Hashtable();
 	/**
-	 * Semantic constructor comment.
+	 * Data constructor comment.
 	 */
-	public Semantic() {
+	public Data() {
 		super();
 	}
 	/**
@@ -59,7 +59,7 @@ public class Semantic {
 	}
 
 
-	public void copy(Semantic exp)
+	public void copy(Data exp)
 	{
 
 		if (exp.getAttributes().containsKey("VALOR"))

@@ -115,14 +115,14 @@ public class TipusSimple extends ITipus {
 		String str = "<TipusSimple Nom=\"" + nom + "\"" + 
 			" Tamany=\"" + tamany + "\"";
 		if (minim != null)
-			str += " M�nim=\"" + minim.toString() + "\"";
+			str += " Mínim=\"" + minim.toString() + "\"";
 		else
-			str += " M�nim=\"null\"";
+			str += " Mínim=\"null\"";
 		
 		if (maxim != null)
-			str += " M�xim=\"" + maxim.toString() + "\">";
+			str += " Màxim=\"" + maxim.toString() + "\">";
 		else
-			str += " M�xim=\"null\">";
+			str += " Màxim=\"null\">";
 		
 		str += "</TipusSimple>";
 		return str;
