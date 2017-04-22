@@ -5,7 +5,8 @@ const LINIA = -3;
 
 //var <id>: <tipus>;
 var variable1 : SENCER;
-const patata = 4*7;
+const patata = -2+10*5+5-13-34*0+5;
+const patata = 4*7+1;
 const patata = 4*7*3;
 const patata = 4*7/2;
 const patata = -4*7;
@@ -37,7 +38,7 @@ prog
 		//Si hi ha un error a "mentre", "percada", ... passa que al trobar el fimentre, com que es pot donar no ho veu malament i puja fins a esperar fiprog
 		//Una possible solució és guardar el nivell de "mentre" al que estem i si ens trobem "fimentre" quan estem al nivell 0 vol dir que està malament
 
-		escriure("Resultat de ", i, "+", 10-i, ": ", suma(i,10-i));	//Salten diversos errors per una cagada de l'inici
+	//	escriure("Resultat de ", i, "+", 10-i, ": ", suma(i,10-i));	//Salten diversos errors per una cagada de l'inici
 		i=i;
 		x=3;
 

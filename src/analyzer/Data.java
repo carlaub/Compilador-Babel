@@ -58,29 +58,9 @@ public class Data {
 		getAttributes().put(attributeID,attributeValue);
 	}
 
-
-	public void copy(Data exp)
-	{
-
-		if (exp.getAttributes().containsKey("VALOR"))
-			setValue("VALOR",exp.getValue("VALOR"));
-		if (exp.getAttributes().containsKey("ESTATIC"))
-			setValue("ESTATIC",exp.getValue("ESTATIC"));
-		if (exp.getAttributes().containsKey("TIPUS"))
-			setValue("TIPUS",exp.getValue("TIPUS"));
-		if (exp.getAttributes().containsKey("OPERADOR"))
-			setValue("OPERADOR",exp.getValue("OPERADOR"));
-		if (exp.getAttributes().containsKey("COMPARACIO"))
-			setValue("COMPARACIO",exp.getValue("COMPARACIO"));
-		if (exp.getAttributes().containsKey("LINEA"))
-			setValue("LINEA",exp.getValue("LINEA"));
-		if (exp.getAttributes().containsKey("COLUMNA"))
-			setValue("COLUMNA",exp.getValue("COLUMNA"));
-		if (exp.getAttributes().containsKey("REG"))
-			setValue("REG",exp.getValue("REG"));
-		if (exp.getAttributes().containsKey("TOKEN"))
-			setValue("TOKEN",exp.getValue("TOKEN"));
-
+	@Override
+	public String toString(){
+		return attributes.toString();
 	}
 
 

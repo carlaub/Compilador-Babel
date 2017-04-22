@@ -87,31 +87,4 @@ public class SemanticAnalyzer {
 		}
 	}
 
-	/*public void checkMul(Data data, Data value_terme){
-		if (((ITipus)data.getValue("terme.ts")).getNom().equals("SENCER")
-				&&((ITipus)value_terme.getValue("terme.ts")).getNom().equals("SENCER") ){
-			System.out.println(value_terme.getValue("terme.vs"));
-			data.setValue("terme.vs",
-					Integer.parseInt((String) data.getValue("terme.vs")) *
-							Integer.parseInt((String)value_terme.getValue("terme.vs")));
-			//TODO: Canviar tamany
-			data.setValue("terme_aux.ts",new TipusSimple("SENCER", 0));
-		}
-		else {
-			data.setValue("terme.ts", new TipusIndefinit());
-		}
-	}
-
-	public void checkDiv(Data data, Data terme){
-		if (((ITipus)data.getValue("terme.ts")).getNom().equals("SENCER")
-				&&((ITipus)terme.getValue("terme.ts")).getNom().equals("SENCER") ){
-			data.setValue("terme_aux.vs",
-					Integer.parseInt((String) data.getValue("terme.vs")) / Integer.parseInt((String)terme.getValue("terme.vs")));
-			data.setValue("terme_aux.ts",new TipusSimple("SENCER", 0));
-		}
-		else {
-			data.setValue("terme.ts", new TipusIndefinit());
-		}
-
-	}*/
 }
