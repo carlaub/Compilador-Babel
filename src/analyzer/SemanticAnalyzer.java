@@ -121,7 +121,7 @@ public class SemanticAnalyzer {
 				data.setValue("terme.vs", resultat);
 			} else {
 				//TODO: recuperació errors
-				//error.insertError(TypeError.ERR_SEM_7);
+				error.insertError(TypeError.ERR_SEM_7);
 				data.setValue("terme.ts", new TipusIndefinit("indef", 0));
 			}
 			System.out.println("DATA:" + data);

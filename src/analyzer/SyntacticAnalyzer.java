@@ -178,12 +178,7 @@ public class SyntacticAnalyzer {
 
 					accept(Type.COLON);
 					data.setValue("type", tipus());
-//					ITipus tipus = tipus();
 					accept(Type.SEMICOLON);
-//					Variable variable = new Variable();
-//					variable.setNom(id);
-//					variable.setTipus(tipus);
-//					taulaSimbols.obtenirBloc(taulaSimbols.getBlocActual()).inserirVariable(variable);
 					semantic.checkVariable(data);
 
 				} catch (ParseException e) {

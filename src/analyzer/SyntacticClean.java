@@ -20,7 +20,7 @@ public class SyntacticClean {
 
 	private SyntacticClean(String fileName) throws IOException {
 		lexic = LexicographicAnalyzer.getInstance(fileName);
-		Error.getInstance(fileName);
+		//Error.getInstance(fileName);
 		semantic = new SemanticAnalyzer();
 	}
 

@@ -28,7 +28,10 @@ public class LexicographicAnalyzer {
      * @throws IOException Quan no es pot obrir l'arxiu a compilar.
      */
     public static LexicographicAnalyzer getInstance(String fileName) throws IOException {
-        if (instance == null) instance = new LexicographicAnalyzer(fileName);
+        if (instance == null){
+        	instance = new LexicographicAnalyzer(fileName);
+			errorManagement = Error.getInstance(fileName);
+		}
         return instance;
     }
 
@@ -57,7 +60,6 @@ public class LexicographicAnalyzer {
 
 
         //Instance of error class
-        errorManagement = Error.getInstance(fileName);
         File lex = new File (fileName.split(Pattern.quote("."))[0] + ".lex");
         bwLex = new BufferedWriter(new FileWriter(lex));
 
