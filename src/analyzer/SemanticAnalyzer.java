@@ -87,8 +87,8 @@ public class SemanticAnalyzer {
 	public void checkOp_binari(Data data){
 		//TODO: Afegir comprovacions
 		if (data.getValue("MUL") != null ){
-			if (((TipusSimple)data.getValue("terme.th")).getNom().equals("SENCER") &&
-					((TipusSimple)data.getValue("terme.ts")).getNom().equals("SENCER")) {
+			if (((ITipus)data.getValue("terme.th")).getNom().equals("SENCER") &&
+					((ITipus)data.getValue("terme.ts")).getNom().equals("SENCER")) {
 				int op1 = (int) data.getValue("terme.vh");
 				int op2 = (int) data.getValue("terme.vs");
 				int resultat = op1 * op2;
@@ -100,8 +100,8 @@ public class SemanticAnalyzer {
 			}
 			data.removeAttribute("MUL");
 		} else if(data.getValue("DIV") != null){
-			if (((TipusSimple)data.getValue("terme.th")).getNom().equals("SENCER") &&
-					((TipusSimple)data.getValue("terme.ts")).getNom().equals("SENCER")) {
+			if (((ITipus)data.getValue("terme.th")).getNom().equals("SENCER") &&
+					((ITipus)data.getValue("terme.ts")).getNom().equals("SENCER")) {
 				int op1 = (int) data.getValue("terme.vh");
 				int op2 = (int) data.getValue("terme.vs");
 				int resultat = op1 / op2;
@@ -114,8 +114,8 @@ public class SemanticAnalyzer {
 
 			data.removeAttribute("DIV");
 		} else if(data.getValue("AND") != null){
-			if (((TipusSimple)data.getValue("terme.th")).getNom().equals("LOGIC") &&
-					((TipusSimple)data.getValue("terme.ts")).getNom().equals("LOGIC")) {
+			if (((ITipus)data.getValue("terme.th")).getNom().equals("LOGIC") &&
+					((ITipus)data.getValue("terme.ts")).getNom().equals("LOGIC")) {
 				boolean op1 = (boolean) data.getValue("terme.vh");
 				boolean op2 = (boolean) data.getValue("terme.vs");
 				boolean resultat = op1 && op2;
@@ -134,23 +134,23 @@ public class SemanticAnalyzer {
 		//TODO: Control d'errors
 		if (data.getValue("op_aux.vs") == TypeVar.SUMA){
 			System.out.println("DATA:" + data);
-			System.out.println((TipusSimple)data.getValue("terme_simple.th"));
+			System.out.println(data.getValue("terme_simple.th"));
 
-			if (((TipusSimple)data.getValue("terme_simple.th")).getNom().equals("SENCER") &&
-					((TipusSimple)info.getValue("terme.ts")).getNom().equals("SENCER")) {
+			if (((ITipus)data.getValue("terme_simple.th")).getNom().equals("SENCER") &&
+					((ITipus)info.getValue("terme.ts")).getNom().equals("SENCER")) {
 				int op1 = (int) data.getValue("terme_simple.vh");
 				int op2 = (int) info.getValue("terme.vs");
 				int res = op1 + op2;
 				info.setValue("terme.vs", res);
 			} else {
 				//TODO: recuperació errors
-                error.insertError(TypeError.ERR_SEM_6);
-                data.setValue("terme.ts", new TipusIndefinit("indef", 0));
+				error.insertError(TypeError.ERR_SEM_6);
+				data.setValue("terme.ts", new TipusIndefinit("indef", 0));
 			}
 			data.removeAttribute("op_aux.vs");
 		} else if (data.getValue("op_aux.vs") == TypeVar.RESTA) {
-			if (((TipusSimple)data.getValue("terme_simple.th")).getNom().equals("SENCER") &&
-					((TipusSimple)info.getValue("terme.ts")).getNom().equals("SENCER")) {
+			if (((ITipus)data.getValue("terme_simple.th")).getNom().equals("SENCER") &&
+					((ITipus)info.getValue("terme.ts")).getNom().equals("SENCER")) {
 				int op1 = (int) data.getValue("terme_simple.vh");
 				int op2 = (int) info.getValue("terme.vs");
 				int res = op1 - op2;
@@ -162,8 +162,8 @@ public class SemanticAnalyzer {
 			}
 			data.removeAttribute("op_aux.vs");
 		} else if (data.getValue("op_aux.vs") == TypeVar.OR) {
-			if (((TipusSimple)data.getValue("terme_simple.th")).getNom().equals("LOGIC") &&
-					((TipusSimple)info.getValue("terme.ts")).getNom().equals("LOGIC")) {
+			if (((ITipus)data.getValue("terme_simple.th")).getNom().equals("LOGIC") &&
+					((ITipus)info.getValue("terme.ts")).getNom().equals("LOGIC")) {
 				boolean op1 = (boolean) data.getValue("terme_simple.vh");
 				boolean op2 = (boolean) info.getValue("terme.vs");
 				boolean res = op1 || op2;
