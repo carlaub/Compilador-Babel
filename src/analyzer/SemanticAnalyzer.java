@@ -145,7 +145,7 @@ public class SemanticAnalyzer {
 			} else {
 				//TODO: recuperació errors
 				error.insertError(TypeError.ERR_SEM_6);
-				data.setValue("terme.ts", new TipusIndefinit("indef", 0));
+				info.setValue("terme.ts", new TipusIndefinit("indef", 0));
 			}
 			data.removeAttribute("op_aux.vs");
 		} else if (data.getValue("op_aux.vs") == TypeVar.RESTA) {
@@ -158,7 +158,7 @@ public class SemanticAnalyzer {
 			} else {
 				//TODO: recuperació errors
 				error.insertError(TypeError.ERR_SEM_6);
-				data.setValue("terme.ts", new TipusIndefinit("indef", 0));
+				info.setValue("terme.ts", new TipusIndefinit("indef", 0));
 			}
 			data.removeAttribute("op_aux.vs");
 		} else if (data.getValue("op_aux.vs") == TypeVar.OR) {
@@ -171,7 +171,7 @@ public class SemanticAnalyzer {
 			} else {
 				//TODO: recuperació errors
 				error.insertError(TypeError.ERR_SEM_7);
-				data.setValue("terme.ts", new TipusIndefinit("indef", 0));
+				info.setValue("terme.ts", new TipusIndefinit("indef", 0));
 			}
 			data.removeAttribute("op_aux.vs");
 		}
