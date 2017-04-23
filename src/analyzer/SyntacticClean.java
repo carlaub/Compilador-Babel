@@ -63,20 +63,21 @@ public class SyntacticClean {
 				accept(Type.SEMICOLON);
 
 				semantic.checkConstant(data);
-
 				break;
+
 			case VAR:
 				accept(Type.VAR);
 
 				data.setValue("name", lookahead.getLexema());
 				accept(Type.ID);
-
 				accept(Type.COLON);
 				data.setValue("type", tipus());
 				accept(Type.SEMICOLON);
 				semantic.checkVariable(data);
 				break;
-			default: return;
+
+			default:
+				return;
 		}
 		decl_cte_var();
 	}
@@ -117,7 +118,9 @@ public class SyntacticClean {
 
 				decl_func();
 				break;
-			default: return;
+
+			default:
+				return;
 		}
 	}
 
@@ -127,6 +130,7 @@ public class SyntacticClean {
 			case TIPUS_PARAM:
 				llista_param_aux(idFuncio);
 				break;
+
 			default:
 				return;
 		}
@@ -191,7 +195,13 @@ public class SyntacticClean {
 	private Data exp(){
 		System.out.println("BEGIN");
 		Data data = exp_simple();
-		exp_aux(data);	//No salta excepció
+
+		data.moveBlock("exp_aux.h", "exp_simple.s");
+
+		exp_aux(data);
+
+		data.moveBlock("exp.s", "exp_aux.s");
+
 		System.out.println(data);
 		System.out.println("END");
 		return data;
@@ -199,17 +209,14 @@ public class SyntacticClean {
 
 	private Data exp_simple(){
 		Data data = op_unari();
-
 		terme(data);
 
-		data.setValue("terme_simple.vh", data.getValue("terme.vs"));
-		data.removeAttribute("terme.vs");
-		data.setValue("terme_simple.th", data.getValue("terme.ts"));
-		data.removeAttribute("terme.ts");
-		data.setValue("terme_simple.eh", data.getValue("terme.es"));
-		data.removeAttribute("terme.es");
+		data.moveBlock("terme_simple.h", "terme.s");
 
 		terme_simple(data);
+
+		data.moveBlock("exp_simple.s", "terme_simple.s");
+
 		return data;
 	}
 
@@ -220,14 +227,17 @@ public class SyntacticClean {
 				data.setValue("op_unari.vs", TypeVar.SUMA);
 				accept(Type.SUMA);
 				break;
+
 			case RESTA:
 				data.setValue("op_unari.vs", TypeVar.RESTA);
 				accept(Type.RESTA);
 				break;
+
 			case NOT:
 				data.setValue("op_unari.vs", TypeVar.NOT);
 				accept(Type.NOT);
 				break;
+
 			default:
 				data.setValue("op_unari.vs", false);
 				break;
@@ -237,7 +247,6 @@ public class SyntacticClean {
 
 	private void terme_simple(Data data){
 		Data info;
-		int op1, op2, res;
 		switch (lookahead.getToken()){
 			case SUMA:
 				op_aux(data);
@@ -248,14 +257,10 @@ public class SyntacticClean {
 				System.out.println("| |-Info");
 				System.out.println("|   |-"+info);
 
-				op1 = (int) data.getValue("terme_simple.vh");
-				if(data.getValue("op_unari.vs") == TypeVar.RESTA) op1 = -op1;
-				data.removeAttribute("op_unari.vs");
+				semantic.checkOp_aux(data, info);
 
-				op2 = (int) info.getValue("terme.vs");
-				res = op1 + op2;
-
-				data.setValue("terme_simple.vh", res);
+				//No es pot fer amb move perquè són de Data diferents
+				data.setValue("terme_simple.vh", info.getValue("terme.vs"));
 				info.removeAttribute("terme.vs");
 				data.setValue("terme_simple.th", info.getValue("terme.ts"));
 				info.removeAttribute("terme.ts");
@@ -263,8 +268,8 @@ public class SyntacticClean {
 				info.removeAttribute("terme.es");
 
 				terme_simple(data);
-
 				break;
+
 			case RESTA:
 				op_aux(data);
 
@@ -274,14 +279,10 @@ public class SyntacticClean {
 				System.out.println("| |-Info");
 				System.out.println("|   |-"+info);
 
-				op1 = (int) data.getValue("terme_simple.vh");
-				if(data.getValue("op_unari.vs") == TypeVar.RESTA) op1 = -op1;
-				data.removeAttribute("op_unari.vs");
+				semantic.checkOp_aux(data, info);
 
-				op2 = (int) info.getValue("terme.vs");
-				res = op1 - op2;
-
-				data.setValue("terme_simple.vh", res);
+				//No es pot fer amb move perquè són de Data diferents
+				data.setValue("terme_simple.vh", info.getValue("terme.vs"));
 				info.removeAttribute("terme.vs");
 				data.setValue("terme_simple.th", info.getValue("terme.ts"));
 				info.removeAttribute("terme.ts");
@@ -289,8 +290,8 @@ public class SyntacticClean {
 				info.removeAttribute("terme.es");
 
 				terme_simple(data);
-
 				break;
+
 			case OR:
 				op_aux(data);
 				terme(data);
@@ -301,25 +302,31 @@ public class SyntacticClean {
 
 				terme_simple(data);
 				break;
+
 			default:
+				data.moveBlock("terme_simple.s", "terme_simple.h");
 				return;
 		}
 	}
 
 	private void op_aux(Data data){
 		switch(lookahead.getToken()) {
+
 			case SUMA:
 				data.setValue("op_aux.vs",TypeVar.SUMA);
 				accept(Type.SUMA);
 				break;
+
 			case RESTA:
 				data.setValue("op_aux.vs",TypeVar.RESTA);
 				accept(Type.RESTA);
 				break;
+
 			case OR:
 				data.setValue("op_aux.vs",TypeVar.OR);
 				accept(Type.OR);
 				break;
+
 			default:
 				break;
 		}
@@ -332,10 +339,12 @@ public class SyntacticClean {
 		switch (lookahead.getToken()) {
 			//FACTOR
 			case SENCER_CST:
-				data.setValue("terme.vs", Integer.parseInt(lookahead.getLexema()));
+				int valor = Integer.parseInt(lookahead.getLexema());
+				data.setValue("terme.vs", valor);
 				data.setValue("terme.ts", new TipusSimple("SENCER", 0));
 				data.setValue("terme.es", true);
 				accept(Type.SENCER_CST);
+				semantic.checkOp_unari(data);
 				semantic.checkOp_binari(data);
 				data.removeAttribute("terme.vh");
 				data.removeAttribute("terme.th");
@@ -372,22 +381,14 @@ public class SyntacticClean {
 
 		System.out.println("|   |-"+data);
 		//El case ID, que no té settejats aquests valors i llença l'excepció
-		data.setValue("terme_aux.vh", data.getValue("terme.vs"));
-		data.removeAttribute("terme.vs");
-		data.setValue("terme_aux.th", data.getValue("terme.ts"));
-		data.removeAttribute("terme.ts");
-		data.setValue("terme_aux.eh", data.getValue("terme.es"));
-		data.removeAttribute("terme.es");
+		try {
+			data.moveBlock("terme_aux.h", "terme.s");
+		} catch (NullPointerException e){}
 
 		System.out.println("|     |-"+data);
 		terme_aux(data);
 
-		data.setValue("terme.vs", data.getValue("terme_aux.vs"));
-		data.removeAttribute("terme_aux.vs");
-		data.setValue("terme.ts", data.getValue("terme_aux.ts"));
-		data.removeAttribute("terme_aux.ts");
-		data.setValue("terme.es", data.getValue("terme_aux.es"));
-		data.removeAttribute("terme_aux.es");
+		data.moveBlock("terme.s", "terme_aux.s");
 
 		System.out.println("|       |-"+data);
 
@@ -398,49 +399,32 @@ public class SyntacticClean {
 		switch (lookahead.getToken()){
 			case MUL:
 				op_binaria();
-				data.setValue("terme.vh", data.getValue("terme_aux.vh"));
-				data.removeAttribute("terme_aux.vh");
-				data.setValue("terme.th", data.getValue("terme_aux.th"));
-				data.removeAttribute("terme_aux.th");
-				data.setValue("terme.eh", data.getValue("terme_aux.eh"));
-				data.removeAttribute("terme_aux.eh");
+				data.moveBlock("terme.h", "terme_aux.h");
+
 				data.setValue("MUL", true);
 				terme(data);
-				data.setValue("terme_aux.vs", data.getValue("terme.vs"));
-				data.removeAttribute("terme.vs");
-				data.setValue("terme_aux.ts", data.getValue("terme.ts"));
-				data.removeAttribute("terme.ts");
-				data.setValue("terme_aux.es", data.getValue("terme.es"));
-				data.removeAttribute("terme.es");
+
+				data.moveBlock("terme_aux.s", "terme.s");
 				break;
+
 			case DIV:
 				op_binaria();
-				data.setValue("terme.vh", data.getValue("terme_aux.vh"));
-				data.removeAttribute("terme_aux.vh");
-				data.setValue("terme.th", data.getValue("terme_aux.th"));
-				data.removeAttribute("terme_aux.th");
-				data.setValue("terme.eh", data.getValue("terme_aux.eh"));
-				data.removeAttribute("terme_aux.eh");
+				data.moveBlock("terme.h", "terme_aux.h");
+
 				data.setValue("DIV", true);
 				terme(data);
-				data.setValue("terme_aux.vs", data.getValue("terme.vs"));
-				data.removeAttribute("terme.vs");
-				data.setValue("terme_aux.ts", data.getValue("terme.ts"));
-				data.removeAttribute("terme.ts");
-				data.setValue("terme_aux.es", data.getValue("terme.es"));
-				data.removeAttribute("terme.es");
+				data.moveBlock("terme_aux.s", "terme.s");
 				break;
+
 			case AND:
 				op_binaria();
 				terme(data);
 				break;
+
 			default:
-				data.setValue("terme_aux.vs", data.getValue("terme_aux.vh"));
-				data.removeAttribute("terme_aux.vh");
-				data.setValue("terme_aux.ts", data.getValue("terme_aux.th"));
-				data.removeAttribute("terme_aux.th");
-				data.setValue("terme_aux.es", data.getValue("terme_aux.eh"));
-				data.removeAttribute("terme_aux.eh");
+//				System.out.println("ERROR " + lexic.getActualLine());
+//				System.out.println(data);
+				data.moveBlock("terme_aux.s", "terme_aux.h");
 				break;
 		}
 	}
@@ -517,16 +501,20 @@ public class SyntacticClean {
 		}
 	}
 
-	private Data exp_aux(Data data) {
+	private void exp_aux(Data data) {
 		switch(lookahead.getToken()) {
 			case OP_RELACIONAL:
 				accept(Type.OP_RELACIONAL);
-				exp_simple();
+
+				Data info = exp_simple();
+				//TODO: Tractament de l'operació
 				break;
 			default:
+				data.move("exp_aux.vs", "exp_aux.vh");
+				data.move("exp_aux.ts", "exp_aux.th");
+				data.move("exp_aux.es", "exp_aux.eh");
 				break;
 		}
-		return data;
 	}
 
 	private void llista_inst(){

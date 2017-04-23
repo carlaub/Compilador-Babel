@@ -87,4 +87,33 @@ public class SemanticAnalyzer {
 		}
 	}
 
+	public void checkOp_aux(Data data, Data info){
+		//TODO: Control d'errors
+		if (data.getValue("op_aux.vs") == TypeVar.SUMA){
+			int op1 = (int) data.getValue("terme_simple.vh");
+			int op2 = (int) info.getValue("terme.vs");
+			int res = op1 + op2;
+			info.setValue("terme.vs", res);
+			data.removeAttribute("op_aux.vs");
+		} else if (data.getValue("op_aux.vs") == TypeVar.RESTA) {
+			int op1 = (int) data.getValue("terme_simple.vh");
+			int op2 = (int) info.getValue("terme.vs");
+			int res = op1 - op2;
+			info.setValue("terme.vs", res);
+			data.removeAttribute("op_aux.vs");
+		}
+	}
+
+	public void checkOp_unari(Data data) {
+		if (data.getValue("op_unari.vs") == TypeVar.RESTA){
+			data.setValue("terme.vs", -(int)data.getValue("terme.vs"));
+		} else if (data.getValue("op_unari.vs") == TypeVar.SUMA){
+
+		} else if (data.getValue("op_unari.vs") == TypeVar.NOT){
+
+		}else{
+
+		}
+		data.removeAttribute("op_unari.vs");
+	}
 }
