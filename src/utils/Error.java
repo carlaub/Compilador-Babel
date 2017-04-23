@@ -1,5 +1,6 @@
 package utils;
 
+import analyzer.LexicographicAnalyzer;
 import analyzer.Type;
 
 import java.io.BufferedWriter;
@@ -18,6 +19,7 @@ public class Error {
     private static HashMap<TypeError, String> errorCodes;
     private static Error instance;
     private static BufferedWriter bwErr;
+    private static LexicographicAnalyzer lexic;
 
     public static Error getInstance( ) {
         return instance;
@@ -43,6 +45,8 @@ public class Error {
     private Error(String fileName) {
         File err = new File (fileName.split(Pattern.quote("."))[0]+".err");
         loadCodes();
+        lexic = LexicographicAnalyzer.getInstance();
+
         try {
             bwErr = new BufferedWriter(new FileWriter(err));
         } catch (IOException e) {
@@ -195,8 +199,89 @@ public class Error {
 
         }
 
-
     }
+
+	/**
+	 * Mètode per a escriure un error al fitxer d'errors.
+	 * @param error Codi de l'error
+	 * @param string Cadena amb la informació a mostrar segons l'error
+	 */
+	public void insertError(TypeError error, String string) {
+		int numLine = lexic.getActualLine();
+		try {
+			switch(error) {
+				case ERR_SEM_1:
+					bwErr.write("[" + error +"] "+ numLine + ", Constant <" + string + "> doblement definida.\n");
+					break;
+				case ERR_SEM_2:
+					bwErr.write("[" + error +"] "+ numLine + ", Variable <" + string + "> doblement definida.\n");
+					break;
+				case ERR_SEM_3:
+					bwErr.write("[" + error +"] "+ numLine + ", Funció <" + string + "> doblement definida.\n");
+					break;
+				case ERR_SEM_4:
+					bwErr.write("[" + error +"] "+ numLine + ", Paràmetre <" + string + "> doblement definida.\n");
+					break;
+				case ERR_SEM_5:
+					bwErr.write("[" + error +"] "+ numLine + ", Límits decreixents en el vector <" + string + ">.\n");
+					break;
+				case ERR_SEM_9:
+					bwErr.write("[" + error +"] "+ numLine + ", L'identificador <" + string + "> no ha estat declarat.\n");
+					break;
+				case ERR_SEM_10:
+					bwErr.write("[" + error +"] "+ numLine + ", L'identificador <" + string +
+							"> en la instrucció LLEGIR no és una variable de tipus simple.\n");
+					break;
+				case ERR_SEM_11:
+					bwErr.write("[" + error +"] "+ numLine + ", L'identificador <" + string +
+							"> en part esquerra d'assignació no és una variable.\n");
+					break;
+				case ERR_SEM_13:
+					bwErr.write("[" + error +"] "+ numLine + ", El tipus de l'índex d'accés del vector <" + string +
+							"> no és sencer.\n");
+					break;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+
+		}
+
+	}
+
+	/**
+	 * Mètode per a escriure un error al fitxer d'errors.
+	 * @param error Codi de l'error
+	 */
+	public void insertError(TypeError error) {
+		int numLine = lexic.getActualLine();
+		try {
+			switch(error) {
+				case ERR_SEM_6:
+					bwErr.write("[" + error +"] "+ numLine + ", El tipus de l'expressió no és SENCER.\n");
+					break;
+				case ERR_SEM_7:
+					bwErr.write("[" + error +"] "+ numLine + ", El tipus de l'expressió no és LOGIC.\n");
+					break;
+				case ERR_SEM_8:
+					bwErr.write("[" + error +"] "+ numLine + ", La condició no és de tipus LOGIC.\n");
+					break;
+				case ERR_SEM_14:
+					bwErr.write("[" + error +"] "+ numLine + ", El tipus de l'expressió en ESCRIURE no és simple o no és una constant cadena.\n");
+					break;
+				case ERR_SEM_19:
+					bwErr.write("[" + error +"] "+ numLine + ", Retornar fora de funció.\n");
+					break;
+				case ERR_SEM_20:
+					bwErr.write("[" + error +"] "+ numLine + ", L'expressió no és estàtica.\n");
+					break;
+
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+
+		}
+
+	}
 
     /**
      * Mètode per a finalitzar l'ús del descriptor d'errors.

@@ -32,6 +32,7 @@ public class LexicographicAnalyzer {
         return instance;
     }
 
+    public static LexicographicAnalyzer getInstance(){ return instance;}
     public int getActualLine(){ return nLine;}
 
     /**
