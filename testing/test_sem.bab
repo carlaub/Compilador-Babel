@@ -2,7 +2,7 @@
 //const <id> = <exp>;
 //var <id>: <tipus>;
 
-const patata = -1+2*3+3+32-10-1*3+2*5/5;
+const patata = -1+2*3+3+CERT-10-1*3+2*5/5;
 const hola = FALS AND 5;
 prog
 	retornar CERT OR CERT AND FALS;

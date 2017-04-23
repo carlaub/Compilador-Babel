@@ -46,6 +46,7 @@ public class SemanticAnalyzer {
 			Constant constant = new Constant();
 			constant.setNom((String)data.getValue("const.name"));
 			constant.setValor(data.getValue("exp.vs"));
+			constant.setTipus((ITipus)data.getValue("exp.ts"));
 			System.out.println("DATA:" + data);
 			taulaSimbols.obtenirBloc(blocActual).inserirConstant(constant);
 			//TODO: inserir tipus
@@ -143,8 +144,8 @@ public class SemanticAnalyzer {
 				info.setValue("terme.vs", res);
 			} else {
 				//TODO: recuperació errors
-				//error.insertError(TypeError.ERR_SEM_6)
-				 data.setValue("terme.ts", new TipusIndefinit("indef", 0));
+                error.insertError(TypeError.ERR_SEM_6);
+                data.setValue("terme.ts", new TipusIndefinit("indef", 0));
 			}
 			data.removeAttribute("op_aux.vs");
 		} else if (data.getValue("op_aux.vs") == TypeVar.RESTA) {
