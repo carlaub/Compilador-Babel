@@ -294,11 +294,21 @@ public class SyntacticClean {
 
 			case OR:
 				op_aux(data);
-				terme(data);
 
-				data.setValue("terme_simple.vh", data.getValue("terme.vs"));
-				data.setValue("terme_simple.th", data.getValue("terme.ts"));
-				data.setValue("terme_simple.eh", data.getValue("terme.es"));
+				info = new Data();
+				terme(info);
+				System.out.println("| |-Info");
+				System.out.println("|   |-"+info);
+
+				semantic.checkOp_aux(data, info);
+
+				//No es pot fer amb move perquè són de Data diferents
+				data.setValue("terme_simple.vh", info.getValue("terme.vs"));
+				info.removeAttribute("terme.vs");
+				data.setValue("terme_simple.th", info.getValue("terme.ts"));
+				info.removeAttribute("terme.ts");
+				data.setValue("terme_simple.eh", info.getValue("terme.es"));
+				info.removeAttribute("terme.es");
 
 				terme_simple(data);
 				break;
@@ -351,10 +361,15 @@ public class SyntacticClean {
 				data.removeAttribute("terme.eh");
 				break;
 			case LOGIC_CST:
-				data.setValue("terme.vs", lookahead.getLexema());
+				data.setValue("terme.vs", lookahead.getLexema().equals("CERT"));
 				data.setValue("terme.ts", new TipusSimple("LOGIC", 0));
 				data.setValue("terme.es", true);
 				accept(Type.LOGIC_CST);
+				semantic.checkOp_unari(data);
+				semantic.checkOp_binari(data);
+				data.removeAttribute("terme.vh");
+				data.removeAttribute("terme.th");
+				data.removeAttribute("terme.eh");
 				break;
 			case CADENA:
 				data.setValue("terme.vs", lookahead.getLexema());
@@ -418,12 +433,15 @@ public class SyntacticClean {
 
 			case AND:
 				op_binaria();
+				data.moveBlock("terme.h", "terme_aux.h");
+
+				data.setValue("AND", true);
 				terme(data);
+
+				data.moveBlock("terme_aux.s", "terme.s");
 				break;
 
 			default:
-//				System.out.println("ERROR " + lexic.getActualLine());
-//				System.out.println(data);
 				data.moveBlock("terme_aux.s", "terme_aux.h");
 				break;
 		}

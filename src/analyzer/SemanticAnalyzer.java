@@ -72,18 +72,24 @@ public class SemanticAnalyzer {
 
 	public void checkOp_binari(Data data){
 		//TODO: Afegir comprovacions
-		if (data.getValue("MUL") != null && (boolean)data.getValue("MUL")){
+		if (data.getValue("MUL") != null ){
 			int op1 = (int)data.getValue("terme.vh");
 			int op2 = (int)data.getValue("terme.vs");
 			int resultat = op1 * op2;
 			data.setValue("terme.vs", resultat);
 			data.removeAttribute("MUL");
-		} else if(data.getValue("DIV") != null && (boolean)data.getValue("DIV")){
+		} else if(data.getValue("DIV") != null){
 			int op1 = (int)data.getValue("terme.vh");
 			int op2 = (int)data.getValue("terme.vs");
 			int resultat = op1 / op2;
 			data.setValue("terme.vs", resultat);
 			data.removeAttribute("DIV");
+		} else if(data.getValue("AND") != null){
+			boolean op1 = (boolean)data.getValue("terme.vh");
+			boolean op2 = (boolean)data.getValue("terme.vs");
+			boolean resultat = op1 && op2;
+			data.setValue("terme.vs", resultat);
+			data.removeAttribute("AND");
 		}
 	}
 
@@ -101,6 +107,12 @@ public class SemanticAnalyzer {
 			int res = op1 - op2;
 			info.setValue("terme.vs", res);
 			data.removeAttribute("op_aux.vs");
+		} else if (data.getValue("op_aux.vs") == TypeVar.OR) {
+			boolean op1 = (boolean) data.getValue("terme_simple.vh");
+			boolean op2 = (boolean) info.getValue("terme.vs");
+			boolean res = op1 || op2;
+			info.setValue("terme.vs", res);
+			data.removeAttribute("op_aux.vs");
 		}
 	}
 
@@ -110,7 +122,7 @@ public class SemanticAnalyzer {
 		} else if (data.getValue("op_unari.vs") == TypeVar.SUMA){
 
 		} else if (data.getValue("op_unari.vs") == TypeVar.NOT){
-
+			data.setValue("terme.vs", !(boolean)data.getValue("terme.vs"));
 		}else{
 
 		}
