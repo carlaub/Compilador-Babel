@@ -4,7 +4,8 @@
 const LINIA = -3;
 
 //var <id>: <tipus>;
-var variable1 : SENCER;
+var variable1 : LOGIC;
+const asdf = CERT;
 const patata = -2+10*5+5-13-34*0+5;
 const patata = 4*7+1;
 const patata = 4*7*3;

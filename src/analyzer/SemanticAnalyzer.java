@@ -73,17 +73,17 @@ public class SemanticAnalyzer {
 	public void checkOp_binari(Data data){
 		//TODO: Afegir comprovacions
 		if (data.getValue("MUL") != null && (boolean)data.getValue("MUL")){
-			int op1 = Integer.parseInt((String)data.getValue("terme.vh"));
-			int op2 = Integer.parseInt((String)data.getValue("terme.vs"));
+			int op1 = (int)data.getValue("terme.vh");
+			int op2 = (int)data.getValue("terme.vs");
 			int resultat = op1 * op2;
-			data.setValue("terme.vs", Integer.toString(resultat));
-			data.setValue("MUL", false);
+			data.setValue("terme.vs", resultat);
+			data.removeAttribute("MUL");
 		} else if(data.getValue("DIV") != null && (boolean)data.getValue("DIV")){
-			int op1 = Integer.parseInt((String)data.getValue("terme.vh"));
-			int op2 = Integer.parseInt((String)data.getValue("terme.vs"));
+			int op1 = (int)data.getValue("terme.vh");
+			int op2 = (int)data.getValue("terme.vs");
 			int resultat = op1 / op2;
-			data.setValue("terme.vs", Integer.toString(resultat));
-			data.setValue("DIV", false);
+			data.setValue("terme.vs", resultat);
+			data.removeAttribute("DIV");
 		}
 	}
 

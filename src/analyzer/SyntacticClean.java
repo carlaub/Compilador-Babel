@@ -1,5 +1,6 @@
 package analyzer;
 
+
 import taulaDeSimbols.*;
 
 import java.io.IOException;
@@ -122,8 +123,6 @@ public class SyntacticClean {
 
 	private void llista_param(String idFuncio){
 
-		int nlinia = lexic.getActualLine();
-		Type token = lookahead.getToken();
 		switch (lookahead.getToken()) {
 			case TIPUS_PARAM:
 				llista_param_aux(idFuncio);
@@ -190,29 +189,28 @@ public class SyntacticClean {
 	}
 
 	private Data exp(){
+		System.out.println("BEGIN");
 		Data data = exp_simple();
 		exp_aux(data);	//No salta excepció
+		System.out.println(data);
+		System.out.println("END");
 		return data;
 	}
 
 	private Data exp_simple(){
-		System.out.println("BEGIN");
 		Data data = op_unari();
+
 		terme(data);
 
-		if(data.getValue("terme.vs") != null){
-			data.setValue("terme_simple.vh", data.getValue("terme.vs"));
-			data.removeAttribute("terme.vs");
-			data.setValue("terme_simple.th", data.getValue("terme.ts"));
-			data.removeAttribute("terme.ts");
-			data.setValue("terme_simple.eh", data.getValue("terme.es"));
-			data.removeAttribute("terme.es");
-		}
+		data.setValue("terme_simple.vh", data.getValue("terme.vs"));
+		data.removeAttribute("terme.vs");
+		data.setValue("terme_simple.th", data.getValue("terme.ts"));
+		data.removeAttribute("terme.ts");
+		data.setValue("terme_simple.eh", data.getValue("terme.es"));
+		data.removeAttribute("terme.es");
+
 		terme_simple(data);
-		System.out.println(data);
-		if (data.getValue("terme_simple.vs") != null)System.out.println((int)data.getValue("terme_simple.vs"));
-		System.out.println("END");
-		return null;
+		return data;
 	}
 
 	private Data op_unari(){
@@ -231,64 +229,67 @@ public class SyntacticClean {
 				accept(Type.NOT);
 				break;
 			default:
+				data.setValue("op_unari.vs", false);
 				break;
 		}
 		return data;
 	}
 
 	private void terme_simple(Data data){
+		Data info;
+		int op1, op2, res;
 		switch (lookahead.getToken()){
 			case SUMA:
 				op_aux(data);
-				terme(data);
-				System.out.println(data);
-				int op1;
-				if (data.getValue("terme_simple.vh") != null){
-					if (data.getValue("op_unari.vs") == TypeVar.RESTA){
-						data.removeAttribute("op_unari.vs");
-						op1 = -Integer.parseInt((String)data.getValue("terme_simple.vh"));
-					}
-					else op1 = Integer.parseInt((String)data.getValue("terme_simple.vh"));
-					//TODO: Canviar es i ts
-					data.setValue("terme_simple.ts", new TipusSimple("SENCER", 0));
-					data.setValue("terme_simple.es", true);
-					int op2 = Integer.parseInt((String) data.getValue("terme.vs"));
-					int res = op1 + op2;
-					data.setValue("terme_simple.vs", res);
-				}
-				if (data.getValue("terme_simple.vs") != null){
-					data.setValue("terme_simple.vh", Integer.toString((int)data.getValue("terme_simple.vs")));
-					data.setValue("terme_simple.th", data.getValue("terme_simple.ts"));
-					data.setValue("terme_simple.eh", data.getValue("terme_simple.es"));
-				}
+
+				info = new Data();
+				terme(info);
+
+				System.out.println("| |-Info");
+				System.out.println("|   |-"+info);
+
+				op1 = (int) data.getValue("terme_simple.vh");
+				if(data.getValue("op_unari.vs") == TypeVar.RESTA) op1 = -op1;
+				data.removeAttribute("op_unari.vs");
+
+				op2 = (int) info.getValue("terme.vs");
+				res = op1 + op2;
+
+				data.setValue("terme_simple.vh", res);
+				info.removeAttribute("terme.vs");
+				data.setValue("terme_simple.th", info.getValue("terme.ts"));
+				info.removeAttribute("terme.ts");
+				data.setValue("terme_simple.eh", info.getValue("terme.es"));
+				info.removeAttribute("terme.es");
 
 				terme_simple(data);
+
 				break;
 			case RESTA:
 				op_aux(data);
-				terme(data);
-				System.out.println(data);
-				int op1r;
-				if (data.getValue("terme_simple.vh") != null){
-					if (data.getValue("op_unari.vs") == TypeVar.RESTA){
-						data.removeAttribute("op_unari.vs");
-						op1r = -Integer.parseInt((String)data.getValue("terme_simple.vh"));
-					}
-					else op1r = Integer.parseInt((String)data.getValue("terme_simple.vh"));
-					//TODO: Canviar es i ts
-					data.setValue("terme_simple.ts", new TipusSimple("SENCER", 0));
-					data.setValue("terme_simple.es", true);
-					int op2 = Integer.parseInt((String) data.getValue("terme.vs"));
-					int res = op1r - op2;
-					data.setValue("terme_simple.vs", res);
-				}
-				if (data.getValue("terme_simple.vs") != null){
-					data.setValue("terme_simple.vh", Integer.toString((int)data.getValue("terme_simple.vs")));
-					data.setValue("terme_simple.th", data.getValue("terme_simple.ts"));
-					data.setValue("terme_simple.eh", data.getValue("terme_simple.es"));
-				}
+
+				info = new Data();
+				terme(info);
+
+				System.out.println("| |-Info");
+				System.out.println("|   |-"+info);
+
+				op1 = (int) data.getValue("terme_simple.vh");
+				if(data.getValue("op_unari.vs") == TypeVar.RESTA) op1 = -op1;
+				data.removeAttribute("op_unari.vs");
+
+				op2 = (int) info.getValue("terme.vs");
+				res = op1 - op2;
+
+				data.setValue("terme_simple.vh", res);
+				info.removeAttribute("terme.vs");
+				data.setValue("terme_simple.th", info.getValue("terme.ts"));
+				info.removeAttribute("terme.ts");
+				data.setValue("terme_simple.eh", info.getValue("terme.es"));
+				info.removeAttribute("terme.es");
 
 				terme_simple(data);
+
 				break;
 			case OR:
 				op_aux(data);
@@ -325,36 +326,39 @@ public class SyntacticClean {
 	}
 
 	private void terme(Data data){
-		TipusSimple tipus = new TipusSimple();
+		System.out.println("|-Terme");
+		System.out.println("| |-"+data);
+
 		switch (lookahead.getToken()) {
 			//FACTOR
 			case SENCER_CST:
-				//TODO: Afegir tamany, min i max
-				tipus.setNom("SENCER");
-				data.setValue("terme.vs", lookahead.getLexema());
-				data.setValue("terme.ts", tipus);
+				data.setValue("terme.vs", Integer.parseInt(lookahead.getLexema()));
+				data.setValue("terme.ts", new TipusSimple("SENCER", 0));
 				data.setValue("terme.es", true);
 				accept(Type.SENCER_CST);
 				semantic.checkOp_binari(data);
+				data.removeAttribute("terme.vh");
+				data.removeAttribute("terme.th");
+				data.removeAttribute("terme.eh");
 				break;
 			case LOGIC_CST:
-				tipus.setNom("LOGIC");
 				data.setValue("terme.vs", lookahead.getLexema());
-				data.setValue("terme.ts", tipus);
+				data.setValue("terme.ts", new TipusSimple("LOGIC", 0));
 				data.setValue("terme.es", true);
 				accept(Type.LOGIC_CST);
 				break;
 			case CADENA:
-				tipus.setNom("CADENA");
 				data.setValue("terme.vs", lookahead.getLexema());
-				data.setValue("terme.ts", tipus);
+				data.setValue("terme.ts", new TipusSimple("CADENA", 0));
 				data.setValue("terme.es", true);
 				accept(Type.CADENA);
 				break;
 			case OPARENT:
 				accept(Type.OPARENT);
-				//TODO
-				exp();
+				Data exp = exp();
+				data.setValue("terme.vs", exp.getValue("exp.vs"));
+				data.setValue("terme.ts", exp.getValue("exp.ts"));
+				data.setValue("terme.es", exp.getValue("exp.es"));
 				accept(Type.CPARENT);
 				break;
 			case ID:
@@ -362,20 +366,34 @@ public class SyntacticClean {
 				accept(Type.ID);
 				factor_aux();
 				break;
-			default: //ERROR
+			default:
 				System.out.println("ERROR");
 		}
-		try{
-			data.setValue("terme_aux.vh", data.getValue("terme.vs"));
-			data.setValue("terme_aux.th", data.getValue("terme.ts"));
-			data.setValue("terme_aux.eh", data.getValue("terme.es"));
-		}catch (NullPointerException e){
 
-		}
+		System.out.println("|   |-"+data);
+		//El case ID, que no té settejats aquests valors i llença l'excepció
+		data.setValue("terme_aux.vh", data.getValue("terme.vs"));
+		data.removeAttribute("terme.vs");
+		data.setValue("terme_aux.th", data.getValue("terme.ts"));
+		data.removeAttribute("terme.ts");
+		data.setValue("terme_aux.eh", data.getValue("terme.es"));
+		data.removeAttribute("terme.es");
+
+		System.out.println("|     |-"+data);
 		terme_aux(data);
+
+		data.setValue("terme.vs", data.getValue("terme_aux.vs"));
+		data.removeAttribute("terme_aux.vs");
+		data.setValue("terme.ts", data.getValue("terme_aux.ts"));
+		data.removeAttribute("terme_aux.ts");
+		data.setValue("terme.es", data.getValue("terme_aux.es"));
+		data.removeAttribute("terme_aux.es");
+
+		System.out.println("|       |-"+data);
+
 	}
 
-	private Data terme_aux(Data data){
+	private void terme_aux(Data data){
 
 		switch (lookahead.getToken()){
 			case MUL:
@@ -388,26 +406,43 @@ public class SyntacticClean {
 				data.removeAttribute("terme_aux.eh");
 				data.setValue("MUL", true);
 				terme(data);
+				data.setValue("terme_aux.vs", data.getValue("terme.vs"));
+				data.removeAttribute("terme.vs");
+				data.setValue("terme_aux.ts", data.getValue("terme.ts"));
+				data.removeAttribute("terme.ts");
+				data.setValue("terme_aux.es", data.getValue("terme.es"));
+				data.removeAttribute("terme.es");
 				break;
 			case DIV:
 				op_binaria();
-				data.setValue("terme.vh", data.getValue("terme.vs"));
-				data.removeAttribute("terme.vs");
-				data.setValue("terme.th", data.getValue("terme.ts"));
-				data.removeAttribute("terme.ts");
-				data.setValue("terme.eh", data.getValue("terme.es"));
-				data.removeAttribute("terme.es");
+				data.setValue("terme.vh", data.getValue("terme_aux.vh"));
+				data.removeAttribute("terme_aux.vh");
+				data.setValue("terme.th", data.getValue("terme_aux.th"));
+				data.removeAttribute("terme_aux.th");
+				data.setValue("terme.eh", data.getValue("terme_aux.eh"));
+				data.removeAttribute("terme_aux.eh");
 				data.setValue("DIV", true);
 				terme(data);
+				data.setValue("terme_aux.vs", data.getValue("terme.vs"));
+				data.removeAttribute("terme.vs");
+				data.setValue("terme_aux.ts", data.getValue("terme.ts"));
+				data.removeAttribute("terme.ts");
+				data.setValue("terme_aux.es", data.getValue("terme.es"));
+				data.removeAttribute("terme.es");
 				break;
 			case AND:
 				op_binaria();
 				terme(data);
 				break;
 			default:
-				return data;
+				data.setValue("terme_aux.vs", data.getValue("terme_aux.vh"));
+				data.removeAttribute("terme_aux.vh");
+				data.setValue("terme_aux.ts", data.getValue("terme_aux.th"));
+				data.removeAttribute("terme_aux.th");
+				data.setValue("terme_aux.es", data.getValue("terme_aux.eh"));
+				data.removeAttribute("terme_aux.eh");
+				break;
 		}
-		return data;
 	}
 
 	private void op_binaria(){
