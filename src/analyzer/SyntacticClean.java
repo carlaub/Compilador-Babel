@@ -2,6 +2,7 @@ package analyzer;
 
 
 import taulaDeSimbols.*;
+import utils.Error;
 
 import java.io.IOException;
 
@@ -19,6 +20,7 @@ public class SyntacticClean {
 
 	private SyntacticClean(String fileName) throws IOException {
 		lexic = LexicographicAnalyzer.getInstance(fileName);
+		Error.getInstance(fileName);
 		semantic = new SemanticAnalyzer();
 	}
 
@@ -55,15 +57,19 @@ public class SyntacticClean {
 			case CONST:
 				accept(Type.CONST);
 				//TODO: Afegir tipus i valor a data
+				String constName = lookahead.getLexema();
 
 				data.setValue("name", lookahead.getLexema());
 				accept(Type.ID);
 				accept(Type.IGUAL);
-				exp();
+				data = exp();
+
 				accept(Type.SEMICOLON);
 
+				data.setValue("const.name", constName);
 				semantic.checkConstant(data);
 				break;
+
 
 			case VAR:
 				accept(Type.VAR);

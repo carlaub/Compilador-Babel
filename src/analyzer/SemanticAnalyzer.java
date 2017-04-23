@@ -1,16 +1,21 @@
 package analyzer;
 
 import taulaDeSimbols.*;
+import utils.Error;
+import utils.TypeError;
 
 public class SemanticAnalyzer {
 	private TaulaSimbols taulaSimbols;
 	private int blocActual;
+	private Error error;
 
 	public SemanticAnalyzer(){
 		blocActual = 0;
 		taulaSimbols = new TaulaSimbols();
 		taulaSimbols.inserirBloc(new Bloc());
 		taulaSimbols.setBlocActual(blocActual);
+
+		error = Error.getInstance();
 	}
 
 	@Override
@@ -36,10 +41,18 @@ public class SemanticAnalyzer {
 
 	public void checkConstant(Data data) {
 		//TODO: Comprovació de la informació de constant
+		if ((boolean)data.getValue("exp.es")
+				&& !((ITipus)data.getValue("exp.ts")).getNom().equals("indef")) {
+			Constant constant = new Constant();
+			constant.setNom((String)data.getValue("const.name"));
+			constant.setValor(data.getValue("exp.vs"));
+			System.out.println("DATA:" + data);
+			taulaSimbols.obtenirBloc(blocActual).inserirConstant(constant);
+			//TODO: inserir tipus
+		} else {
+			//TODO: error, no es estàtica
+		}
 
-		Constant constant = new Constant();
-		constant.setNom((String)data.getValue("name"));
-		taulaSimbols.obtenirBloc(blocActual).inserirConstant(constant);
 	}
 
 	public void checkVariable(Data data) {
@@ -73,22 +86,45 @@ public class SemanticAnalyzer {
 	public void checkOp_binari(Data data){
 		//TODO: Afegir comprovacions
 		if (data.getValue("MUL") != null ){
-			int op1 = (int)data.getValue("terme.vh");
-			int op2 = (int)data.getValue("terme.vs");
-			int resultat = op1 * op2;
-			data.setValue("terme.vs", resultat);
+			if (((TipusSimple)data.getValue("terme.th")).getNom().equals("SENCER") &&
+					((TipusSimple)data.getValue("terme.ts")).getNom().equals("SENCER")) {
+				int op1 = (int) data.getValue("terme.vh");
+				int op2 = (int) data.getValue("terme.vs");
+				int resultat = op1 * op2;
+				data.setValue("terme.vs", resultat);
+			} else {
+				//TODO: recuperació errors
+				error.insertError(TypeError.ERR_SEM_6);
+				data.setValue("terme.ts", new TipusIndefinit("indef", 0));
+			}
 			data.removeAttribute("MUL");
 		} else if(data.getValue("DIV") != null){
-			int op1 = (int)data.getValue("terme.vh");
-			int op2 = (int)data.getValue("terme.vs");
-			int resultat = op1 / op2;
-			data.setValue("terme.vs", resultat);
+			if (((TipusSimple)data.getValue("terme.th")).getNom().equals("SENCER") &&
+					((TipusSimple)data.getValue("terme.ts")).getNom().equals("SENCER")) {
+				int op1 = (int) data.getValue("terme.vh");
+				int op2 = (int) data.getValue("terme.vs");
+				int resultat = op1 / op2;
+				data.setValue("terme.vs", resultat);
+			} else {
+				//TODO: recuperació errors
+				error.insertError(TypeError.ERR_SEM_6);
+				data.setValue("terme.ts", new TipusIndefinit("indef", 0));
+			}
+
 			data.removeAttribute("DIV");
 		} else if(data.getValue("AND") != null){
-			boolean op1 = (boolean)data.getValue("terme.vh");
-			boolean op2 = (boolean)data.getValue("terme.vs");
-			boolean resultat = op1 && op2;
-			data.setValue("terme.vs", resultat);
+			if (((TipusSimple)data.getValue("terme.th")).getNom().equals("LOGIC") &&
+					((TipusSimple)data.getValue("terme.ts")).getNom().equals("LOGIC")) {
+				boolean op1 = (boolean) data.getValue("terme.vh");
+				boolean op2 = (boolean) data.getValue("terme.vs");
+				boolean resultat = op1 && op2;
+				data.setValue("terme.vs", resultat);
+			} else {
+				//TODO: recuperació errors
+				//error.insertError(TypeError.ERR_SEM_7);
+				data.setValue("terme.ts", new TipusIndefinit("indef", 0));
+			}
+			System.out.println("DATA:" + data);
 			data.removeAttribute("AND");
 		}
 	}
@@ -96,22 +132,46 @@ public class SemanticAnalyzer {
 	public void checkOp_aux(Data data, Data info){
 		//TODO: Control d'errors
 		if (data.getValue("op_aux.vs") == TypeVar.SUMA){
-			int op1 = (int) data.getValue("terme_simple.vh");
-			int op2 = (int) info.getValue("terme.vs");
-			int res = op1 + op2;
-			info.setValue("terme.vs", res);
+			System.out.println("DATA:" + data);
+			System.out.println((TipusSimple)data.getValue("terme_simple.th"));
+
+			if (((TipusSimple)data.getValue("terme_simple.th")).getNom().equals("SENCER") &&
+					((TipusSimple)info.getValue("terme.ts")).getNom().equals("SENCER")) {
+				int op1 = (int) data.getValue("terme_simple.vh");
+				int op2 = (int) info.getValue("terme.vs");
+				int res = op1 + op2;
+				info.setValue("terme.vs", res);
+			} else {
+				//TODO: recuperació errors
+				//error.insertError(TypeError.ERR_SEM_6)
+				 data.setValue("terme.ts", new TipusIndefinit("indef", 0));
+			}
 			data.removeAttribute("op_aux.vs");
 		} else if (data.getValue("op_aux.vs") == TypeVar.RESTA) {
-			int op1 = (int) data.getValue("terme_simple.vh");
-			int op2 = (int) info.getValue("terme.vs");
-			int res = op1 - op2;
-			info.setValue("terme.vs", res);
+			if (((TipusSimple)data.getValue("terme_simple.th")).getNom().equals("SENCER") &&
+					((TipusSimple)info.getValue("terme.ts")).getNom().equals("SENCER")) {
+				int op1 = (int) data.getValue("terme_simple.vh");
+				int op2 = (int) info.getValue("terme.vs");
+				int res = op1 - op2;
+				info.setValue("terme.vs", res);
+			} else {
+				//TODO: recuperació errors
+				error.insertError(TypeError.ERR_SEM_6);
+				data.setValue("terme.ts", new TipusIndefinit("indef", 0));
+			}
 			data.removeAttribute("op_aux.vs");
 		} else if (data.getValue("op_aux.vs") == TypeVar.OR) {
-			boolean op1 = (boolean) data.getValue("terme_simple.vh");
-			boolean op2 = (boolean) info.getValue("terme.vs");
-			boolean res = op1 || op2;
-			info.setValue("terme.vs", res);
+			if (((TipusSimple)data.getValue("terme_simple.th")).getNom().equals("LOGIC") &&
+					((TipusSimple)info.getValue("terme.ts")).getNom().equals("LOGIC")) {
+				boolean op1 = (boolean) data.getValue("terme_simple.vh");
+				boolean op2 = (boolean) info.getValue("terme.vs");
+				boolean res = op1 || op2;
+				info.setValue("terme.vs", res);
+			} else {
+				//TODO: recuperació errors
+				error.insertError(TypeError.ERR_SEM_7);
+				data.setValue("terme.ts", new TipusIndefinit("indef", 0));
+			}
 			data.removeAttribute("op_aux.vs");
 		}
 	}
