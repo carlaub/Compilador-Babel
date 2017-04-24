@@ -206,7 +206,6 @@ public class SyntacticClean {
 
 		exp_aux(data);
 
-        System.out.println("DATA EXP_AUX: " + data);
         data.moveBlock("exp.s", "exp_aux.s");
 
 		System.out.println(data);
@@ -543,6 +542,7 @@ public class SyntacticClean {
                 data.removeAttribute("exp_aux.eh");
                 data.removeAttribute("exp_aux.th");
                 data.removeAttribute("exp_aux.vh");
+                data.removeAttribute("op_relacional.vs");
                 break;
 			default:
 				data.move("exp_aux.vs", "exp_aux.vh");
