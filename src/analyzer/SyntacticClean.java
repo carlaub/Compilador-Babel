@@ -2,7 +2,6 @@ package analyzer;
 
 
 import taulaDeSimbols.*;
-import utils.Error;
 
 import java.io.IOException;
 
@@ -20,7 +19,6 @@ public class SyntacticClean {
 
 	private SyntacticClean(String fileName) throws IOException {
 		lexic = LexicographicAnalyzer.getInstance(fileName);
-		//Error.getInstance(fileName);
 		semantic = new SemanticAnalyzer();
 	}
 
@@ -57,29 +55,31 @@ public class SyntacticClean {
 			case CONST:
 				accept(Type.CONST);
 				//TODO: Afegir tipus i valor a data
-				String constName = lookahead.getLexema();
+				String const_name = lookahead.getLexema();
 
 				data.setValue("name", lookahead.getLexema());
 				accept(Type.ID);
 				accept(Type.IGUAL);
 				data = exp();
 
+				//Fem aquesta comprovació abans que el SEMICOLON per si hi trobem un error i loggejem una línia, que ens doni la correcta
+				data.setValue("const.name", const_name);
+				semantic.checkConstant(data);
+
 				accept(Type.SEMICOLON);
 
-				data.setValue("const.name", constName);
-				semantic.checkConstant(data);
 				break;
 
 
 			case VAR:
 				accept(Type.VAR);
 
-				data.setValue("name", lookahead.getLexema());
+				data.setValue("var.name", lookahead.getLexema());
 				accept(Type.ID);
 				accept(Type.COLON);
-				data.setValue("type", tipus());
-				accept(Type.SEMICOLON);
+				data.setValue("var.type", tipus());
 				semantic.checkVariable(data);
+				accept(Type.SEMICOLON);
 				break;
 
 			default:
@@ -194,7 +194,7 @@ public class SyntacticClean {
 				return tipusArray;
 			default: //ERROR
 				System.out.println("ERROR");
-				return new TipusIndefinit();
+				return new TipusIndefinit("indef", 0);
 		}
 	}
 
@@ -388,6 +388,7 @@ public class SyntacticClean {
 			case OPARENT:
 				accept(Type.OPARENT);
 				Data exp = exp();
+
 				data.setValue("terme.vs", exp.getValue("exp.vs"));
 				data.setValue("terme.ts", exp.getValue("exp.ts"));
 				data.setValue("terme.es", exp.getValue("exp.es"));
@@ -539,15 +540,11 @@ public class SyntacticClean {
 				Data info = exp_simple();
 
                 semantic.checkOp_relacional(data, info);
-                data.removeAttribute("exp_aux.eh");
-                data.removeAttribute("exp_aux.th");
-                data.removeAttribute("exp_aux.vh");
-                data.removeAttribute("op_relacional.vs");
+                data.removeBlock("exp_aux.h");
+                data.remove("op_relacional.vs");
                 break;
 			default:
-				data.move("exp_aux.vs", "exp_aux.vh");
-				data.move("exp_aux.ts", "exp_aux.th");
-				data.move("exp_aux.es", "exp_aux.eh");
+				data.moveBlock("exp_aux.s", "exp_aux.h");
 				break;
 		}
 	}

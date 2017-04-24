@@ -2,8 +2,16 @@
 //const <id> = <exp>;
 //var <id>: <tipus>;
 
-const patata = 2 + 2 > CERT;
+const patata = (2 + 2) > 3;
 const hola = FALS AND CERT;
+
+funcio suma(): SENCER;
+	var resultat: SENCER;
+	const patata = 0;
+	func
+		retornar 0;
+	fifunc;
+
 prog
 	retornar CERT OR CERT AND FALS;
 fiprog

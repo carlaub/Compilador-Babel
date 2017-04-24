@@ -41,26 +41,77 @@ public class SemanticAnalyzer {
 
 	public void checkConstant(Data data) {
 		//TODO: Comprovació de la informació de constant
-		if ((boolean)data.getValue("exp.es")
-				&& !((ITipus)data.getValue("exp.ts")).getNom().equals("indef")) {
-			Constant constant = new Constant();
-			constant.setNom((String)data.getValue("const.name"));
-			constant.setValor(data.getValue("exp.vs"));
-			constant.setTipus((ITipus)data.getValue("exp.ts"));
+		//Comprovació de si té tipus
+		if (((ITipus)data.getValue("exp.ts")).getNom().equals("indef")){
+			//L'error ja l'haurem mostrat allà on hem detectat que els tipus no són coincidents
+			Constant constant = new Constant(
+					(String)data.getValue("const.name"),
+					new TipusIndefinit("indef", 0),
+					false );
 			taulaSimbols.obtenirBloc(blocActual).inserirConstant(constant);
-			//TODO: inserir tipus
-		} else {
-			//TODO: error, no es estàtica
+			return;
 		}
-
+		//Comprovació de si és estàtic
+		if (!(boolean)data.getValue("exp.es")){
+			error.insertError(TypeError.ERR_SEM_20);
+			Constant constant = new Constant(
+					(String)data.getValue("const.name"),
+					new TipusIndefinit("indef", 0),
+					false );
+			taulaSimbols.obtenirBloc(blocActual).inserirConstant(constant);
+			return;
+		}
+		String const_name = (String)data.getValue("const.name");
+		//Comprovació de si ha estat declarat com a constant prèviament
+		if (taulaSimbols.obtenirBloc(blocActual).existeixConstant(const_name)){
+			error.insertError(TypeError.ERR_SEM_1, const_name);
+			return;
+		}
+		//Comprovació de si ha estat declarat com a variable o funció prèviament
+		if (taulaSimbols.obtenirBloc(blocActual).existeixID(const_name)){
+			//TODO: Decidir codi d'error per aquest cas.
+			//Si ens decantem per ERR_SEM_1, el condicional anterior perd tot el sentit
+			error.insertError(TypeError.ERR_SEM_1, const_name);
+			return;
+		}
+		Constant constant = new Constant(
+				const_name,
+				(ITipus)data.getValue("exp.ts"),
+				data.getValue("exp.vs")
+		);
+		taulaSimbols.obtenirBloc(blocActual).inserirConstant(constant);
 	}
 
 	public void checkVariable(Data data) {
 		//TODO: Comprovació de la informació de variable
-
-		Variable variable = new Variable();
-		variable.setNom((String) data.getValue("name"));
-		variable.setTipus((ITipus) data.getValue("type"));
+		//TODO: Modificar el desplaçament
+		ITipus type = (ITipus)data.getValue("var.type");
+		if (type.getNom().equals("indef")){
+			Variable variable = new Variable(
+					(String)data.getValue("var.name"),
+					new TipusIndefinit("indef", 0),
+					0);
+			taulaSimbols.obtenirBloc(blocActual).inserirVariable(variable);
+			return;
+		}
+		String var_name = (String)data.getValue("var.name");
+		//Comprovació de si ha estat declarat com a variable prèviament
+		if (taulaSimbols.obtenirBloc(blocActual).existeixVariable(var_name)){
+			error.insertError(TypeError.ERR_SEM_2, var_name);
+			return;
+		}
+		//Comprovació de si ha estat declarat com a constant o funció prèviament
+		if (taulaSimbols.obtenirBloc(blocActual).existeixID(var_name)){
+			//TODO: Decidir codi d'error per aquest cas.
+			//Si ens decantem per ERR_SEM_2, el condicional anterior perd tot el sentit
+			error.insertError(TypeError.ERR_SEM_2, var_name);
+			return;
+		}
+		Variable variable = new Variable(
+				var_name,
+				(ITipus) data.getValue("var.type"),
+				0
+		);
 		taulaSimbols.obtenirBloc(blocActual).inserirVariable(variable);
 	}
 
@@ -92,6 +143,12 @@ public class SemanticAnalyzer {
 				int op2 = (int) data.getValue("terme.vs");
 				int resultat = op1 * op2;
 				data.setValue("terme.vs", resultat);
+				//Actualització de si és estàtic
+				boolean e1 = (boolean) data.getValue("terme.eh");
+				boolean e2 = (boolean) data.getValue("terme.es");
+				boolean e_res = e1 && e2;
+				data.setValue("terme.es", e_res);
+
 			} else {
 				//TODO: recuperació errors
 				error.insertError(TypeError.ERR_SEM_6);
@@ -105,6 +162,11 @@ public class SemanticAnalyzer {
 				int op2 = (int) data.getValue("terme.vs");
 				int resultat = op1 / op2;
 				data.setValue("terme.vs", resultat);
+				//Actualització de si és estàtic
+				boolean e1 = (boolean) data.getValue("terme.eh");
+				boolean e2 = (boolean) data.getValue("terme.es");
+				boolean e_res = e1 && e2;
+				data.setValue("terme.es", e_res);
 			} else {
 				//TODO: recuperació errors
 				error.insertError(TypeError.ERR_SEM_6);
@@ -119,6 +181,11 @@ public class SemanticAnalyzer {
 				boolean op2 = (boolean) data.getValue("terme.vs");
 				boolean resultat = op1 && op2;
 				data.setValue("terme.vs", resultat);
+				//Actualització de si és estàtic
+				boolean e1 = (boolean) data.getValue("terme.eh");
+				boolean e2 = (boolean) data.getValue("terme.es");
+				boolean e_res = e1 && e2;
+				data.setValue("terme.es", e_res);
 			} else {
 				//TODO: recuperació errors
 				error.insertError(TypeError.ERR_SEM_7);
@@ -141,6 +208,11 @@ public class SemanticAnalyzer {
 				int op2 = (int) info.getValue("terme.vs");
 				int res = op1 + op2;
 				info.setValue("terme.vs", res);
+				//Actualització de si és estàtic
+				boolean e1 = (boolean) data.getValue("terme_simple.eh");
+				boolean e2 = (boolean) info.getValue("terme.es");
+				boolean e_res = e1 && e2;
+				info.setValue("terme.es", e_res);
 			} else {
 				//TODO: recuperació errors
 				error.insertError(TypeError.ERR_SEM_6);
@@ -154,6 +226,11 @@ public class SemanticAnalyzer {
 				int op2 = (int) info.getValue("terme.vs");
 				int res = op1 - op2;
 				info.setValue("terme.vs", res);
+				//Actualització de si és estàtic
+				boolean e1 = (boolean) data.getValue("terme_simple.eh");
+				boolean e2 = (boolean) info.getValue("terme.es");
+				boolean e_res = e1 && e2;
+				info.setValue("terme.es", e_res);
 			} else {
 				//TODO: recuperació errors
 				error.insertError(TypeError.ERR_SEM_6);
@@ -167,6 +244,11 @@ public class SemanticAnalyzer {
 				boolean op2 = (boolean) info.getValue("terme.vs");
 				boolean res = op1 || op2;
 				info.setValue("terme.vs", res);
+				//Actualització de si és estàtic
+				boolean e1 = (boolean) data.getValue("terme_simple.eh");
+				boolean e2 = (boolean) info.getValue("terme.es");
+				boolean e_res = e1 && e2;
+				info.setValue("terme.es", e_res);
 			} else {
 				//TODO: recuperació errors
 				error.insertError(TypeError.ERR_SEM_7);

@@ -63,6 +63,15 @@ public class Data {
 		removeAttribute(atrib_orig);
 	}
 
+	public void copy(String atrib_dest, String atrib_orig){
+		setValue(atrib_dest, getValue(atrib_orig));
+	}
+
+	public void remove(String atrib){
+		removeAttribute(atrib);
+	}
+
+
 	/**
 	 * Mètode per a realitzar un 
 	 * @param block_dest
@@ -75,7 +84,23 @@ public class Data {
 		move(info_dest[0]+".v"+info_dest[1], info_orig[0]+".v"+info_orig[1]);
 		move(info_dest[0]+".t"+info_dest[1], info_orig[0]+".t"+info_orig[1]);
 		move(info_dest[0]+".e"+info_dest[1], info_orig[0]+".e"+info_orig[1]);
+	}
 
+	public void copyBlock(String block_dest, String block_orig){
+		String [] info_dest = block_dest.split("\\.");
+		String [] info_orig = block_orig.split("\\.");
+
+		copy(info_dest[0]+".v"+info_dest[1], info_orig[0]+".v"+info_orig[1]);
+		copy(info_dest[0]+".t"+info_dest[1], info_orig[0]+".t"+info_orig[1]);
+		copy(info_dest[0]+".e"+info_dest[1], info_orig[0]+".e"+info_orig[1]);
+	}
+
+	public void removeBlock(String block){
+		String [] info = block.split("\\.");
+
+		remove(info[0]+".v"+info[1]);
+		remove(info[0]+".t"+info[1]);
+		remove(info[0]+".e"+info[1]);
 	}
 
 	@Override
