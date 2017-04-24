@@ -47,7 +47,6 @@ public class SemanticAnalyzer {
 			constant.setNom((String)data.getValue("const.name"));
 			constant.setValor(data.getValue("exp.vs"));
 			constant.setTipus((ITipus)data.getValue("exp.ts"));
-			System.out.println("DATA:" + data);
 			taulaSimbols.obtenirBloc(blocActual).inserirConstant(constant);
 			//TODO: inserir tipus
 		} else {
@@ -189,4 +188,50 @@ public class SemanticAnalyzer {
 		}
 		data.removeAttribute("op_unari.vs");
 	}
+
+	public void checkOp_relacional(Data data, Data info) {
+        System.out.println("INFO: " + info);
+        System.out.println("DATA: " + data);
+
+        //TODO comprovacions
+
+        if (data.getValue("op_relacional.vs").equals(">")) {
+            data.setValue("exp_aux.vs", (int)data.getValue("exp_aux.vh") > (int)info.getValue("exp_simple.vs")) ;
+            //TODO tamany?
+            data.setValue("exp_aux.ts", new TipusSimple("LOGIC", 0));
+            //TODO estatic?
+            data.setValue("exp_aux.es", true);
+        } else  if (data.getValue("op_relacional.vs").equals("<")) {
+            data.setValue("exp_aux.vs", (int) data.getValue("exp_aux.vh") < (int) info.getValue("exp_simple.vs"));
+            //TODO tamany?
+            data.setValue("exp_aux.ts", new TipusSimple("LOGIC", 0));
+            //TODO estatic?
+            data.setValue("exp_aux.es", true);
+        }  if (data.getValue("op_relacional.vs").equals("<=")) {
+            data.setValue("exp_aux.vs", (int) data.getValue("exp_aux.vh") <= (int) info.getValue("exp_simple.vs"));
+            //TODO tamany?
+            data.setValue("exp_aux.ts", new TipusSimple("LOGIC", 0));
+            //TODO estatic?
+            data.setValue("exp_aux.es", true);
+        }  if (data.getValue("op_relacional.vs").equals(">=")) {
+            data.setValue("exp_aux.vs", (int) data.getValue("exp_aux.vh") >= (int) info.getValue("exp_simple.vs"));
+            //TODO tamany?
+            data.setValue("exp_aux.ts", new TipusSimple("LOGIC", 0));
+            //TODO estatic?
+            data.setValue("exp_aux.es", true);
+        }  if (data.getValue("op_relacional.vs").equals("==")) {
+            data.setValue("exp_aux.vs", (int) data.getValue("exp_aux.vh") == (int) info.getValue("exp_simple.vs"));
+            //TODO tamany?
+            data.setValue("exp_aux.ts", new TipusSimple("LOGIC", 0));
+            //TODO estatic?
+            data.setValue("exp_aux.es", true);
+        }  if (data.getValue("op_relacional.vs").equals("<>")) {
+            data.setValue("exp_aux.vs", (int) data.getValue("exp_aux.vh") != (int) info.getValue("exp_simple.vs"));
+            //TODO tamany?
+            data.setValue("exp_aux.ts", new TipusSimple("LOGIC", 0));
+            //TODO estatic?
+            data.setValue("exp_aux.es", true);
+        }
+    }
+
 }

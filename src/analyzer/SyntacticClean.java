@@ -206,7 +206,8 @@ public class SyntacticClean {
 
 		exp_aux(data);
 
-		data.moveBlock("exp.s", "exp_aux.s");
+        System.out.println("DATA EXP_AUX: " + data);
+        data.moveBlock("exp.s", "exp_aux.s");
 
 		System.out.println(data);
 		System.out.println("END");
@@ -534,11 +535,15 @@ public class SyntacticClean {
 	private void exp_aux(Data data) {
 		switch(lookahead.getToken()) {
 			case OP_RELACIONAL:
+                data.setValue("op_relacional.vs",lookahead.getLexema());
 				accept(Type.OP_RELACIONAL);
-
 				Data info = exp_simple();
-				//TODO: Tractament de l'operació
-				break;
+
+                semantic.checkOp_relacional(data, info);
+                data.removeAttribute("exp_aux.eh");
+                data.removeAttribute("exp_aux.th");
+                data.removeAttribute("exp_aux.vh");
+                break;
 			default:
 				data.move("exp_aux.vs", "exp_aux.vh");
 				data.move("exp_aux.ts", "exp_aux.th");
