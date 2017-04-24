@@ -391,7 +391,11 @@ public class SyntacticClean {
 				data.setValue("terme.vs", exp.getValue("exp.vs"));
 				data.setValue("terme.ts", exp.getValue("exp.ts"));
 				data.setValue("terme.es", exp.getValue("exp.es"));
+
+				//TODO check
 				accept(Type.CPARENT);
+				semantic.checkOp_unari(data);
+				semantic.checkOp_binari(data);
 				break;
 			case ID:
 				//TODO

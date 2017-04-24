@@ -2,8 +2,8 @@
 //const <id> = <exp>;
 //var <id>: <tipus>;
 
-const patata = -1+FALS;
+const patata = 4/(1+1);
 const hola = FALS AND CERT;
 prog
-	retornar CERT OR CERT AND 5;
+	retornar CERT OR CERT AND FALS;
 fiprog
