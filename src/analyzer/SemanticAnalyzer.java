@@ -8,6 +8,7 @@ public class SemanticAnalyzer {
 	private TaulaSimbols taulaSimbols;
 	private int blocActual;
 	private Error error;
+	private static final int INDEF = -1;
 
 	public SemanticAnalyzer(){
 		blocActual = 0;
@@ -42,7 +43,8 @@ public class SemanticAnalyzer {
 	public void checkConstant(Data data) {
 		//TODO: Comprovació de la informació de constant
 		//Comprovació de si té tipus
-		if (((ITipus)data.getValue("exp.ts")).getNom().equals("indef")){
+		if (((ITipus)data.getValue("exp.ts")).getNom().equals("indef") ||
+                ((ITipus)data.getValue("exp.ts")).getTamany() == INDEF){
 			//L'error ja l'haurem mostrat allà on hem detectat que els tipus no són coincidents
 			Constant constant = new Constant(
 					(String)data.getValue("const.name"),
@@ -115,6 +117,28 @@ public class SemanticAnalyzer {
 		taulaSimbols.obtenirBloc(blocActual).inserirVariable(variable);
 	}
 
+	public void checkID(Data data){
+		String id = (String) data.getValue("id.name");
+		data.removeAttribute("id.name");
+		if (taulaSimbols.obtenirBloc(blocActual).existeixConstant(id)){
+			Constant constant = taulaSimbols.obtenirBloc(blocActual).obtenirConstant(id);
+			data.setValue("terme.vs", id);
+			data.setValue("terme.ts", constant.getTipus());
+			data.setValue("terme.es", false);
+		} else if (taulaSimbols.obtenirBloc(blocActual).existeixVariable(id)){
+			Variable variable = taulaSimbols.obtenirBloc(blocActual).obtenirVariable(id);
+			data.setValue("terme.vs", id);
+			data.setValue("terme.ts", variable.getTipus());
+			data.setValue("terme.es", false);
+		} else if (taulaSimbols.obtenirBloc(blocActual).existeixProcediment(id)){
+			//TODO: Afegir el cas que l'ID és una funció
+//			Procediment funcio = taulaSimbols.obtenirBloc(blocActual).obtenirProcediment(id);
+//			data.setValue("terme.vs", id);
+//			data.setValue("terme.ts", funcio.getTipus());
+//			data.setValue("terme.es", false);
+		}
+	}
+
 	public void checkFuncio(Data data){
 		//Aquí també seria millor utilitzar blocActual
 		Funcio funcio = new Funcio();
@@ -135,61 +159,88 @@ public class SemanticAnalyzer {
 	}
 
 	public void checkOp_binari(Data data){
-		//TODO: Afegir comprovacions
 		if (data.getValue("MUL") != null ){
 			if (((ITipus)data.getValue("terme.th")).getNom().equals("SENCER") &&
 					((ITipus)data.getValue("terme.ts")).getNom().equals("SENCER")) {
-				int op1 = (int) data.getValue("terme.vh");
-				int op2 = (int) data.getValue("terme.vs");
-				int resultat = op1 * op2;
-				data.setValue("terme.vs", resultat);
-				//Actualització de si és estàtic
-				boolean e1 = (boolean) data.getValue("terme.eh");
-				boolean e2 = (boolean) data.getValue("terme.es");
-				boolean e_res = e1 && e2;
-				data.setValue("terme.es", e_res);
+			    if (((ITipus)data.getValue("terme.th")).getTamany() != INDEF &&
+                        ((ITipus)data.getValue("terme.th")).getTamany() != INDEF){
+                    int op1 = (int) data.getValue("terme.vh");
+                    int op2 = (int) data.getValue("terme.vs");
+                    int resultat = op1 * op2;
+                    data.setValue("terme.vs", resultat);
+                    //Actualització de si és estàtic
+                    boolean e1 = (boolean) data.getValue("terme.eh");
+                    boolean e2 = (boolean) data.getValue("terme.es");
+                    boolean e_res = e1 && e2;
+                    data.setValue("terme.es", e_res);
+                } else {
+                    data.setValue("terme.ts", new TipusSimple("SENCER", INDEF));
+                    data.setValue("terme.vs", 0);
+                }
 
 			} else {
-				//TODO: recuperació errors
 				error.insertError(TypeError.ERR_SEM_6);
-				data.setValue("terme.ts", new TipusIndefinit("indef", 0));
+				data.setValue("terme.ts", new TipusSimple("SENCER", INDEF));
+                data.setValue("terme.vs", 0);
 			}
 			data.removeAttribute("MUL");
 		} else if(data.getValue("DIV") != null){
 			if (((ITipus)data.getValue("terme.th")).getNom().equals("SENCER") &&
 					((ITipus)data.getValue("terme.ts")).getNom().equals("SENCER")) {
-				int op1 = (int) data.getValue("terme.vh");
-				int op2 = (int) data.getValue("terme.vs");
-				int resultat = op1 / op2;
-				data.setValue("terme.vs", resultat);
-				//Actualització de si és estàtic
-				boolean e1 = (boolean) data.getValue("terme.eh");
-				boolean e2 = (boolean) data.getValue("terme.es");
-				boolean e_res = e1 && e2;
-				data.setValue("terme.es", e_res);
+                if (((ITipus)data.getValue("terme.th")).getTamany() != INDEF &&
+                        ((ITipus)data.getValue("terme.th")).getTamany() != INDEF){
+                    int op1 = (int) data.getValue("terme.vh");
+                    int op2 = (int) data.getValue("terme.vs");
+                    if (op2 != 0){
+                        int resultat = op1 / op2;
+                        data.setValue("terme.vs", resultat);
+                        //Actualització de si és estàtic
+                        boolean e1 = (boolean) data.getValue("terme.eh");
+                        boolean e2 = (boolean) data.getValue("terme.es");
+                        boolean e_res = e1 && e2;
+                        data.setValue("terme.es", e_res);
+                    } else {
+                        error.insertError(TypeError.ERR_SEM_21);
+                        data.setValue("terme.vs", 0);
+                        data.setValue("terme.es", true);
+                    }
+
+
+                } else {
+                    data.setValue("terme.ts", new TipusSimple("SENCER", INDEF));
+                    data.setValue("terme.vs", 0);
+                }
 			} else {
-				//TODO: recuperació errors
 				error.insertError(TypeError.ERR_SEM_6);
-				data.setValue("terme.ts", new TipusIndefinit("indef", 0));
+                data.setValue("terme.ts", new TipusSimple("SENCER", INDEF));
+                data.setValue("terme.vs", 0);
 			}
 
 			data.removeAttribute("DIV");
 		} else if(data.getValue("AND") != null){
 			if (((ITipus)data.getValue("terme.th")).getNom().equals("LOGIC") &&
 					((ITipus)data.getValue("terme.ts")).getNom().equals("LOGIC")) {
-				boolean op1 = (boolean) data.getValue("terme.vh");
-				boolean op2 = (boolean) data.getValue("terme.vs");
-				boolean resultat = op1 && op2;
-				data.setValue("terme.vs", resultat);
-				//Actualització de si és estàtic
-				boolean e1 = (boolean) data.getValue("terme.eh");
-				boolean e2 = (boolean) data.getValue("terme.es");
-				boolean e_res = e1 && e2;
-				data.setValue("terme.es", e_res);
+                if (((ITipus)data.getValue("terme.th")).getTamany() != INDEF &&
+                        ((ITipus)data.getValue("terme.th")).getTamany() != INDEF){
+
+                    boolean op1 = (boolean) data.getValue("terme.vh");
+                    boolean op2 = (boolean) data.getValue("terme.vs");
+                    boolean resultat = op1 && op2;
+                    data.setValue("terme.vs", resultat);
+                    //Actualització de si és estàtic
+                    boolean e1 = (boolean) data.getValue("terme.eh");
+                    boolean e2 = (boolean) data.getValue("terme.es");
+                    boolean e_res = e1 && e2;
+                    data.setValue("terme.es", e_res);
+                } else {
+                    data.setValue("terme.ts", new TipusSimple("LOGIC", INDEF));
+                    data.setValue("terme.vs", 0);
+                }
 			} else {
 				//TODO: recuperació errors
 				error.insertError(TypeError.ERR_SEM_7);
-				data.setValue("terme.ts", new TipusIndefinit("indef", 0));
+                data.setValue("terme.ts", new TipusSimple("LOGIC", INDEF));
+                data.setValue("terme.vs", 0);
 			}
 			System.out.println("DATA:" + data);
 			data.removeAttribute("AND");
@@ -203,56 +254,81 @@ public class SemanticAnalyzer {
 			System.out.println(data.getValue("terme_simple.th"));
 
 			if (((ITipus)data.getValue("terme_simple.th")).getNom().equals("SENCER") &&
-					((ITipus)info.getValue("terme.ts")).getNom().equals("SENCER")) {
-				int op1 = (int) data.getValue("terme_simple.vh");
-				int op2 = (int) info.getValue("terme.vs");
-				int res = op1 + op2;
-				info.setValue("terme.vs", res);
-				//Actualització de si és estàtic
-				boolean e1 = (boolean) data.getValue("terme_simple.eh");
-				boolean e2 = (boolean) info.getValue("terme.es");
-				boolean e_res = e1 && e2;
-				info.setValue("terme.es", e_res);
+					((ITipus)info.getValue("terme.ts")).getNom().equals("SENCER") ){
+			    if (((ITipus) data.getValue("terme_simple.th")).getTamany() != INDEF &&
+                        ((ITipus) info.getValue("terme.ts")).getTamany() != INDEF){
+
+                    int op1 = (int) data.getValue("terme_simple.vh");
+                    int op2 = (int) info.getValue("terme.vs");
+                    int res = op1 + op2;
+                    info.setValue("terme.vs", res);
+                    //Actualització de si és estàtic
+                    boolean e1 = (boolean) data.getValue("terme_simple.eh");
+                    boolean e2 = (boolean) info.getValue("terme.es");
+                    boolean e_res = e1 && e2;
+                    info.setValue("terme.es", e_res);
+                } else {
+                    info.setValue("terme.ts", new TipusSimple("SENCER", INDEF));
+                    info.setValue("terme.vs", 0);
+                }
 			} else {
-				//TODO: recuperació errors
+
+			    //TODO: recuperació errors
 				error.insertError(TypeError.ERR_SEM_6);
-				info.setValue("terme.ts", new TipusIndefinit("indef", 0));
+				//Si el tamany és negatiu, vol dir que hi ha hagut un error al tipus
+				info.setValue("terme.ts", new TipusSimple("SENCER", INDEF));
+				info.setValue("terme.vs", 0);
 			}
 			data.removeAttribute("op_aux.vs");
 		} else if (data.getValue("op_aux.vs") == TypeVar.RESTA) {
 			if (((ITipus)data.getValue("terme_simple.th")).getNom().equals("SENCER") &&
-					((ITipus)info.getValue("terme.ts")).getNom().equals("SENCER")) {
-				int op1 = (int) data.getValue("terme_simple.vh");
-				int op2 = (int) info.getValue("terme.vs");
-				int res = op1 - op2;
-				info.setValue("terme.vs", res);
-				//Actualització de si és estàtic
-				boolean e1 = (boolean) data.getValue("terme_simple.eh");
-				boolean e2 = (boolean) info.getValue("terme.es");
-				boolean e_res = e1 && e2;
-				info.setValue("terme.es", e_res);
+					((ITipus)info.getValue("terme.ts")).getNom().equals("SENCER")){
+			    if (((ITipus) data.getValue("terme_simple.th")).getTamany() != INDEF &&
+                        ((ITipus) info.getValue("terme.ts")).getTamany() != INDEF){
+                    int op1 = (int) data.getValue("terme_simple.vh");
+                    int op2 = (int) info.getValue("terme.vs");
+                    int res = op1 - op2;
+                    info.setValue("terme.vs", res);
+                    //Actualització de si és estàtic
+                    boolean e1 = (boolean) data.getValue("terme_simple.eh");
+                    boolean e2 = (boolean) info.getValue("terme.es");
+                    boolean e_res = e1 && e2;
+                    info.setValue("terme.es", e_res);
+                }else{
+                    info.setValue("terme.ts", new TipusSimple("SENCER", INDEF));
+                    info.setValue("terme.vs", 0);
+                }
+
 			} else {
 				//TODO: recuperació errors
 				error.insertError(TypeError.ERR_SEM_6);
-				info.setValue("terme.ts", new TipusIndefinit("indef", 0));
+				info.setValue("terme.ts", new TipusSimple("SENCER", INDEF));
+				info.setValue("terme.vs", 0);
 			}
 			data.removeAttribute("op_aux.vs");
 		} else if (data.getValue("op_aux.vs") == TypeVar.OR) {
 			if (((ITipus)data.getValue("terme_simple.th")).getNom().equals("LOGIC") &&
 					((ITipus)info.getValue("terme.ts")).getNom().equals("LOGIC")) {
-				boolean op1 = (boolean) data.getValue("terme_simple.vh");
-				boolean op2 = (boolean) info.getValue("terme.vs");
-				boolean res = op1 || op2;
-				info.setValue("terme.vs", res);
-				//Actualització de si és estàtic
-				boolean e1 = (boolean) data.getValue("terme_simple.eh");
-				boolean e2 = (boolean) info.getValue("terme.es");
-				boolean e_res = e1 && e2;
-				info.setValue("terme.es", e_res);
-			} else {
-				//TODO: recuperació errors
-				error.insertError(TypeError.ERR_SEM_7);
-				info.setValue("terme.ts", new TipusIndefinit("indef", 0));
+                if (((ITipus) data.getValue("terme_simple.th")).getTamany() != INDEF &&
+                        ((ITipus) info.getValue("terme.ts")).getTamany() != INDEF){
+                    boolean op1 = (boolean) data.getValue("terme_simple.vh");
+                    boolean op2 = (boolean) info.getValue("terme.vs");
+                    boolean res = op1 || op2;
+                    info.setValue("terme.vs", res);
+                    //Actualització de si és estàtic
+                    boolean e1 = (boolean) data.getValue("terme_simple.eh");
+                    boolean e2 = (boolean) info.getValue("terme.es");
+                    boolean e_res = e1 && e2;
+                    info.setValue("terme.es", e_res);
+                } else {
+                    info.setValue("terme.ts", new TipusSimple("LOGIC", INDEF));
+                    info.setValue("terme.vs", 0);
+                }
+            } else {
+                //TODO: recuperació errors
+                error.insertError(TypeError.ERR_SEM_7);
+                info.setValue("terme.ts", new TipusSimple("LOGIC", INDEF));
+                info.setValue("terme.vs", 0);
 			}
 			data.removeAttribute("op_aux.vs");
 		}
@@ -270,16 +346,14 @@ public class SemanticAnalyzer {
             } else {
                 error.insertError(TypeError.ERR_SEM_6);
                 data.setValue("terme.vs", 0);
-                data.setValue("terme.ts", new TipusIndefinit("indef", 0));
+                data.setValue("terme.ts", new TipusSimple("SENCER", INDEF));
             }
 
 		} else if (data.getValue("op_unari.vs") == TypeVar.SUMA){
-            if (((ITipus)data.getValue("terme.ts")).getNom().equals("SENCER")) {
-
-            } else {
+            if (!((ITipus)data.getValue("terme.ts")).getNom().equals("SENCER")) {
                 error.insertError(TypeError.ERR_SEM_6);
                 data.setValue("terme.vs", 0);
-                data.setValue("terme.ts", new TipusIndefinit("indef", 0));
+                data.setValue("terme.ts", new TipusSimple("SENCER", INDEF));
             }
 
 		} else if (data.getValue("op_unari.vs") == TypeVar.NOT){
@@ -289,10 +363,8 @@ public class SemanticAnalyzer {
             } else {
                 error.insertError(TypeError.ERR_SEM_7);
                 data.setValue("terme.vs", 0);
-                data.setValue("terme.ts", new TipusIndefinit("indef", 0));
+                data.setValue("terme.ts", new TipusSimple("LOGIC", INDEF));
             }
-		}else{
-
 		}
 		data.removeAttribute("op_unari.vs");
 	}
@@ -303,15 +375,23 @@ public class SemanticAnalyzer {
         if (!((ITipus)data.getValue("exp_aux.th")).getNom().equals("SENCER") ||
                 !((ITipus)info.getValue("exp_simple.ts")).getNom().equals("SENCER")) {
             error.insertError(TypeError.ERR_SEM_6);
-            //TODO: inserir indefinit, recuperació d'errors
 
             data.setValue("exp_aux.vs", 0);
             data.setValue("exp_aux.ts", new TipusIndefinit("indef", 0));
             data.setValue("exp_aux.es", true);
+        } else if (((ITipus)data.getValue("exp_aux.th")).getTamany() == INDEF ||
+                ((ITipus)info.getValue("exp_simple.ts")).getTamany() == INDEF) {
+            data.setValue("exp_aux.vs", 0);
+            data.setValue("exp_aux.ts", new TipusIndefinit("indef", 0));
+            data.setValue("exp_aux.es", true);
+
+        } else if (!(boolean)data.getValue("exp_aux.es") || !(boolean)data.getValue("exp_simple.es")) {
+            data.setValue("exp_aux.ts", new TipusSimple("LOGIC", 0));
+            data.setValue("exp_aux.es", false);
+            data.setValue("exp_aux.vs", false);
         } else {
             //TODO tamany?
             //TODO estatic?
-
             if (data.getValue("op_relacional.vs").equals(">")) {
                 data.setValue("exp_aux.vs", (int)data.getValue("exp_aux.vh") > (int)info.getValue("exp_simple.vs")) ;
                 data.setValue("exp_aux.ts", new TipusSimple("LOGIC", 0));

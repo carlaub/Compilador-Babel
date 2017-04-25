@@ -274,6 +274,9 @@ public class Error {
 				case ERR_SEM_20:
 					bwErr.write("[" + error +"] "+ numLine + ", L'expressió no és estàtica.\n");
 					break;
+				case ERR_SEM_21:
+					bwErr.write("[" + error +"] "+ numLine + ", Divisió per 0.\n");
+					break;
 
 			}
 		} catch (IOException e) {

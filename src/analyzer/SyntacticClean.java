@@ -400,6 +400,8 @@ public class SyntacticClean {
 				break;
 			case ID:
 				//TODO
+				data.setValue("id.name", lookahead.getLexema());
+				semantic.checkID(data);
 				accept(Type.ID);
 				factor_aux();
 				break;

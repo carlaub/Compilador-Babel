@@ -2,8 +2,9 @@
 //const <id> = <exp>;
 //var <id>: <tipus>;
 
-const patata = (2 + 2) > 3;
-const hola = FALS AND CERT;
+const patata = 2 * (2+3)/(1*5-4/4-4);
+const hola = -FALS AND CERT;
+CONST A = +CERT or fals - cert;
 
 funcio suma(): SENCER;
 	var resultat: SENCER;
