@@ -444,4 +444,35 @@ public class SemanticAnalyzer {
 		data.setValue("param.index", 0);
 		data.setValue("param.num", funcio.getNumeroParametres());
 	}
+
+	public void checkParam(Data data, Data info) {
+
+		ITipus exp_ts = (ITipus) info.getValue("exp.ts");
+		Funcio funcio = (Funcio) data.getValue("llista_exp.vh");
+		int param_index = (int)data.getValue("param.index")+1;
+		data.setValue("param.index", param_index);
+		if (param_index > (int)data.getValue("param.num")){
+			//TODO: LOG SEM_ERR_15
+			error.insertError(TypeError.ERR_SEM_15, param_index, (int)data.getValue("param.num"));
+		} else {
+			Parametre parametre = funcio.obtenirParametre(param_index-1);
+			if (parametre.getTipusPasParametre().toString().equals("PERREF") &&
+					(boolean)info.getValue("exp.es")){
+				//TODO: LOG SEM_ERR_17
+				error.insertError(TypeError.ERR_SEM_17, param_index);
+			}
+
+			if(!exp_ts.getNom().equals(parametre.getTipus().getNom())){
+				//TODO: LOG SEM_ERR_16
+				error.insertError(TypeError.ERR_SEM_16, param_index, parametre.getTipus().getNom());
+			}
+		}
+	}
+
+	public void checkParamNext(Data data) {
+		if ((int)data.getValue("param.index") < (int)data.getValue("param.num")){
+			//TODO: LOG SEM_ERR_15
+			error.insertError(TypeError.ERR_SEM_15, (int)data.getValue("param.index"), (int)data.getValue("param.num"));
+		}
+	}
 }

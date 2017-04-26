@@ -518,32 +518,8 @@ public class SyntacticClean {
 			case ID:
 			case OPARENT:
 				Data info = exp();
-				ITipus exp_ts = (ITipus) info.getValue("exp.ts");
-				Funcio funcio = (Funcio) data.getValue("llista_exp.vh");
-				data.setValue("param.index", (int)data.getValue("param.index")+1);
-				if ((int)data.getValue("param.index") > (int)data.getValue("param.num")){
-					//TODO: LOG SEM_ERR_15
-					System.out.println("SEM_ERR_15");
-				} else {
-					System.out.println("PARAM_INDEX: "+(int)data.getValue("param.index"));
-					System.out.println("PARAM_NUM:"+(int)data.getValue("param.num"));
-					Parametre parametre = funcio.obtenirParametre((int)data.getValue("param.index")-1);
-					System.out.println("PARAM: "+parametre.toXml());
-					System.out.println(parametre.getTipusPasParametre().toString());
-					System.out.println(info);
-					if (parametre.getTipusPasParametre().toString().equals("PERREF") &&
-							(boolean)info.getValue("exp.es")){
-						//TODO: LOG SEM_ERR_17
-						System.out.println("SEM_ERR_17");
-					}
-					System.out.println("EXP_TS: "+exp_ts);
-					System.out.println("PARAM_TS: "+parametre.getTipus());
 
-					if(!exp_ts.getNom().equals(parametre.getTipus().getNom())){
-						//TODO: LOG SEM_ERR_16
-						System.out.println("SEM_ERR_16");
-					}
-				}
+				semantic.checkParam(data, info);
 
 				data.move("llista_exp_aux.vh","llista_exp.vh");
 				llista_exp_aux(data);
@@ -565,10 +541,7 @@ public class SyntacticClean {
 				data.move("llista_exp_aux.vs", "llista_exp.vs");
 				break;
 			default:
-				if ((int)data.getValue("param.index") < (int)data.getValue("param.num")){
-					//TODO: LOG SEM_ERR_15
-					System.out.println("SEM_ERR_15");
-				}
+				semantic.checkParamNext(data);
 				data.move("llista_exp_aux.vs", "llista_exp_aux.vh");
 				return;
 		}
