@@ -114,6 +114,12 @@ public class Error {
                     bwErr.write("[" + error +"] "+ numLine + ", Falta tancar la cadena.\n");
                     bwErr.write("Canvi de <"+string+"> a <"+string + "\">\n");
                     break;
+
+	            case ERR_SEM_16:
+		            bwErr.write("[" + error +"] "+ lexic.getActualLine() + ", El tipus del paràmetre número "+ numLine +
+				            "no coincideix amb el tipus dela seva declaració "+ string + "\n");
+		            break;
+
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -193,6 +199,12 @@ public class Error {
                     break;
 				case ERR_SIN_10:
 					bwErr.write("[" + error +"] "+ numLine  + ", El format de la instrucció és invàlid.\n");
+					break;
+	            case ERR_SEM_17:
+		            bwErr.write("[" + error +"] "+ lexic.getActualLine()  + ", El paràmetre número "+ numLine +
+				            "de la funció no es pot passar per referència.\n");
+
+		            break;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -281,6 +293,17 @@ public class Error {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+
+		}
+
+	}
+
+	public void insertError (TypeError error, int numParamDecl, int numParamUs) {
+		int numLine = lexic.getActualLine();
+		try {
+			bwErr.write("[" + error +"] "+ numLine + ", La funció en declaració té "+ numParamDecl +
+					" paràmetres mentre que en ús té " + numParamUs + ".\n");
+		} catch(IOException e) {
 
 		}
 
