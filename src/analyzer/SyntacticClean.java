@@ -403,7 +403,11 @@ public class SyntacticClean {
 				data.setValue("id.name", lookahead.getLexema());
 				semantic.checkID(data);
 				accept(Type.ID);
-				factor_aux();
+//				data.move("factor_aux.vh", "terme.vs");
+				data.moveBlock("factor_aux.h", "terme.s");
+				factor_aux(data);
+				//TODO: Canviar que vagi a terme.s
+				data.moveBlock("terme.s", "factor_aux.s");
 				break;
 			default:
 				System.out.println("ERROR");
@@ -411,9 +415,9 @@ public class SyntacticClean {
 
 		System.out.println("|   |-"+data);
 		//El case ID, que no té settejats aquests valors i llença l'excepció
-		try {
+//		try {
 			data.moveBlock("terme_aux.h", "terme.s");
-		} catch (NullPointerException e){}
+//		} catch (NullPointerException e){}
 
 		System.out.println("|     |-"+data);
 		terme_aux(data);
@@ -478,22 +482,32 @@ public class SyntacticClean {
 		}
 	}
 
-	private void factor_aux(){
+	private void factor_aux(Data data){
 		switch (lookahead.getToken()){
 			case OPARENT:
 				accept(Type.OPARENT);
-				llista_exp();
+				semantic.initFuncio(data);
+				llista_exp(data);
+
+				data.move("factor_aux.vs", "llista_exp.vs");
+				data.setValue("factor_aux.ts", new TipusIndefinit());
+				data.setValue("factor_aux.es", false);
+
 				accept(Type.CPARENT);
 				break;
 			case OCLAU:
+				variable_aux();
+				break;
 			default:
+				System.out.println("TEST: "+data);
+				data.moveBlock("factor_aux.s", "factor_aux.h");
 				variable_aux();
 				break;
 
 		}
 	}
 
-	private void llista_exp(){
+	private void llista_exp(Data data){
 		switch (lookahead.getToken()){
 			case SUMA:
 			case RESTA:
@@ -503,21 +517,59 @@ public class SyntacticClean {
 			case CADENA:
 			case ID:
 			case OPARENT:
-				exp();
-				llista_exp_aux();
+				Data info = exp();
+				ITipus exp_ts = (ITipus) info.getValue("exp.ts");
+				Funcio funcio = (Funcio) data.getValue("llista_exp.vh");
+				data.setValue("param.index", (int)data.getValue("param.index")+1);
+				if ((int)data.getValue("param.index") > (int)data.getValue("param.num")){
+					//TODO: LOG SEM_ERR_15
+					System.out.println("SEM_ERR_15");
+				} else {
+					System.out.println("PARAM_INDEX: "+(int)data.getValue("param.index"));
+					System.out.println("PARAM_NUM:"+(int)data.getValue("param.num"));
+					Parametre parametre = funcio.obtenirParametre((int)data.getValue("param.index")-1);
+					System.out.println("PARAM: "+parametre.toXml());
+					System.out.println(parametre.getTipusPasParametre().toString());
+					System.out.println(info);
+					if (parametre.getTipusPasParametre().toString().equals("PERREF") &&
+							(boolean)info.getValue("exp.es")){
+						//TODO: LOG SEM_ERR_17
+						System.out.println("SEM_ERR_17");
+					}
+					System.out.println("EXP_TS: "+exp_ts);
+					System.out.println("PARAM_TS: "+parametre.getTipus());
+
+					if(!exp_ts.getNom().equals(parametre.getTipus().getNom())){
+						//TODO: LOG SEM_ERR_16
+						System.out.println("SEM_ERR_16");
+					}
+				}
+
+				data.move("llista_exp_aux.vh","llista_exp.vh");
+				llista_exp_aux(data);
+				data.move("llista_exp.vs", "llista_exp_aux.vs");
+				break;
 			default:
+				data.setValue("llista_exp.vs", false);
 				return;
 		}
 
 	}
 
-	private void llista_exp_aux(){
+	private void llista_exp_aux(Data data){
 		switch (lookahead.getToken()){
 			case COMA:
 				accept(Type.COMA);
-				llista_exp();
+				data.move("llista_exp.vh", "llista_exp_aux.vh");
+				llista_exp(data);
+				data.move("llista_exp_aux.vs", "llista_exp.vs");
 				break;
 			default:
+				if ((int)data.getValue("param.index") < (int)data.getValue("param.num")){
+					//TODO: LOG SEM_ERR_15
+					System.out.println("SEM_ERR_15");
+				}
+				data.move("llista_exp_aux.vs", "llista_exp_aux.vh");
 				return;
 		}
 	}

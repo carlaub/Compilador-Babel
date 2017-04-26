@@ -122,20 +122,27 @@ public class SemanticAnalyzer {
 		data.removeAttribute("id.name");
 		if (taulaSimbols.obtenirBloc(blocActual).existeixConstant(id)){
 			Constant constant = taulaSimbols.obtenirBloc(blocActual).obtenirConstant(id);
-			data.setValue("terme.vs", id);
+			System.out.println("CONST: "+constant.toXml());
+			data.setValue("terme.vs", constant);
 			data.setValue("terme.ts", constant.getTipus());
-			data.setValue("terme.es", false);
+			data.setValue("terme.es", true);
 		} else if (taulaSimbols.obtenirBloc(blocActual).existeixVariable(id)){
 			Variable variable = taulaSimbols.obtenirBloc(blocActual).obtenirVariable(id);
-			data.setValue("terme.vs", id);
+			System.out.println("VAR: "+variable.toXml());
+			data.setValue("terme.vs", variable);
 			data.setValue("terme.ts", variable.getTipus());
 			data.setValue("terme.es", false);
 		} else if (taulaSimbols.obtenirBloc(blocActual).existeixProcediment(id)){
-			//TODO: Afegir el cas que l'ID és una funció
-//			Procediment funcio = taulaSimbols.obtenirBloc(blocActual).obtenirProcediment(id);
-//			data.setValue("terme.vs", id);
-//			data.setValue("terme.ts", funcio.getTipus());
-//			data.setValue("terme.es", false);
+			Procediment funcio = taulaSimbols.obtenirBloc(blocActual).obtenirProcediment(id);
+			data.setValue("terme.vs", funcio);
+			data.setValue("terme.ts", false);
+			data.setValue("terme.es", false);
+		}  else {
+			error.insertError(TypeError.ERR_SEM_9, id);
+			System.out.println("ERR_SEM_9");
+			data.setValue("terme.vs", false);
+			data.setValue("terme.ts", new TipusIndefinit());
+			data.setValue("terme.es", false);
 		}
 	}
 
@@ -424,4 +431,17 @@ public class SemanticAnalyzer {
             }
         }
     }
+
+	public void initFuncio(Data data) {
+		Funcio funcio;
+		if (data.getValue("factor_aux.vh") instanceof Funcio){
+			funcio = (Funcio) data.getValue("factor_aux.vh");
+			data.move("llista_exp.vh", "factor_aux.vh");
+		} else {
+			funcio = new Funcio();
+			data.setValue("llista_exp.vh", funcio);
+		}
+		data.setValue("param.index", 0);
+		data.setValue("param.num", funcio.getNumeroParametres());
+	}
 }
