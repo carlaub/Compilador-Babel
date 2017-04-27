@@ -496,12 +496,12 @@ public class SyntacticClean {
 				accept(Type.CPARENT);
 				break;
 			case OCLAU:
-				variable_aux();
+				variable_aux(data);
 				break;
 			default:
-				System.out.println("TEST: "+data);
-				data.moveBlock("factor_aux.s", "factor_aux.h");
-				variable_aux();
+				data.moveBlock("variable_aux.h", "factor_aux.h");
+				variable_aux(data);
+				data.moveBlock("factor_aux.s", "variable_aux.s");
 				break;
 
 		}
@@ -547,7 +547,7 @@ public class SyntacticClean {
 		}
 	}
 
-	private void variable_aux(){
+	private void variable_aux(Data data){
 		switch (lookahead.getToken()){
 			case OCLAU:
 				accept(Type.OCLAU);
@@ -555,6 +555,13 @@ public class SyntacticClean {
 				accept(Type.CCLAU);
 				break;
 			default:
+				if (data.getValue("variable_aux.vh") instanceof Funcio){
+					//TODO: Passar al semàntic (ja funciona [amb la guarrada extrema del try catch])
+					System.out.println("ERR_SEM_22 -----------------------------------------------------");
+				}
+				try{
+					data.moveBlock("variable_aux.s", "variable_aux.h");
+				}catch (Exception e){}
 				return;
 		}
 	}
@@ -604,8 +611,10 @@ public class SyntacticClean {
 	private void inst(){
 		switch (lookahead.getToken()) {
 			case ID:
+				Data data = new Data();
 				accept(Type.ID);
-				variable_aux();
+				//TODO: Agafar informació de l'ID i passar-la a variable_aux
+				variable_aux(data);
 				accept(Type.IGUAL);
 				igual_aux();
 
@@ -620,7 +629,8 @@ public class SyntacticClean {
 			case LLEGIR:
 				accept(Type.LLEGIR);
 				accept(Type.OPARENT);
-				param_llegir();
+				Data data_llegir = new Data();
+				param_llegir(data_llegir);
 				accept(Type.CPARENT);
 
 				break;
@@ -709,13 +719,13 @@ public class SyntacticClean {
 		}
 	}
 
-	private void param_llegir(){
+	private void param_llegir(Data data){
 		accept(Type.ID);
-		variable_aux();
+		variable_aux(data);
 		switch (lookahead.getToken()){
 			case COMA:
 				accept(Type.COMA);
-				param_llegir();
+				param_llegir(data);
 				break;
 			default:
 				return;

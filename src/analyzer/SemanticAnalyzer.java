@@ -451,27 +451,21 @@ public class SemanticAnalyzer {
 		Funcio funcio = (Funcio) data.getValue("llista_exp.vh");
 		int param_index = (int)data.getValue("param.index")+1;
 		data.setValue("param.index", param_index);
-		if (param_index > (int)data.getValue("param.num")){
-			//TODO: LOG SEM_ERR_15
-			error.insertError(TypeError.ERR_SEM_15, param_index, (int)data.getValue("param.num"));
-		} else {
+		if (param_index <= (int)data.getValue("param.num")){
 			Parametre parametre = funcio.obtenirParametre(param_index-1);
 			if (parametre.getTipusPasParametre().toString().equals("PERREF") &&
 					(boolean)info.getValue("exp.es")){
-				//TODO: LOG SEM_ERR_17
 				error.insertError(TypeError.ERR_SEM_17, param_index);
 			}
 
 			if(!exp_ts.getNom().equals(parametre.getTipus().getNom())){
-				//TODO: LOG SEM_ERR_16
 				error.insertError(TypeError.ERR_SEM_16, param_index, parametre.getTipus().getNom());
 			}
 		}
 	}
 
 	public void checkParamNext(Data data) {
-		if ((int)data.getValue("param.index") < (int)data.getValue("param.num")){
-			//TODO: LOG SEM_ERR_15
+		if ((int)data.getValue("param.index") != (int)data.getValue("param.num")){
 			error.insertError(TypeError.ERR_SEM_15, (int)data.getValue("param.index"), (int)data.getValue("param.num"));
 		}
 	}

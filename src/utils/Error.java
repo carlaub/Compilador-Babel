@@ -252,6 +252,11 @@ public class Error {
 					bwErr.write("[" + error +"] "+ numLine + ", El tipus de l'índex d'accés del vector <" + string +
 							"> no és sencer.\n");
 					break;
+				case ERR_SEM_22:
+					bwErr.write("[" + error +"] "+ numLine + ", L'identificador <" + string +
+							"> en part dreta de l'assignació no és de tipus variable o constant.\n");
+					break;
+
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -301,8 +306,8 @@ public class Error {
 	public void insertError (TypeError error, int numParamDecl, int numParamUs) {
 		int numLine = lexic.getActualLine();
 		try {
-			bwErr.write("[" + error +"] "+ numLine + ", La funció en declaració té "+ numParamDecl +
-					" paràmetres mentre que en ús té " + numParamUs + ".\n");
+			bwErr.write("[" + error +"] "+ numLine + ", La funció en declaració té "+ numParamUs +
+					" paràmetres mentre que en ús té " + numParamDecl + ".\n");
 		} catch(IOException e) {
 
 		}
