@@ -253,8 +253,8 @@ public class Error {
 							"> no és sencer.\n");
 					break;
 				case ERR_SEM_22:
-					bwErr.write("[" + error +"] "+ numLine + ", L'identificador <" + string +
-							"> en part dreta de l'assignació no és de tipus variable o constant.\n");
+					bwErr.write("[" + error +"] "+ numLine + ", La funció <" + string +
+							"> en part dreta de l'assignació no està sent invocada.\n");
 					break;
 
 			}

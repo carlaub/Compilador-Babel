@@ -469,4 +469,12 @@ public class SemanticAnalyzer {
 			error.insertError(TypeError.ERR_SEM_15, (int)data.getValue("param.index"), (int)data.getValue("param.num"));
 		}
 	}
+
+	public void checkErrSem22(Data data) {
+		if (data.getValue("variable_aux.vh") instanceof Funcio){
+			//TODO: Passar al semàntic (ja funciona [amb la guarrada extrema del try catch])
+			error.insertError(TypeError.ERR_SEM_22, ((Funcio)data.getValue("variable_aux.vh")).getNom());		}
+	}
+
+
 }

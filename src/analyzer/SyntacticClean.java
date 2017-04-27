@@ -406,7 +406,6 @@ public class SyntacticClean {
 //				data.move("factor_aux.vh", "terme.vs");
 				data.moveBlock("factor_aux.h", "terme.s");
 				factor_aux(data);
-				//TODO: Canviar que vagi a terme.s
 				data.moveBlock("terme.s", "factor_aux.s");
 				break;
 			default:
@@ -555,10 +554,7 @@ public class SyntacticClean {
 				accept(Type.CCLAU);
 				break;
 			default:
-				if (data.getValue("variable_aux.vh") instanceof Funcio){
-					//TODO: Passar al semàntic (ja funciona [amb la guarrada extrema del try catch])
-					System.out.println("ERR_SEM_22 -----------------------------------------------------");
-				}
+				semantic.checkErrSem22(data);
 				try{
 					data.moveBlock("variable_aux.s", "variable_aux.h");
 				}catch (Exception e){}
