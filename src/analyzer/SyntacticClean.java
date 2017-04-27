@@ -267,6 +267,9 @@ public class SyntacticClean {
 
 				semantic.checkOp_aux(data, info);
 
+
+
+
 				//No es pot fer amb move perquè són de Data diferents
 				data.setValue("terme_simple.vh", info.getValue("terme.vs"));
 				info.removeAttribute("terme.vs");
@@ -275,7 +278,10 @@ public class SyntacticClean {
 				data.setValue("terme_simple.eh", info.getValue("terme.es"));
 				info.removeAttribute("terme.es");
 
+
+
 				terme_simple(data);
+
 				break;
 
 			case RESTA:

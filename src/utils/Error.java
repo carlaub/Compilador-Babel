@@ -117,7 +117,7 @@ public class Error {
 
 	            case ERR_SEM_16:
 		            bwErr.write("[" + error +"] "+ lexic.getActualLine() + ", El tipus del paràmetre número "+ numLine +
-				            "no coincideix amb el tipus dela seva declaració "+ string + "\n");
+				            " no coincideix amb el tipus de la seva declaració "+ string + "\n");
 		            break;
 
             }
@@ -202,7 +202,7 @@ public class Error {
 					break;
 	            case ERR_SEM_17:
 		            bwErr.write("[" + error +"] "+ lexic.getActualLine()  + ", El paràmetre número "+ numLine +
-				            "de la funció no es pot passar per referència.\n");
+				            " de la funció no es pot passar per referència.\n");
 
 		            break;
             }

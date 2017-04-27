@@ -5,9 +5,11 @@
 const patata = 2 * (2+3)/(1*5-4/4-3);
 const hola = FALS AND CERT;
 CONST A = CERT or fals and cert;
+var x: logic;
+var y: sencer;
 var integer: sencer;
 
-funcio suma(perref asdf : sencer, perval qwer : logic): SENCER;
+funcio suma(perref asdf : sencer, perref qwer : sencer, perref asdf : logic, perval a : sencer): SENCER;
 	var resultat: SENCER;
 	const patata = 0;
 	func
@@ -15,6 +17,7 @@ funcio suma(perref asdf : sencer, perval qwer : logic): SENCER;
 	fifunc;
 
 prog
-	a = suma;
+	a = suma(x , y, 2);
+
 	retornar CERT OR CERT AND FALS;
 fiprog
