@@ -126,4 +126,8 @@ public class TipusArray extends ITipus {
 		str += "</TipusArray>";
 		return str;
 	}
+	@Override
+	public String toString(){
+		return toXml();
+	}
 }

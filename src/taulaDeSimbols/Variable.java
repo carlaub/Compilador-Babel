@@ -41,7 +41,7 @@ public class Variable {
 
     /**
 	 * <p>Estableix el nom de la variable</p>
-	 * @param (String)nom 
+	 * @param nom
 	 */
     public void setNom(String nom) {        
         this.nom = nom;

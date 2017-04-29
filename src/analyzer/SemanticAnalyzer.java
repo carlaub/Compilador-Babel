@@ -173,7 +173,7 @@ public class SemanticAnalyzer {
 
 	public void checkOp_binari(Data data) {
 		if (data.getValue("MUL") != null) {
-			if (!( data.getValue("terme.th") instanceof TipusIndefinit)
+			if (!(data.getValue("terme.th") instanceof TipusIndefinit)
 					&& ((ITipus) data.getValue("terme.th")).getNom().equals("SENCER") &&
 					((ITipus) data.getValue("terme.ts")).getNom().equals("SENCER")) {
 				if (((ITipus) data.getValue("terme.th")).getTamany() != INDEF &&
@@ -203,7 +203,7 @@ public class SemanticAnalyzer {
 			}
 			data.removeAttribute("MUL");
 		} else if (data.getValue("DIV") != null) {
-			if (!( data.getValue("terme.th") instanceof TipusIndefinit)
+			if (!(data.getValue("terme.th") instanceof TipusIndefinit)
 					&& ((ITipus) data.getValue("terme.th")).getNom().equals("SENCER") &&
 					((ITipus) data.getValue("terme.ts")).getNom().equals("SENCER")) {
 				if (((ITipus) data.getValue("terme.th")).getTamany() != INDEF &&
@@ -517,46 +517,48 @@ public class SemanticAnalyzer {
 
 	public void checkVector(Data exp1, Data exp2) {
 		//TODO: Afegir valors a retornar per a la declaració del vector
-		if (((ITipus)exp1.getValue("exp.ts")).getNom().equals("SENCER") &&
-				((ITipus)exp2.getValue("exp.ts")).getNom().equals("SENCER")){
-			if ((boolean)exp1.getValue("exp.es") && (boolean)exp2.getValue("exp.es")){
-				int e1 = (int) exp1.getValue("exp.vs");
-				int e2 = (int) exp2.getValue("exp.vs");
-				if (e1 > e2){
+		if (((ITipus) exp1.getValue("exp.ts")).getNom().equals("SENCER") &&
+				((ITipus) exp2.getValue("exp.ts")).getNom().equals("SENCER")) {
+			if ((boolean) exp1.getValue("exp.es") && (boolean) exp2.getValue("exp.es")) {
+				if ((int) exp1.getValue("exp.vs") > (int) exp2.getValue("exp.vs")) {
 					error.insertError(TypeError.ERR_SEM_5);
-					exp1.setValue("exp.vs", 0);
-					exp2.setValue("exp.vs", 0);
-				}
+				} else return;
 			} else {
 				error.insertError(TypeError.ERR_SEM_20);
-				exp1.setValue("exp.vs", 0);
-				exp2.setValue("exp.vs", 0);
 			}
 
 		} else {
 			error.insertError(TypeError.ERR_SEM_6);
-			exp1.setValue("exp.vs", 0);
-			exp2.setValue("exp.vs", 0);
 		}
+		exp1.setValue("exp.vs", 0);
+		exp2.setValue("exp.vs", 0);
 	}
 
 	public void checkVectorAccess(Data data, Data info) {
 		Object id = data.getValue("variable_aux.vh");
-		if(id instanceof Variable){
-			if ((boolean)info.getValue("exp.es")){
-				if (((ITipus)info.getValue("exp.ts")).getNom().equals("SENCER")){
-					//error.insertError(TypeError.ERR_SEM_23, ((Variable) id).getNom());
-				} else {
+		Object type = data.getValue("variable_aux.th");
+		System.out.println("ID: " + data.getValue("variable_aux.th"));
+		if (!(id instanceof Variable && type instanceof TipusArray)) {
+			error.insertError(TypeError.ERR_SEM_23, getNomId(id));
+		} else {
 
+			if (!((ITipus) info.getValue("exp.ts")).getNom().equals("SENCER")) {
+				error.insertError(TypeError.ERR_SEM_13, getNomId(id));
+			} else {
+				int index = (int) info.getValue("exp.vs");
+				if ((boolean)info.getValue("exp.es") && (
+						(int)((TipusArray) type).obtenirDimensio(0).getLimitInferior() > index ||
+						(int)((TipusArray) type).obtenirDimensio(0).getLimitSuperior() < index)){
+					error.insertError(TypeError.ERR_SEM_24, getNomId(id));
 				}
 			}
-		} else {
-			if (id instanceof Constant)
-				error.insertError(TypeError.ERR_SEM_23, ((Constant) id).getNom());
-			else if (id instanceof Funcio)
-				error.insertError(TypeError.ERR_SEM_23, ((Funcio) id).getNom());
-			else
-				error.insertError(TypeError.ERR_SEM_23, (String) id);
 		}
+	}
+
+	private String getNomId(Object id) {
+		if (id instanceof Variable) return ((Variable) id).getNom();
+		if (id instanceof Constant) return ((Constant) id).getNom();
+		if (id instanceof Funcio) return ((Funcio) id).getNom();
+		return (String) id;
 	}
 }

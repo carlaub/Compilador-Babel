@@ -246,7 +246,7 @@ public class Error {
 							"> en part esquerra d'assignació no és una variable.\n");
 					break;
 				case ERR_SEM_13:
-					bwErr.write("[" + error +"] "+ numLine + ", El tipus de l'índex d'accés del vector <" + string +
+					bwErr.write("[" + error +"] "+ numLine + ", El tipus de l'índex d'accés al vector <" + string +
 							"> no és sencer.\n");
 					break;
 				case ERR_SEM_22:
@@ -256,6 +256,10 @@ public class Error {
 				case ERR_SEM_23:
 					bwErr.write("[" + error +"] "+ numLine + ", L'identificador <" + string +
 							"> no és de tipus VECTOR.\n");
+					break;
+				case ERR_SEM_24:
+					bwErr.write("[" + error +"] "+ numLine + ", Accés al VECTOR <" + string +
+							"> fora dels límits.\n");
 					break;
 			}
 		} catch (IOException e) {

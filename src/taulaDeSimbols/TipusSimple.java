@@ -24,8 +24,15 @@ public class TipusSimple extends ITipus {
 	public TipusSimple(String nom, int tamany) {
 		this.nom = nom;
 		this.tamany = tamany;
+		this.setLimits(nom);
 	}
-	
+
+	private void setLimits(String nom) {
+		minim = nom.equals("SENCER")? Integer.MIN_VALUE:false;
+		maxim = nom.equals("SENCER")? Integer.MAX_VALUE:true;
+		tamany = nom.equals("SENCER")? 4:1;
+	}
+
 	/**
 	 * <p>Constructor de TipusSimple</p>
 	 * @param (Object) valor m�nim que pot assolir aquest tipus
