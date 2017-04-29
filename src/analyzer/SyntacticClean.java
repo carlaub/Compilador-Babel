@@ -77,7 +77,8 @@ public class SyntacticClean {
 				data.setValue("var.name", lookahead.getLexema());
 				accept(Type.ID);
 				accept(Type.COLON);
-				data.setValue("var.type", tipus());
+				ITipus tipus = tipus();
+				data.setValue("var.type", tipus);
 				semantic.checkVariable(data);
 				accept(Type.SEMICOLON);
 				break;
@@ -151,7 +152,8 @@ public class SyntacticClean {
 		data.setValue("name", lookahead.getLexema());
 		accept(Type.ID);
 		accept(Type.COLON);
-		data.setValue("type", tipus());
+		ITipus type = tipus();
+		data.setValue("type", type);
 
 		//TODO: Afegir el tipus al paràmetre i el tipus de paràmetre
 		semantic.addParameter(data);
@@ -175,22 +177,26 @@ public class SyntacticClean {
 				tipus = lookahead.getLexema();
 				accept(Type.TIPUS_SIMPLE);
 				//TODO: Canviar mida del tipus
-				TipusSimple tipusSimple = new TipusSimple(tipus, 0);
-				return tipusSimple;
+				return new TipusSimple(tipus, 0);
 			case VECTOR:
 				accept(Type.VECTOR);
 				accept(Type.OCLAU);
-//                int exp1 = exp();
-				exp();
+				Data exp1 = exp();
 				accept(Type.DPOINT);
-//                int exp2 = exp();
-				exp();
+				Data exp2 = exp();
 				accept(Type.CCLAU);
 				accept(Type.DE);
 				tipus = lookahead.getLexema();
 				accept(Type.TIPUS_SIMPLE);
+
+				semantic.checkVector(exp1, exp2);
+				int lower_limit = (int)exp1.getValue("exp.vs");
+				int upper_limit = (int)exp2.getValue("exp.vs");
 				//TODO: Ficar el nom correcte, la mida correcta i el tamany del tipus simple correcte
-				TipusArray tipusArray = new TipusArray("", 0/*exp2-exp1*/, new TipusSimple(tipus, 0));
+				TipusArray tipusArray = new TipusArray("", 0, new TipusSimple(tipus, 0));
+				//Això realment funciona així?
+				DimensioArray dimensioArray = new DimensioArray(new TipusSimple("SENCER", 0), lower_limit, upper_limit);
+				tipusArray.inserirDimensio(dimensioArray);
 				return tipusArray;
 			default: //ERROR
 				System.out.println("ERROR");
@@ -501,7 +507,9 @@ public class SyntacticClean {
 				accept(Type.CPARENT);
 				break;
 			case OCLAU:
+				data.moveBlock("variable_aux.h", "factor_aux.h");
 				variable_aux(data);
+				data.moveBlock("factor_aux.s", "variable_aux.s");
 				break;
 			default:
 				data.moveBlock("variable_aux.h", "factor_aux.h");
@@ -556,8 +564,10 @@ public class SyntacticClean {
 		switch (lookahead.getToken()){
 			case OCLAU:
 				accept(Type.OCLAU);
-				exp();
+				Data info = exp();
+				semantic.checkVectorAccess(data, info);
 				accept(Type.CCLAU);
+				data.moveBlock("variable_aux.s", "variable_aux.h");
 				break;
 			default:
 				semantic.checkErrSem22(data);

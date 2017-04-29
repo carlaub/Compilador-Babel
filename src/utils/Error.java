@@ -234,9 +234,6 @@ public class Error {
 				case ERR_SEM_4:
 					bwErr.write("[" + error +"] "+ numLine + ", Paràmetre <" + string + "> doblement definida.\n");
 					break;
-				case ERR_SEM_5:
-					bwErr.write("[" + error +"] "+ numLine + ", Límits decreixents en el vector <" + string + ">.\n");
-					break;
 				case ERR_SEM_9:
 					bwErr.write("[" + error +"] "+ numLine + ", L'identificador <" + string + "> no ha estat declarat.\n");
 					break;
@@ -256,7 +253,10 @@ public class Error {
 					bwErr.write("[" + error +"] "+ numLine + ", La funció <" + string +
 							"> en part dreta de l'assignació no està sent invocada.\n");
 					break;
-
+				case ERR_SEM_23:
+					bwErr.write("[" + error +"] "+ numLine + ", L'identificador <" + string +
+							"> no és de tipus VECTOR.\n");
+					break;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -273,6 +273,9 @@ public class Error {
 		int numLine = lexic.getActualLine();
 		try {
 			switch(error) {
+				case ERR_SEM_5:
+					bwErr.write("[" + error +"] "+ numLine + ", Límits decreixents en el vector.\n");
+					break;
 				case ERR_SEM_6:
 					bwErr.write("[" + error +"] "+ numLine + ", El tipus de l'expressió no és SENCER.\n");
 					break;

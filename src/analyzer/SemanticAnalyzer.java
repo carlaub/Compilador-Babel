@@ -1,5 +1,6 @@
 package analyzer;
 
+import javafx.beans.binding.ObjectBinding;
 import taulaDeSimbols.*;
 import utils.Error;
 import utils.TypeError;
@@ -140,7 +141,7 @@ public class SemanticAnalyzer {
 		} else {
 			error.insertError(TypeError.ERR_SEM_9, id);
 			System.out.println("ERR_SEM_9");
-			data.setValue("terme.vs", false);
+			data.setValue("terme.vs", id);
 			data.setValue("terme.ts", new TipusIndefinit());
 			data.setValue("terme.es", false);
 		}
@@ -172,7 +173,7 @@ public class SemanticAnalyzer {
 
 	public void checkOp_binari(Data data) {
 		if (data.getValue("MUL") != null) {
-			if (!(((ITipus) data.getValue("terme.th")) instanceof TipusIndefinit)
+			if (!( data.getValue("terme.th") instanceof TipusIndefinit)
 					&& ((ITipus) data.getValue("terme.th")).getNom().equals("SENCER") &&
 					((ITipus) data.getValue("terme.ts")).getNom().equals("SENCER")) {
 				if (((ITipus) data.getValue("terme.th")).getTamany() != INDEF &&
@@ -202,7 +203,7 @@ public class SemanticAnalyzer {
 			}
 			data.removeAttribute("MUL");
 		} else if (data.getValue("DIV") != null) {
-			if (!(((ITipus) data.getValue("terme.th")) instanceof TipusIndefinit)
+			if (!( data.getValue("terme.th") instanceof TipusIndefinit)
 					&& ((ITipus) data.getValue("terme.th")).getNom().equals("SENCER") &&
 					((ITipus) data.getValue("terme.ts")).getNom().equals("SENCER")) {
 				if (((ITipus) data.getValue("terme.th")).getTamany() != INDEF &&
@@ -241,7 +242,7 @@ public class SemanticAnalyzer {
 
 			data.removeAttribute("DIV");
 		} else if (data.getValue("AND") != null) {
-			if (!(((ITipus) data.getValue("terme.th")) instanceof TipusIndefinit)
+			if (!(data.getValue("terme.th") instanceof TipusIndefinit)
 					&& ((ITipus) data.getValue("terme.th")).getNom().equals("LOGIC") &&
 					((ITipus) data.getValue("terme.ts")).getNom().equals("LOGIC")) {
 				if (((ITipus) data.getValue("terme.th")).getTamany() != INDEF &&
@@ -280,7 +281,7 @@ public class SemanticAnalyzer {
 			System.out.println("DATA:" + data);
 			System.out.println(data.getValue("terme_simple.th"));
 			System.out.println(data);
-			if (!(((ITipus) data.getValue("terme_simple.th")) instanceof TipusIndefinit)
+			if (!(data.getValue("terme_simple.th") instanceof TipusIndefinit)
 					&& ((ITipus) data.getValue("terme_simple.th")).getNom().equals("SENCER") &&
 					((ITipus) info.getValue("terme.ts")).getNom().equals("SENCER")) {
 				if (((ITipus) data.getValue("terme_simple.th")).getTamany() != INDEF &&
@@ -494,7 +495,7 @@ public class SemanticAnalyzer {
 				error.insertError(TypeError.ERR_SEM_17, param_index);
 			}
 
-			if (!(((ITipus) info.getValue("exp.ts")) instanceof TipusIndefinit)
+			if (!(info.getValue("exp.ts") instanceof TipusIndefinit)
 					&& !exp_ts.getNom().equals(parametre.getTipus().getNom())) {
 				error.insertError(TypeError.ERR_SEM_16, param_index, parametre.getTipus().getNom());
 			}
@@ -514,4 +515,48 @@ public class SemanticAnalyzer {
 	}
 
 
+	public void checkVector(Data exp1, Data exp2) {
+		//TODO: Afegir valors a retornar per a la declaració del vector
+		if (((ITipus)exp1.getValue("exp.ts")).getNom().equals("SENCER") &&
+				((ITipus)exp2.getValue("exp.ts")).getNom().equals("SENCER")){
+			if ((boolean)exp1.getValue("exp.es") && (boolean)exp2.getValue("exp.es")){
+				int e1 = (int) exp1.getValue("exp.vs");
+				int e2 = (int) exp2.getValue("exp.vs");
+				if (e1 > e2){
+					error.insertError(TypeError.ERR_SEM_5);
+					exp1.setValue("exp.vs", 0);
+					exp2.setValue("exp.vs", 0);
+				}
+			} else {
+				error.insertError(TypeError.ERR_SEM_20);
+				exp1.setValue("exp.vs", 0);
+				exp2.setValue("exp.vs", 0);
+			}
+
+		} else {
+			error.insertError(TypeError.ERR_SEM_6);
+			exp1.setValue("exp.vs", 0);
+			exp2.setValue("exp.vs", 0);
+		}
+	}
+
+	public void checkVectorAccess(Data data, Data info) {
+		Object id = data.getValue("variable_aux.vh");
+		if(id instanceof Variable){
+			if ((boolean)info.getValue("exp.es")){
+				if (((ITipus)info.getValue("exp.ts")).getNom().equals("SENCER")){
+					//error.insertError(TypeError.ERR_SEM_23, ((Variable) id).getNom());
+				} else {
+
+				}
+			}
+		} else {
+			if (id instanceof Constant)
+				error.insertError(TypeError.ERR_SEM_23, ((Constant) id).getNom());
+			else if (id instanceof Funcio)
+				error.insertError(TypeError.ERR_SEM_23, ((Funcio) id).getNom());
+			else
+				error.insertError(TypeError.ERR_SEM_23, (String) id);
+		}
+	}
 }
