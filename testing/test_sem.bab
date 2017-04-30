@@ -11,7 +11,7 @@ var y: vector[0..15] de logic;
 var z: vector[3..5] de sencer;
 var integer: sencer;
 
-funcio suma(perval asdf : sencer, perref qwer : sencer, perval a : sencer): SENCER;
+funcio suma(perval asdf : sencer, perref qwer : sencer, perval a : sencer): sencer;
 	var resultat: SENCER;
 	const patata = 0;
 	func
@@ -30,5 +30,10 @@ prog
 	mentre cert fer
 		llegir(x);
 	fimentre;
+
+	si 34 > 3*2-14/7 llavors
+		x = fals;
+	fisi;
+
 	retornar CERT OR CERT AND FALS;
 fiprog

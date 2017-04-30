@@ -641,13 +641,13 @@ public class SyntacticClean {
 				llista_inst();
 				accept(Type.FINS);
 				Data info_cicle = exp();
-				semantic.checkCicle(info_cicle);
+				semantic.checkLogic(info_cicle);
 				break;
 
 			case MENTRE:
 				accept(Type.MENTRE);
 				Data info_mentre = exp();
-				semantic.checkCicle(info_mentre);
+				semantic.checkLogic(info_mentre);
 				accept(Type.FER);
 				llista_inst();
 				accept(Type.FIMENTRE);
@@ -655,7 +655,8 @@ public class SyntacticClean {
 
 			case SI:
 				accept(Type.SI);
-				exp();
+				Data exp_si = exp();
+				semantic.checkLogic(exp_si);
 				accept(Type.LLAVORS);
 				llista_inst();
 				fi_aux();
@@ -678,7 +679,6 @@ public class SyntacticClean {
 				break;
 
 			default:
-				//ERROR
 				System.out.println("ERROR");
 		}
 	}

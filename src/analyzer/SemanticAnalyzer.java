@@ -441,7 +441,7 @@ public class SemanticAnalyzer {
 			data.setValue("exp_aux.es", true);
 
 		} else if (!(boolean) data.getValue("exp_aux.eh")
-				|| !(boolean) data.getValue("exp_simple.es")) {
+				|| !(boolean) info.getValue("exp_simple.es")) {
 			data.setValue("exp_aux.ts", new TipusSimple("LOGIC", 0));
 			data.setValue("exp_aux.es", false);
 			data.setValue("exp_aux.vs", false);
@@ -664,7 +664,7 @@ public class SemanticAnalyzer {
 		}
 	}
 
-	public void checkCicle(Data info) {
+	public void checkLogic(Data info) {
 		if (!((ITipus)info.getValue("exp.ts")).getNom().equals("LOGIC")){
 			error.insertError(TypeError.ERR_SEM_7);
 		}
