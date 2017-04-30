@@ -14,11 +14,12 @@ funcio suma(perval asdf : sencer, perref qwer : sencer, perval a : sencer): SENC
 	var resultat: SENCER;
 	const patata = 0;
 	func
+		integer = qwer + 3;
 		retornar 0;
 	fifunc;
 
 prog
-	integer = x;
+	integer = suma(0, integer, 2);
 	z[3] = integer;
 	retornar CERT OR CERT AND FALS;
 fiprog

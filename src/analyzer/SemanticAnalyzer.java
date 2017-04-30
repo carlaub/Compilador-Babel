@@ -135,6 +135,20 @@ public class SemanticAnalyzer {
 				data.setValue("terme.ts", ((TipusArray) variable.getTipus()).getTipusElements());
 			} else data.setValue("terme.ts", variable.getTipus());
 			data.setValue("terme.es", false);
+		} else if (taulaSimbols.obtenirBloc(0).existeixConstant(id)) {
+			Constant constant = taulaSimbols.obtenirBloc(0).obtenirConstant(id);
+			System.out.println("CONST: " + constant.toXml());
+			data.setValue("terme.vs", constant);
+			data.setValue("terme.ts", constant.getTipus());
+			data.setValue("terme.es", true);
+		}  else if (taulaSimbols.obtenirBloc(0).existeixVariable(id)) {
+			Variable variable = taulaSimbols.obtenirBloc(0).obtenirVariable(id);
+			System.out.println("VAR: " + variable.toXml());
+			data.setValue("terme.vs", variable);
+			if (variable.getTipus() instanceof TipusArray){
+				data.setValue("terme.ts", ((TipusArray) variable.getTipus()).getTipusElements());
+			} else data.setValue("terme.ts", variable.getTipus());
+			data.setValue("terme.es", false);
 		} else if (taulaSimbols.obtenirBloc(blocActual).existeixProcediment(id)) {
 			Procediment funcio = taulaSimbols.obtenirBloc(blocActual).obtenirProcediment(id);
 			data.setValue("terme.vs", funcio);
@@ -144,7 +158,7 @@ public class SemanticAnalyzer {
 			error.insertError(TypeError.ERR_SEM_9, id);
 			System.out.println("ERR_SEM_9");
 			data.setValue("terme.vs", id);
-			data.setValue("terme.ts", new TipusIndefinit());
+			data.setValue("terme.ts", new TipusIndefinit("indef", 0));
 			data.setValue("terme.es", false);
 		}
 	}
@@ -572,10 +586,15 @@ public class SemanticAnalyzer {
 			data.setValue("variable_aux.vh", variable);
 			data.setValue("variable_aux.th", variable.getTipus());
 			data.setValue("variable_aux.eh", false);
+		} else if (taulaSimbols.obtenirBloc(0).existeixVariable(lexema)){
+			Variable variable = taulaSimbols.obtenirBloc(0).obtenirVariable(lexema);
+			data.setValue("variable_aux.vh", variable);
+			data.setValue("variable_aux.th", variable.getTipus());
+			data.setValue("variable_aux.eh", false);
 		} else {
 			error.insertError(TypeError.ERR_SEM_11, lexema);
-			data.setValue("variable_aux.vh", new Variable(lexema, new TipusIndefinit("INDEF", 0), 0));
-			data.setValue("variable_aux.th", new TipusIndefinit("INDEF", 0));
+			data.setValue("variable_aux.vh", new Variable(lexema, new TipusIndefinit("indef", 0), 0));
+			data.setValue("variable_aux.th", new TipusIndefinit("indef", 0));
 			data.setValue("variable_aux.eh", false);
 		}
 		return data;
