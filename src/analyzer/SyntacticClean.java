@@ -94,7 +94,8 @@ public class SyntacticClean {
 			case FUNCIO:
 				accept(Type.FUNCIO);
 				Data data = new Data();
-				data.setValue("name", lookahead.getLexema());
+				String id = lookahead.getLexema();
+				data.setValue("name", id);
 
 				accept(Type.ID);
 
@@ -105,10 +106,12 @@ public class SyntacticClean {
 
 				accept(Type.OPARENT);
 
-				llista_param((String)data.getValue("name"));
+				llista_param(id);
 
 				accept(Type.CPARENT);
 				accept(Type.COLON);
+				String tipus = lookahead.getLexema();
+				semantic.setTipusFuncio(id, tipus);
 				accept(Type.TIPUS_SIMPLE);
 				accept(Type.SEMICOLON);
 					//TODO: Afegir paràmetres a la llista de variables del bloc
@@ -415,7 +418,6 @@ public class SyntacticClean {
 				data.setValue("id.name", lookahead.getLexema());
 				semantic.checkID(data);
 				accept(Type.ID);
-//				data.move("factor_aux.vh", "terme.vs");
 				data.moveBlock("factor_aux.h", "terme.s");
 				factor_aux(data);
 				data.moveBlock("terme.s", "factor_aux.s");
@@ -500,8 +502,10 @@ public class SyntacticClean {
 				semantic.initFuncio(data);
 				llista_exp(data);
 
+				Funcio funcio = (Funcio) data.getValue("llista_exp.vs");
+
 				data.move("factor_aux.vs", "llista_exp.vs");
-				data.setValue("factor_aux.ts", new TipusIndefinit());
+				data.setValue("factor_aux.ts", funcio.getTipus());
 				data.setValue("factor_aux.es", false);
 
 				accept(Type.CPARENT);
@@ -619,13 +623,14 @@ public class SyntacticClean {
 	private void inst(){
 		switch (lookahead.getToken()) {
 			case ID:
-				Data data = semantic.checkAssignation(lookahead.getLexema());
+				Data data = semantic.initAssignation(lookahead.getLexema());
 
 				accept(Type.ID);
 				//TODO: Agafar informació de l'ID i passar-la a variable_aux
 				variable_aux(data);
 				accept(Type.IGUAL);
-				igual_aux();
+				data.moveBlock("igual_aux.h", "variable_aux.s");
+				igual_aux(data);
 
 				break;
 			case ESCRIURE:
@@ -687,9 +692,10 @@ public class SyntacticClean {
 		}
 	}
 
-	private void igual_aux(){
+	private void igual_aux(Data data){
 		switch (lookahead.getToken()){
 			case SI:
+				//TODO: Preguntar si s'ha de fer anàlisi semàntic a la ternària
 				accept(Type.SI);
 				accept(Type.OPARENT);
 				exp();
@@ -707,7 +713,10 @@ public class SyntacticClean {
 			case CADENA:
 			case ID:
 			case OPARENT:
-				exp();
+				Data info = exp();
+				System.out.println("DATA -> "+data);
+				System.out.println("INFO -> "+info);
+				semantic.checkAssignation(data, info);
 				break;
 			default:
 				//ERROR

@@ -131,7 +131,9 @@ public class SemanticAnalyzer {
 			Variable variable = taulaSimbols.obtenirBloc(blocActual).obtenirVariable(id);
 			System.out.println("VAR: " + variable.toXml());
 			data.setValue("terme.vs", variable);
-			data.setValue("terme.ts", variable.getTipus());
+			if (variable.getTipus() instanceof TipusArray){
+				data.setValue("terme.ts", ((TipusArray) variable.getTipus()).getTipusElements());
+			} else data.setValue("terme.ts", variable.getTipus());
 			data.setValue("terme.es", false);
 		} else if (taulaSimbols.obtenirBloc(blocActual).existeixProcediment(id)) {
 			Procediment funcio = taulaSimbols.obtenirBloc(blocActual).obtenirProcediment(id);
@@ -562,13 +564,42 @@ public class SemanticAnalyzer {
 		return (String) id;
 	}
 
-	public Data checkAssignation(String lexema) {
+	public Data initAssignation(String lexema) {
 		Data data = new Data();
-		System.out.println("HEY: "+taulaSimbols);
-		Variable variable = taulaSimbols.obtenirBloc(blocActual).obtenirVariable(lexema);
-		data.setValue("variable_aux.vh", variable);
-		data.setValue("variable_aux.th", variable.getTipus());
-		data.setValue("variable_aux.eh", false);
+
+		if (taulaSimbols.obtenirBloc(blocActual).existeixVariable(lexema)){
+			Variable variable = taulaSimbols.obtenirBloc(blocActual).obtenirVariable(lexema);
+			data.setValue("variable_aux.vh", variable);
+			data.setValue("variable_aux.th", variable.getTipus());
+			data.setValue("variable_aux.eh", false);
+		} else {
+			error.insertError(TypeError.ERR_SEM_11, lexema);
+			data.setValue("variable_aux.vh", new Variable(lexema, new TipusIndefinit("INDEF", 0), 0));
+			data.setValue("variable_aux.th", new TipusIndefinit("INDEF", 0));
+			data.setValue("variable_aux.eh", false);
+		}
 		return data;
+	}
+
+	public void setTipusFuncio(String id, String tipus) {
+		((Funcio)taulaSimbols.obtenirBloc(0).obtenirProcediment(id)).setTipus(new TipusSimple(tipus));
+	}
+
+	public void checkAssignation(Data data, Data info) {
+		if (data.getValue("igual_aux.th") instanceof TipusSimple){
+			if (!((TipusSimple) data.getValue("igual_aux.th")).getNom().equals(
+					((ITipus)info.getValue("exp.ts")).getNom())){
+				error.insertError(TypeError.ERR_SEM_12, ((Variable)data.getValue("igual_aux.vh")).getNom(),
+						((Variable)data.getValue("igual_aux.vh")).getTipus().getNom(),
+						((ITipus)info.getValue("exp.ts")).getNom());
+			}
+		} else if (data.getValue("igual_aux.th") instanceof TipusArray){
+			if (!((TipusArray)data.getValue("igual_aux.th")).getTipusElements().getNom().equals(
+					((ITipus)info.getValue("exp.ts")).getNom())){
+				error.insertError(TypeError.ERR_SEM_12, ((Variable)data.getValue("igual_aux.vh")).getNom(),
+						((Variable)data.getValue("igual_aux.vh")).getTipus().getNom(),
+						((ITipus)info.getValue("exp.ts")).getNom());
+			}
+		}
 	}
 }

@@ -121,5 +121,10 @@ public class Bloc {
     	
     	result += "</Bloc>";
         return result;
-    }  
+    }
+
+    @Override
+	public String toString(){
+    	return toXml();
+	}
  }

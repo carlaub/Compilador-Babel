@@ -27,6 +27,11 @@ public class TipusSimple extends ITipus {
 		this.setLimits(nom);
 	}
 
+	public TipusSimple(String nom) {
+		this.nom = nom;
+		this.setLimits(nom);
+	}
+
 	private void setLimits(String nom) {
 		minim = nom.equals("SENCER")? Integer.MIN_VALUE:0;
 		maxim = nom.equals("SENCER")? Integer.MAX_VALUE:1;

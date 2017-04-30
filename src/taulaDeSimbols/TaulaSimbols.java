@@ -75,5 +75,10 @@ public class TaulaSimbols {
     	result += "</Blocs>";
     	result += "</TaulaSimbols>";
         return result;
-    } 
+    }
+
+    @Override
+    public String toString(){
+    	return toXml();
+	}
  }

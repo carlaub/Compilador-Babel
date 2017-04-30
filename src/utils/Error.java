@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.SimpleTimeZone;
 import java.util.regex.Pattern;
 
 /**
@@ -319,6 +320,22 @@ public class Error {
 
 		}
 
+	}
+
+	public void insertError(TypeError error, String id, String tipus1, String tipus2){
+		int numLine = lexic.getActualLine();
+		try {
+			switch(error) {
+				case ERR_SEM_12:
+					bwErr.write("[" + error +"] "+ numLine + ", La variable <"+id+
+							"> i l'expressió de assignació tenen tipus diferents.\n\tEl tipus de la variable és <"+tipus1+
+							"> i el de l'expressió <"+tipus2+">.\n");
+					break;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+
+		}
 	}
 
     /**
