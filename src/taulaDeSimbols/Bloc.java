@@ -24,7 +24,7 @@ public class Bloc {
     /**
      * <p>Constructor de la classe Bloc. Aquest constructor
      * insereix tots els par�metres del procediment com a variables</p>
-     * @param (Procediment) procediment
+     * @param  procediment
      */
     public Bloc(Procediment procediment) {
     	for(int i=0; i<procediment.getNumeroParametres(); i++)

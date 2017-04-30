@@ -640,12 +640,14 @@ public class SyntacticClean {
 				accept(Type.CICLE);
 				llista_inst();
 				accept(Type.FINS);
-				exp();
+				Data info_cicle = exp();
+				semantic.checkCicle(info_cicle);
 				break;
 
 			case MENTRE:
 				accept(Type.MENTRE);
-				exp();
+				Data info_mentre = exp();
+				semantic.checkCicle(info_mentre);
 				accept(Type.FER);
 				llista_inst();
 				accept(Type.FIMENTRE);

@@ -426,6 +426,7 @@ public class SemanticAnalyzer {
 	public void checkOp_relacional(Data data, Data info) {
 
 		//Comprovem que els tipus a evaluar son tots dos sencer, en cas que no sigui aixi, error
+		System.out.println("OP_REL: "+data);
 		if (!((ITipus) data.getValue("exp_aux.th")).getNom().equals("SENCER") ||
 				!((ITipus) info.getValue("exp_simple.ts")).getNom().equals("SENCER")) {
 			error.insertError(TypeError.ERR_SEM_6);
@@ -439,7 +440,8 @@ public class SemanticAnalyzer {
 			data.setValue("exp_aux.ts", new TipusIndefinit("indef", 0));
 			data.setValue("exp_aux.es", true);
 
-		} else if (!(boolean) data.getValue("exp_aux.es") || !(boolean) data.getValue("exp_simple.es")) {
+		} else if (!(boolean) data.getValue("exp_aux.eh")
+				|| !(boolean) data.getValue("exp_simple.es")) {
 			data.setValue("exp_aux.ts", new TipusSimple("LOGIC", 0));
 			data.setValue("exp_aux.es", false);
 			data.setValue("exp_aux.vs", false);
@@ -662,4 +664,9 @@ public class SemanticAnalyzer {
 		}
 	}
 
+	public void checkCicle(Data info) {
+		if (!((ITipus)info.getValue("exp.ts")).getNom().equals("LOGIC")){
+			error.insertError(TypeError.ERR_SEM_7);
+		}
+	}
 }

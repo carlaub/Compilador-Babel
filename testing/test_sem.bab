@@ -21,8 +21,14 @@ funcio suma(perval asdf : sencer, perref qwer : sencer, perval a : sencer): SENC
 
 prog
 	integer = suma(0, integer, 2);
-	integer = 4+z[4];
+	integer = 4+z[4]*43+4;
 	escriure(z[4]);
-	llegir(x);
+	cicle
+		llegir(x);
+	fins integer < 3+56;
+
+	mentre cert fer
+		llegir(x);
+	fimentre;
 	retornar CERT OR CERT AND FALS;
 fiprog
