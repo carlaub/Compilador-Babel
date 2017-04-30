@@ -507,10 +507,6 @@ public class SyntacticClean {
 				accept(Type.CPARENT);
 				break;
 			case OCLAU:
-				data.moveBlock("variable_aux.h", "factor_aux.h");
-				variable_aux(data);
-				data.moveBlock("factor_aux.s", "variable_aux.s");
-				break;
 			default:
 				data.moveBlock("variable_aux.h", "factor_aux.h");
 				variable_aux(data);
@@ -623,7 +619,8 @@ public class SyntacticClean {
 	private void inst(){
 		switch (lookahead.getToken()) {
 			case ID:
-				Data data = new Data();
+				Data data = semantic.checkAssignation(lookahead.getLexema());
+
 				accept(Type.ID);
 				//TODO: Agafar informació de l'ID i passar-la a variable_aux
 				variable_aux(data);

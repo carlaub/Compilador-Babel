@@ -19,6 +19,6 @@ funcio suma(perval asdf : sencer, perref qwer : sencer, perval a : sencer): SENC
 
 prog
 	a = suma(0, integer, 2);
-	integer = z[5];
+	z[3] = z[5];
 	retornar CERT OR CERT AND FALS;
 fiprog

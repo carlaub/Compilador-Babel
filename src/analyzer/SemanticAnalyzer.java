@@ -561,4 +561,14 @@ public class SemanticAnalyzer {
 		if (id instanceof Funcio) return ((Funcio) id).getNom();
 		return (String) id;
 	}
+
+	public Data checkAssignation(String lexema) {
+		Data data = new Data();
+		System.out.println("HEY: "+taulaSimbols);
+		Variable variable = taulaSimbols.obtenirBloc(blocActual).obtenirVariable(lexema);
+		data.setValue("variable_aux.vh", variable);
+		data.setValue("variable_aux.th", variable.getTipus());
+		data.setValue("variable_aux.eh", false);
+		return data;
+	}
 }
