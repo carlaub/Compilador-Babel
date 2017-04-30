@@ -5,8 +5,9 @@
 const patata = 2 * (2+3)/(1*5-4/4-3);
 const hola = FALS AND CERT;
 CONST A = CERT or fals and cert;
+const cad = "ASDF";
 var x: logic;
-var y: vector[0..15] de sencer;
+var y: vector[0..15] de logic;
 var z: vector[3..5] de sencer;
 var integer: sencer;
 
@@ -20,6 +21,8 @@ funcio suma(perval asdf : sencer, perref qwer : sencer, perval a : sencer): SENC
 
 prog
 	integer = suma(0, integer, 2);
-	z[3] = integer;
+	integer = 4+z[4];
+	escriure(z[4]);
+	llegir(x);
 	retornar CERT OR CERT AND FALS;
 fiprog

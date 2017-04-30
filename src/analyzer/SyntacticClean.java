@@ -271,13 +271,7 @@ public class SyntacticClean {
 				info = new Data();
 				terme(info);
 
-				System.out.println("| |-Info");
-				System.out.println("|   |-"+info);
-
 				semantic.checkOp_aux(data, info);
-
-
-
 
 				//No es pot fer amb move perquè són de Data diferents
 				data.setValue("terme_simple.vh", info.getValue("terme.vs"));
@@ -299,9 +293,6 @@ public class SyntacticClean {
 				info = new Data();
 				terme(info);
 
-				System.out.println("| |-Info");
-				System.out.println("|   |-"+info);
-
 				semantic.checkOp_aux(data, info);
 
 				//No es pot fer amb move perquè són de Data diferents
@@ -320,8 +311,6 @@ public class SyntacticClean {
 
 				info = new Data();
 				terme(info);
-				System.out.println("| |-Info");
-				System.out.println("|   |-"+info);
 
 				semantic.checkOp_aux(data, info);
 
@@ -396,7 +385,7 @@ public class SyntacticClean {
 				break;
 			case CADENA:
 				data.setValue("terme.vs", lookahead.getLexema());
-				data.setValue("terme.ts", new TipusSimple("CADENA", 0));
+				data.setValue("terme.ts", new TipusCadena("CADENA", lookahead.getLexema().length(), lookahead.getLexema().length()));
 				data.setValue("terme.es", true);
 				accept(Type.CADENA);
 				break;
@@ -631,38 +620,37 @@ public class SyntacticClean {
 				accept(Type.IGUAL);
 				data.moveBlock("igual_aux.h", "variable_aux.s");
 				igual_aux(data);
-
 				break;
+
 			case ESCRIURE:
 				accept(Type.ESCRIURE);
 				accept(Type.OPARENT);
 				param_escriure();
 				accept(Type.CPARENT);
-
 				break;
+
 			case LLEGIR:
 				accept(Type.LLEGIR);
 				accept(Type.OPARENT);
-				Data data_llegir = new Data();
-				param_llegir(data_llegir);
+				param_llegir();
 				accept(Type.CPARENT);
-
 				break;
+
 			case CICLE:
 				accept(Type.CICLE);
 				llista_inst();
 				accept(Type.FINS);
 				exp();
-
 				break;
+
 			case MENTRE:
 				accept(Type.MENTRE);
 				exp();
 				accept(Type.FER);
 				llista_inst();
 				accept(Type.FIMENTRE);
-
 				break;
+
 			case SI:
 				accept(Type.SI);
 				exp();
@@ -670,12 +658,13 @@ public class SyntacticClean {
 				llista_inst();
 				fi_aux();
 				accept(Type.FISI);
-
 				break;
+
 			case RETORNAR:
 				accept(Type.RETORNAR);
 				exp();
 				break;
+
 			case PERCADA:
 				accept(Type.PERCADA);
 				accept(Type.ID);
@@ -684,8 +673,8 @@ public class SyntacticClean {
 				accept(Type.FER);
 				llista_inst();
 				accept(Type.FIPER);
-
 				break;
+
 			default:
 				//ERROR
 				System.out.println("ERROR");
@@ -714,8 +703,6 @@ public class SyntacticClean {
 			case ID:
 			case OPARENT:
 				Data info = exp();
-				System.out.println("DATA -> "+data);
-				System.out.println("INFO -> "+info);
 				semantic.checkAssignation(data, info);
 				break;
 			default:
@@ -726,7 +713,9 @@ public class SyntacticClean {
 	}
 
 	private void param_escriure(){
-		exp();
+		Data info = exp();
+		System.out.println("ESCRIURE: "+info);
+		semantic.checkEscriure(info);
 		switch (lookahead.getToken()){
 			case COMA:
 				accept(Type.COMA);
@@ -737,13 +726,16 @@ public class SyntacticClean {
 		}
 	}
 
-	private void param_llegir(Data data){
+	private void param_llegir(){
+		Data data = semantic.initLlegir(lookahead.getLexema());
 		accept(Type.ID);
 		variable_aux(data);
+		System.out.println("LLEGIR: "+data);
+		semantic.checkLlegir(data);
 		switch (lookahead.getToken()){
 			case COMA:
 				accept(Type.COMA);
-				param_llegir(data);
+				param_llegir();
 				break;
 			default:
 				return;

@@ -131,9 +131,7 @@ public class SemanticAnalyzer {
 			Variable variable = taulaSimbols.obtenirBloc(blocActual).obtenirVariable(id);
 			System.out.println("VAR: " + variable.toXml());
 			data.setValue("terme.vs", variable);
-			if (variable.getTipus() instanceof TipusArray){
-				data.setValue("terme.ts", ((TipusArray) variable.getTipus()).getTipusElements());
-			} else data.setValue("terme.ts", variable.getTipus());
+			data.setValue("terme.ts", variable.getTipus());
 			data.setValue("terme.es", false);
 		} else if (taulaSimbols.obtenirBloc(0).existeixConstant(id)) {
 			Constant constant = taulaSimbols.obtenirBloc(0).obtenirConstant(id);
@@ -557,7 +555,7 @@ public class SemanticAnalyzer {
 		if (!(id instanceof Variable && type instanceof TipusArray)) {
 			error.insertError(TypeError.ERR_SEM_23, getNomId(id));
 		} else {
-
+			data.setValue("variable_aux.th", ((TipusArray) type).getTipusElements());
 			if (!((ITipus) info.getValue("exp.ts")).getNom().equals("SENCER")) {
 				error.insertError(TypeError.ERR_SEM_13, getNomId(id));
 			} else {
@@ -583,6 +581,7 @@ public class SemanticAnalyzer {
 
 		if (taulaSimbols.obtenirBloc(blocActual).existeixVariable(lexema)){
 			Variable variable = taulaSimbols.obtenirBloc(blocActual).obtenirVariable(lexema);
+			System.out.println("Variable: "+variable);
 			data.setValue("variable_aux.vh", variable);
 			data.setValue("variable_aux.th", variable.getTipus());
 			data.setValue("variable_aux.eh", false);
@@ -605,20 +604,62 @@ public class SemanticAnalyzer {
 	}
 
 	public void checkAssignation(Data data, Data info) {
-		if (data.getValue("igual_aux.th") instanceof TipusSimple){
+		if (data.getValue("igual_aux.th") instanceof TipusSimple) {
 			if (!((TipusSimple) data.getValue("igual_aux.th")).getNom().equals(
-					((ITipus)info.getValue("exp.ts")).getNom())){
-				error.insertError(TypeError.ERR_SEM_12, ((Variable)data.getValue("igual_aux.vh")).getNom(),
-						((Variable)data.getValue("igual_aux.vh")).getTipus().getNom(),
-						((ITipus)info.getValue("exp.ts")).getNom());
+					((ITipus) info.getValue("exp.ts")).getNom())) {
+				error.insertError(TypeError.ERR_SEM_12, ((Variable) data.getValue("igual_aux.vh")).getNom(),
+						((Variable) data.getValue("igual_aux.vh")).getTipus().getNom(),
+						((ITipus) info.getValue("exp.ts")).getNom());
 			}
-		} else if (data.getValue("igual_aux.th") instanceof TipusArray){
-			if (!((TipusArray)data.getValue("igual_aux.th")).getTipusElements().getNom().equals(
-					((ITipus)info.getValue("exp.ts")).getNom())){
-				error.insertError(TypeError.ERR_SEM_12, ((Variable)data.getValue("igual_aux.vh")).getNom(),
-						((Variable)data.getValue("igual_aux.vh")).getTipus().getNom(),
-						((ITipus)info.getValue("exp.ts")).getNom());
-			}
+		} else if (data.getValue("igual_aux.th") instanceof TipusArray)
+			error.insertError(TypeError.ERR_SEM_12, ((Variable) data.getValue("igual_aux.vh")).getNom(),
+					"VECTOR DE " + ((TipusArray) data.getValue("igual_aux.th")).getTipusElements().getNom(),
+					((ITipus) info.getValue("exp.ts")).getNom());
+
+	}
+
+	public void checkEscriure(Data info) {
+		ITipus tipus = (ITipus) info.getValue("exp.ts");
+		if (!(tipus instanceof TipusSimple || tipus instanceof TipusCadena)){
+			error.insertError(TypeError.ERR_SEM_14);
 		}
 	}
+
+	public Data initLlegir(String lexema) {
+		Data data = new Data();
+
+		if (taulaSimbols.obtenirBloc(blocActual).existeixVariable(lexema)){
+			Variable variable = taulaSimbols.obtenirBloc(blocActual).obtenirVariable(lexema);
+			System.out.println("Variable: "+variable);
+			data.setValue("variable_aux.vh", variable);
+			data.setValue("variable_aux.th", variable.getTipus());
+			data.setValue("variable_aux.eh", false);
+		} else if (taulaSimbols.obtenirBloc(0).existeixVariable(lexema)){
+			Variable variable = taulaSimbols.obtenirBloc(0).obtenirVariable(lexema);
+			data.setValue("variable_aux.vh", variable);
+			data.setValue("variable_aux.th", variable.getTipus());
+			data.setValue("variable_aux.eh", false);
+		} else if (taulaSimbols.obtenirBloc(blocActual).existeixID(lexema) ||
+				taulaSimbols.obtenirBloc(0).existeixID(lexema)){
+			data.setValue("llegir.id", lexema);
+		} else {
+			error.insertError(TypeError.ERR_SEM_9, lexema);
+			data.setValue("llegir.id", lexema);
+			data.setValue("variable_aux.vh", new Variable(lexema, new TipusIndefinit("indef", 0), 0));
+			data.setValue("variable_aux.th", new TipusIndefinit("indef", 0));
+			data.setValue("variable_aux.eh", false);
+		}
+		return data;
+	}
+
+	public void checkLlegir(Data data) {
+		ITipus tipus = (ITipus) data.getValue("variable_aux.ts");
+		if (!(tipus instanceof TipusIndefinit) && !(tipus instanceof TipusSimple)){
+			if (tipus instanceof TipusArray)
+				error.insertError(TypeError.ERR_SEM_10, ((Variable)data.getValue("variable_aux.vs")).getNom());
+			else
+				error.insertError(TypeError.ERR_SEM_10, (String)data.getValue("llegir.id"));
+		}
+	}
+
 }

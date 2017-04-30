@@ -96,5 +96,10 @@ public class Variable {
     	if (tipus != null) result += tipus.toXml();
     	result += "</Variable>";
         return result;
-    } 
+    }
+
+    @Override
+	public String toString(){
+    	return toXml();
+	}
  }
