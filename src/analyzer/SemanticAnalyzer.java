@@ -669,4 +669,8 @@ public class SemanticAnalyzer {
 			error.insertError(TypeError.ERR_SEM_7);
 		}
 	}
+
+	public void checkReturn(boolean ret){
+		if (!ret) error.insertError(TypeError.ERR_SEM_25);
+	}
 }

@@ -302,6 +302,9 @@ public class Error {
 				case ERR_SEM_21:
 					bwErr.write("[" + error +"] "+ numLine + ", Divisió per 0.\n");
 					break;
+				case ERR_SEM_25:
+					bwErr.write("[" + error +"] "+ numLine + ", Existeix un camí on no es retorna cap valor.\n");
+					break;
 
 			}
 		} catch (IOException e) {

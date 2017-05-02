@@ -16,7 +16,15 @@ funcio suma(perval asdf : sencer, perref qwer : sencer, perval a : sencer): senc
 	const patata = 0;
 	func
 		integer = qwer + 3;
-		retornar 0;
+		si cert llavors
+		    retornar 3;
+        sino
+            si fals llavors
+                retornar 2;
+            fisi
+            retornar 1;
+        fisi;
+
 	fifunc;
 
 prog

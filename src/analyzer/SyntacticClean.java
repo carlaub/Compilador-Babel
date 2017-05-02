@@ -119,8 +119,8 @@ public class SyntacticClean {
 				decl_cte_var();
 				accept(Type.FUNC);
 
-				llista_inst();
-
+				boolean ret = llista_inst();
+				semantic.checkReturn(ret);
 				accept(Type.FIFUNC);
 				accept(Type.SEMICOLON);
 
@@ -584,15 +584,16 @@ public class SyntacticClean {
 		}
 	}
 
-	private void llista_inst(){
+	private boolean llista_inst(){
 
-		inst();
+		boolean ret = inst();
 		accept(Type.SEMICOLON);
 
-		llista_inst_aux();
+		ret = ret || llista_inst_aux();
+		return ret;
 	}
 
-	private void llista_inst_aux(){
+	private boolean llista_inst_aux(){
 		switch (lookahead.getToken()){
 			case ID:
 			case ESCRIURE:
@@ -602,14 +603,13 @@ public class SyntacticClean {
 			case SI:
 			case RETORNAR:
 			case PERCADA:
-				llista_inst();
-				break;
+				return llista_inst();
 			default:
-				break;
+				return false;
 		}
 	}
 
-	private void inst(){
+	private boolean inst(){
 		switch (lookahead.getToken()) {
 			case ID:
 				Data data = semantic.initAssignation(lookahead.getLexema());
@@ -620,53 +620,53 @@ public class SyntacticClean {
 				accept(Type.IGUAL);
 				data.moveBlock("igual_aux.h", "variable_aux.s");
 				igual_aux(data);
-				break;
+				return false;
 
 			case ESCRIURE:
 				accept(Type.ESCRIURE);
 				accept(Type.OPARENT);
 				param_escriure();
 				accept(Type.CPARENT);
-				break;
+				return false;
 
 			case LLEGIR:
 				accept(Type.LLEGIR);
 				accept(Type.OPARENT);
 				param_llegir();
 				accept(Type.CPARENT);
-				break;
+				return false;
 
 			case CICLE:
 				accept(Type.CICLE);
-				llista_inst();
+				boolean ret_cicle = llista_inst();
 				accept(Type.FINS);
 				Data info_cicle = exp();
 				semantic.checkLogic(info_cicle);
-				break;
+				return ret_cicle;
 
 			case MENTRE:
 				accept(Type.MENTRE);
 				Data info_mentre = exp();
 				semantic.checkLogic(info_mentre);
 				accept(Type.FER);
-				llista_inst();
+				boolean ret_mentre = llista_inst();
 				accept(Type.FIMENTRE);
-				break;
+				return ret_mentre;
 
 			case SI:
 				accept(Type.SI);
 				Data exp_si = exp();
 				semantic.checkLogic(exp_si);
 				accept(Type.LLAVORS);
-				llista_inst();
-				fi_aux();
+				boolean ret_si = llista_inst();
+				ret_si = ret_si && fi_aux();
 				accept(Type.FISI);
-				break;
+				return ret_si;
 
 			case RETORNAR:
 				accept(Type.RETORNAR);
 				exp();
-				break;
+				return true;
 
 			case PERCADA:
 				accept(Type.PERCADA);
@@ -674,12 +674,13 @@ public class SyntacticClean {
 				accept(Type.EN);
 				accept(Type.ID);
 				accept(Type.FER);
-				llista_inst();
+				boolean ret_foreach = llista_inst();
 				accept(Type.FIPER);
-				break;
+				return ret_foreach;
 
 			default:
 				System.out.println("ERROR");
+				return false;
 		}
 	}
 
@@ -744,13 +745,13 @@ public class SyntacticClean {
 		}
 	}
 
-	private void fi_aux(){
+	private boolean fi_aux(){
 		switch (lookahead.getToken()){
 			case SINO:
 				accept(Type.SINO);
-				llista_inst();
+				return llista_inst();
 			default:
-				return;
+				return false;
 		}
 	}
 
