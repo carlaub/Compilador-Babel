@@ -20,7 +20,7 @@ funcio suma(perval asdf : sencer, perref qwer : sencer, perval a : sencer): senc
 		    retornar 3;
         sino
             si fals llavors
-                retornar 2;
+                retornar cert;
             fisi
             retornar 1;
         fisi;
@@ -43,5 +43,5 @@ prog
 		x = fals;
 	fisi;
 
-	retornar CERT OR CERT AND FALS;
+	//retornar CERT OR CERT AND FALS;
 fiprog

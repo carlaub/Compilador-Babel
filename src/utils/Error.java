@@ -334,6 +334,12 @@ public class Error {
 							"> i l'expressió de assignació tenen tipus diferents.\n\tEl tipus de la variable és <"+tipus1+
 							"> i el de l'expressió <"+tipus2+">.\n");
 					break;
+				case ERR_SEM_26:
+					bwErr.write("[" + error +"] "+ numLine + ", El tipus de la funció <"+id+
+							"> i el tipus de retorn són diferents.\n\tEl tipus de retorn de la funció és <"+tipus1+
+							"> i retorna <"+tipus2+">.\n");
+					break;
+
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

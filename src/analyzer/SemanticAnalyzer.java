@@ -1,5 +1,7 @@
 package analyzer;
 
+import com.sun.deploy.security.ValidationState;
+import com.sun.javafx.stage.FocusUngrabEvent;
 import javafx.beans.binding.ObjectBinding;
 import taulaDeSimbols.*;
 import utils.Error;
@@ -8,6 +10,7 @@ import utils.TypeError;
 public class SemanticAnalyzer {
 	private TaulaSimbols taulaSimbols;
 	private int blocActual;
+	private String idFuncio;
 	private Error error;
 	private static final int INDEF = -1;
 
@@ -16,6 +19,7 @@ public class SemanticAnalyzer {
 		taulaSimbols = new TaulaSimbols();
 		taulaSimbols.inserirBloc(new Bloc());
 		taulaSimbols.setBlocActual(blocActual);
+		idFuncio = "";
 
 		error = Error.getInstance();
 	}
@@ -38,6 +42,7 @@ public class SemanticAnalyzer {
 //			-Tenim més d'una única funció declarada
 
 //		taulaSimbols.esborrarBloc(1);
+		idFuncio = null;
 		blocActual = 0;
 	}
 
@@ -166,6 +171,7 @@ public class SemanticAnalyzer {
 		Funcio funcio = new Funcio();
 		funcio.setNom((String) data.getValue("name"));
 		taulaSimbols.obtenirBloc(0).inserirProcediment(funcio);
+		idFuncio = funcio.getNom();
 	}
 
 	public void addParameter(Data data) {
@@ -670,7 +676,19 @@ public class SemanticAnalyzer {
 		}
 	}
 
-	public void checkReturn(boolean ret){
+	public void checkCamiReturn(boolean ret){
 		if (!ret) error.insertError(TypeError.ERR_SEM_25);
+	}
+
+	public void checkReturn(Data data){
+		if (blocActual == 0) {
+			error.insertError(TypeError.ERR_SEM_19);
+		} else {
+			ITipus type = (ITipus) data.getValue("exp.ts");
+			if (!type.getNom().equals(((Funcio)taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio)).getTipus().getNom())){
+				error.insertError(TypeError.ERR_SEM_26, idFuncio, ((Funcio)taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio)).getTipus().getNom(),
+						type.getNom());
+			}
+		}
 	}
 }

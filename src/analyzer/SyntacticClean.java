@@ -120,7 +120,7 @@ public class SyntacticClean {
 				accept(Type.FUNC);
 
 				boolean ret = llista_inst();
-				semantic.checkReturn(ret);
+				semantic.checkCamiReturn(ret);
 				accept(Type.FIFUNC);
 				accept(Type.SEMICOLON);
 
@@ -665,7 +665,8 @@ public class SyntacticClean {
 
 			case RETORNAR:
 				accept(Type.RETORNAR);
-				exp();
+				Data info = exp();
+				semantic.checkReturn(info);
 				return true;
 
 			case PERCADA:
