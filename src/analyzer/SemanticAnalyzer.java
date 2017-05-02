@@ -41,7 +41,7 @@ public class SemanticAnalyzer {
 //			-Estem en producció i ja no necessitem mirar el bloc
 //			-Tenim més d'una única funció declarada
 
-//		taulaSimbols.esborrarBloc(1);
+		taulaSimbols.esborrarBloc(1);
 		idFuncio = null;
 		blocActual = 0;
 	}
@@ -129,7 +129,7 @@ public class SemanticAnalyzer {
 		if (taulaSimbols.obtenirBloc(blocActual).existeixConstant(id)) {
 			Constant constant = taulaSimbols.obtenirBloc(blocActual).obtenirConstant(id);
 			System.out.println("CONST: " + constant.toXml());
-			data.setValue("terme.vs", constant);
+			data.setValue("terme.vs", constant.getValor());
 			data.setValue("terme.ts", constant.getTipus());
 			data.setValue("terme.es", true);
 		} else if (taulaSimbols.obtenirBloc(blocActual).existeixVariable(id)) {
@@ -141,7 +141,7 @@ public class SemanticAnalyzer {
 		} else if (taulaSimbols.obtenirBloc(0).existeixConstant(id)) {
 			Constant constant = taulaSimbols.obtenirBloc(0).obtenirConstant(id);
 			System.out.println("CONST: " + constant.toXml());
-			data.setValue("terme.vs", constant);
+			data.setValue("terme.vs", constant.getValor());
 			data.setValue("terme.ts", constant.getTipus());
 			data.setValue("terme.es", true);
 		}  else if (taulaSimbols.obtenirBloc(0).existeixVariable(id)) {
@@ -166,12 +166,19 @@ public class SemanticAnalyzer {
 		}
 	}
 
-	public void checkFuncio(Data data) {
+	public String checkFuncio(Data data) {
 		//Aquí també seria millor utilitzar blocActual
 		Funcio funcio = new Funcio();
 		funcio.setNom((String) data.getValue("name"));
-		taulaSimbols.obtenirBloc(0).inserirProcediment(funcio);
+		if (!taulaSimbols.obtenirBloc(0).existeixProcediment(funcio.getNom())){
+			taulaSimbols.obtenirBloc(0).inserirProcediment(funcio);
+		} else {
+			error.insertError(TypeError.ERR_SEM_3, funcio.getNom());
+			funcio.setNom("!"+funcio.getNom());
+			taulaSimbols.obtenirBloc(0).inserirProcediment(funcio);
+		}
 		idFuncio = funcio.getNom();
+		return idFuncio;
 	}
 
 	public void addParameter(Data data) {
@@ -181,9 +188,10 @@ public class SemanticAnalyzer {
 		parametre.setTipus((ITipus) data.getValue("type"));
 		parametre.setTipusPasParametre(new TipusPasParametre((String) data.getValue("typeParam")));
 		if (taulaSimbols.obtenirBloc(1).obtenirVariable(parametre.getNom()) == null) {
-			taulaSimbols.obtenirBloc(0)
-					.obtenirProcediment((String) data.getValue("idFunction"))
-					.inserirParametre(parametre);
+			String id = (String) data.getValue("idFunction");
+				taulaSimbols.obtenirBloc(0)
+						.obtenirProcediment((String) data.getValue("idFunction"))
+						.inserirParametre(parametre);
 			taulaSimbols.obtenirBloc(1).inserirVariable(parametre);
 		} else {
 			error.insertError(TypeError.ERR_SEM_4, parametre.getNom());

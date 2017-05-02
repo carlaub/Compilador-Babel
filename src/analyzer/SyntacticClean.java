@@ -101,7 +101,7 @@ public class SyntacticClean {
 
 				//TODO: Afegir llista paràmetres
 
-				semantic.checkFuncio(data);
+				id = semantic.checkFuncio(data);
 				semantic.nextBloc();
 
 				accept(Type.OPARENT);

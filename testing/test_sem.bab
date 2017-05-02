@@ -8,7 +8,7 @@ CONST A = CERT or fals and cert;
 const cad = "ASDF";
 var x: logic;
 var y: vector[0..15] de logic;
-var z: vector[3..5] de sencer;
+var z: vector[3..patata] de sencer;
 var integer: sencer;
 
 funcio suma(perval asdf : sencer, perref qwer : sencer, perval a : sencer): sencer;
@@ -20,7 +20,7 @@ funcio suma(perval asdf : sencer, perref qwer : sencer, perval a : sencer): senc
 		    retornar 3;
         sino
             si fals llavors
-                retornar cert;
+                retornar 4;
             fisi
             retornar 1;
         fisi;
@@ -35,6 +35,8 @@ prog
 		llegir(x);
 	fins integer < 3+56;
 
+	escriure(cad);
+
 	mentre cert fer
 		llegir(x);
 	fimentre;
@@ -43,5 +45,4 @@ prog
 		x = fals;
 	fisi;
 
-	//retornar CERT OR CERT AND FALS;
 fiprog

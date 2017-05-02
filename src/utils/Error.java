@@ -335,6 +335,7 @@ public class Error {
 							"> i el de l'expressió <"+tipus2+">.\n");
 					break;
 				case ERR_SEM_26:
+					if (id.charAt(0) == '!') id = id.substring(1);
 					bwErr.write("[" + error +"] "+ numLine + ", El tipus de la funció <"+id+
 							"> i el tipus de retorn són diferents.\n\tEl tipus de retorn de la funció és <"+tipus1+
 							"> i retorna <"+tipus2+">.\n");
