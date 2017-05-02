@@ -9,6 +9,7 @@ public class TipusIndefinit extends ITipus {
 	
 	/**<p>Creador del tipus indefinit</p>*/
 	public TipusIndefinit() {
+		nom = "";
 	}
 	
 	/**

@@ -26,7 +26,8 @@ public class SyntacticClean {
 		if(lookahead.getToken().equals(type)){
 			lookahead = lexic.getToken();
 		}else{
-			System.out.println("ERROR");
+			System.out.println("ERROR - accept()");
+			System.out.println(lexic.getActualLine()+" - "+lookahead.getLexema() +" -> "+ type);
 		}
 	}
 
@@ -201,8 +202,8 @@ public class SyntacticClean {
 				DimensioArray dimensioArray = new DimensioArray(new TipusSimple("SENCER", 0), lower_limit, upper_limit);
 				tipusArray.inserirDimensio(dimensioArray);
 				return tipusArray;
-			default: //ERROR
-				System.out.println("ERROR");
+			default:
+				System.out.println("ERROR - tipus()");
 				return new TipusIndefinit("indef", 0);
 		}
 	}
@@ -412,14 +413,11 @@ public class SyntacticClean {
 				data.moveBlock("terme.s", "factor_aux.s");
 				break;
 			default:
-				System.out.println("ERROR");
+				System.out.println("ERROR - terme()");
 		}
 
 		System.out.println("|   |-"+data);
-		//El case ID, que no té settejats aquests valors i llença l'excepció
-//		try {
-			data.moveBlock("terme_aux.h", "terme.s");
-//		} catch (NullPointerException e){}
+		data.moveBlock("terme_aux.h", "terme.s");
 
 		System.out.println("|     |-"+data);
 		terme_aux(data);
@@ -528,7 +526,8 @@ public class SyntacticClean {
 				data.move("llista_exp.vs", "llista_exp_aux.vs");
 				break;
 			default:
-				data.setValue("llista_exp.vs", false);
+//				data.setValue("llista_exp.vs", false);
+				data.move("llista_exp.vs", "llista_exp.vh");
 				return;
 		}
 
@@ -560,9 +559,9 @@ public class SyntacticClean {
 				break;
 			default:
 				semantic.checkErrSem22(data);
-				try{
+//				try{
 					data.moveBlock("variable_aux.s", "variable_aux.h");
-				}catch (Exception e){}
+//				}catch (Exception e){}
 				return;
 		}
 	}
@@ -589,7 +588,7 @@ public class SyntacticClean {
 		boolean ret = inst();
 		accept(Type.SEMICOLON);
 
-		ret = ret || llista_inst_aux();
+		ret = ret | llista_inst_aux();
 		return ret;
 	}
 
@@ -659,7 +658,7 @@ public class SyntacticClean {
 				semantic.checkLogic(exp_si);
 				accept(Type.LLAVORS);
 				boolean ret_si = llista_inst();
-				ret_si = ret_si && fi_aux();
+				ret_si = ret_si & fi_aux();
 				accept(Type.FISI);
 				return ret_si;
 
@@ -680,7 +679,7 @@ public class SyntacticClean {
 				return ret_foreach;
 
 			default:
-				System.out.println("ERROR");
+				System.out.println("ERROR - inst()");
 				return false;
 		}
 	}
@@ -710,8 +709,7 @@ public class SyntacticClean {
 				semantic.checkAssignation(data, info);
 				break;
 			default:
-				//ERROR
-				System.out.println("ERROR");
+				System.out.println("ERROR - igual_aux()");
 				break;
 		}
 	}

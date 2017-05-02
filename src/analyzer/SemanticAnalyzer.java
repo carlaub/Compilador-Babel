@@ -2,10 +2,13 @@ package analyzer;
 
 import com.sun.deploy.security.ValidationState;
 import com.sun.javafx.stage.FocusUngrabEvent;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import javafx.beans.binding.ObjectBinding;
 import taulaDeSimbols.*;
 import utils.Error;
 import utils.TypeError;
+
+import javax.xml.bind.SchemaOutputResolver;
 
 public class SemanticAnalyzer {
 	private TaulaSimbols taulaSimbols;
@@ -40,7 +43,8 @@ public class SemanticAnalyzer {
 		//La següent línia ha d'anar descomentada, fer-ho en els següents casos:
 //			-Estem en producció i ja no necessitem mirar el bloc
 //			-Tenim més d'una única funció declarada
-
+		System.out.println("BLOC -------------------------------------------------------------------------");
+		System.out.println(taulaSimbols.obtenirBloc(1));
 		taulaSimbols.esborrarBloc(1);
 		idFuncio = null;
 		blocActual = 0;
@@ -152,14 +156,13 @@ public class SemanticAnalyzer {
 				data.setValue("terme.ts", ((TipusArray) variable.getTipus()).getTipusElements());
 			} else data.setValue("terme.ts", variable.getTipus());
 			data.setValue("terme.es", false);
-		} else if (taulaSimbols.obtenirBloc(blocActual).existeixProcediment(id)) {
-			Procediment funcio = taulaSimbols.obtenirBloc(blocActual).obtenirProcediment(id);
+		} else if (taulaSimbols.obtenirBloc(0).existeixProcediment(id)) {
+			Funcio funcio = (Funcio) taulaSimbols.obtenirBloc(0).obtenirProcediment(id);
 			data.setValue("terme.vs", funcio);
-			data.setValue("terme.ts", false);
+			data.setValue("terme.ts", funcio.getTipus());
 			data.setValue("terme.es", false);
 		} else {
 			error.insertError(TypeError.ERR_SEM_9, id);
-			System.out.println("ERR_SEM_9");
 			data.setValue("terme.vs", id);
 			data.setValue("terme.ts", new TipusIndefinit("indef", 0));
 			data.setValue("terme.es", false);
@@ -502,7 +505,9 @@ public class SemanticAnalyzer {
 			data.move("llista_exp.vh", "factor_aux.vh");
 		} else {
 			funcio = new Funcio();
+			funcio.setTipus(new TipusIndefinit());
 			data.setValue("llista_exp.vh", funcio);
+			data.setValue("llista_exp.th", funcio.getTipus());
 		}
 		data.setValue("param.index", 0);
 		data.setValue("param.num", funcio.getNumeroParametres());
@@ -575,11 +580,13 @@ public class SemanticAnalyzer {
 			if (!((ITipus) info.getValue("exp.ts")).getNom().equals("SENCER")) {
 				error.insertError(TypeError.ERR_SEM_13, getNomId(id));
 			} else {
-				int index = (int) info.getValue("exp.vs");
-				if ((boolean)info.getValue("exp.es") && (
-						(int)((TipusArray) type).obtenirDimensio(0).getLimitInferior() > index ||
-						(int)((TipusArray) type).obtenirDimensio(0).getLimitSuperior() < index)){
-					error.insertError(TypeError.ERR_SEM_24, getNomId(id));
+				if (info.getValue("exp.vs") instanceof Integer){
+					int index = (int) info.getValue("exp.vs");
+					if ((boolean)info.getValue("exp.es") && (
+							(int)((TipusArray) type).obtenirDimensio(0).getLimitInferior() > index ||
+									(int)((TipusArray) type).obtenirDimensio(0).getLimitSuperior() < index)){
+						error.insertError(TypeError.ERR_SEM_24, getNomId(id));
+					}
 				}
 			}
 		}
@@ -607,7 +614,12 @@ public class SemanticAnalyzer {
 			data.setValue("variable_aux.th", variable.getTipus());
 			data.setValue("variable_aux.eh", false);
 		} else {
-			error.insertError(TypeError.ERR_SEM_11, lexema);
+			if (taulaSimbols.obtenirBloc(blocActual).existeixID(lexema) ||
+					taulaSimbols.obtenirBloc(0).existeixID(lexema)){
+				error.insertError(TypeError.ERR_SEM_11, lexema);
+			} else {
+				error.insertError(TypeError.ERR_SEM_9, lexema);
+			}
 			data.setValue("variable_aux.vh", new Variable(lexema, new TipusIndefinit("indef", 0), 0));
 			data.setValue("variable_aux.th", new TipusIndefinit("indef", 0));
 			data.setValue("variable_aux.eh", false);
@@ -693,9 +705,14 @@ public class SemanticAnalyzer {
 			error.insertError(TypeError.ERR_SEM_19);
 		} else {
 			ITipus type = (ITipus) data.getValue("exp.ts");
+			System.out.println("TAULA");
+			System.out.println(taulaSimbols);
+			System.out.println(taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio));
+			System.out.println(type);
 			if (!type.getNom().equals(((Funcio)taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio)).getTipus().getNom())){
-				error.insertError(TypeError.ERR_SEM_26, idFuncio, ((Funcio)taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio)).getTipus().getNom(),
-						type.getNom());
+				if (taulaSimbols.obtenirBloc(0).existeixProcediment(idFuncio))
+					error.insertError(TypeError.ERR_SEM_26, idFuncio, ((Funcio)taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio)).getTipus().getNom(),
+							type.getNom());
 			}
 		}
 	}

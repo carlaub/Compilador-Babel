@@ -1,6 +1,8 @@
 
 package taulaDeSimbols;
 
+import org.omg.CORBA.PUBLIC_MEMBER;
+
 /**
  * <p>Classe que representa una funci� del llenguatge Babel</p> 
  */
@@ -111,5 +113,10 @@ public class Funcio extends Procediment {
     	if (tipus != null) result += tipus.toXml();
     	result += "</Funcio>";
         return result;
-    } 
+    }
+
+    @Override
+	public String toString(){
+    	return toXml();
+	}
  }

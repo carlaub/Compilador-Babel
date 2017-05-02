@@ -7,7 +7,8 @@ var v4:logic ;
 const MIN = -50;
 const MAX = 50;
 CoNsT CTE4 = cert AND cert;
-var  v1:sencer ;
+var  v1:sencer;
+const v6 = 45;
 
 VaR v5: vector [MIN .. MAX] de sencer;
 
@@ -16,6 +17,8 @@ VaR v5: vector [MIN .. MAX] de sencer;
 ///////////////
 fUNcIO S0(): sencer;
 	var i: sencer;
+	var j:sencer;
+	var x :sencer;
 func
 	escriure("Starting ", CTE1);
 	i = min;
@@ -23,19 +26,23 @@ func
 	mentre cert fer
 		si i == MAX llavors
 		  x=0;
+		  escriure(4);
 		sino
 			v5[i] = i + 1;
-			i = si(j>10)? 2: m+n;
 		fisi;	
 	fimentre;
+	retornar 2;
 fifunc;
 
 funcio S(perval a1: sencer, perval b:sencer ): logic;
+	var x : logic;
 func
 	//Newb style
 	SI b == 0 llavors
 		escriure("Bad news!");
-		retornar true or X;  //Really a bad thinking
+		retornar cert or X;  //Really a bad thinking
+	sino
+		retornar fals;
 	fiSi; //ugly...
 	sI b == a1 LLAVORS escriure("Wow!, jackpod!"); fisi;
 	si (b > 0) AND (b <> a1) LLavors
@@ -43,10 +50,15 @@ func
 	fisi;
 fifunc;
 
+funcio esta(perref int : sencer, perval vec : vector [0 .. 100] de sencer): logic;
+func
+	retornar cert;
+fifunc;
+
 funcio F(perval val1:sencer, perval val2 : sencer, perref ref1 : logic): sencer;
 	const N = MAX - 1;
 	var i:sencer;
-var j:sencer;
+	var j:sencer;
 func
 	ref1 = CeRt OR Fals;
 	retornar s0();
@@ -63,21 +75,21 @@ func
 				i = i / 1;
 				j = -1 * i;
 			fiPer;
-			retornar s(val1, i);
+			//retornar s(val1, i);
+			retornar 2;
 		fisi;
 	fins cert;
-	si (ref1 == not FAls) OR (ref1 <> CErt) llavors 
+	si (ref1 and FAls) OR (12 <> 13) llavors
 		retornar 0; 
 	sino
 		si esta(j, v5) llavors
 			escriure("Bingo!");
-			x = si (y >2)? x+1 : -x-y-2;
 		sino
-			F = 10;
+			j = 10;
 		fisi;
 	fisi;
 fifunc;
 
 prog
-	v1 = F(v2, v3, v4);
+	v1 = F(v5[32], -23*6, v4);
 fiprog
