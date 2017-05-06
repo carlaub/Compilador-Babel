@@ -314,29 +314,42 @@ public class Error {
 
 	}
 
-	public void insertError (TypeError error, int numParamDecl, int numParamUs) {
+	/**
+	 * Mètode per a escriure un error al fitxer d'errors.
+	 * @param error Codi d'error
+	 * @param integer1 Primer integer a mostrar segons el codi d'error
+	 * @param interger2 Segon integer a mostrar segons el codi d'error
+	 */
+	public void insertError (TypeError error, int integer1, int interger2) {
 		int numLine = lexic.getActualLine();
 		try {
-			bwErr.write("[" + error +"] "+ numLine + ", La funció en declaració té "+ numParamUs +
-					" paràmetres mentre que en ús té " + numParamDecl + ".\n");
+			bwErr.write("[" + error +"] "+ numLine + ", La funció en declaració té "+ interger2 +
+					" paràmetres mentre que en ús té " + integer1 + ".\n");
 		} catch(IOException e) {
 
 		}
 
 	}
 
-	public void insertError(TypeError error, String id, String tipus1, String tipus2){
+	/**
+	 * Mètode per a escriure un error al fitxer d'errors.
+	 * @param error Codi d'error
+	 * @param string Cadena amb la informació a mostrar segons l'error
+	 * @param tipus1 Primera cadena amb informació del tipus a mostrar
+	 * @param tipus2 Segona cadena amb informació del tipus a mostrar
+	 */
+	public void insertError(TypeError error, String string, String tipus1, String tipus2){
 		int numLine = lexic.getActualLine();
 		try {
 			switch(error) {
 				case ERR_SEM_12:
-					bwErr.write("[" + error +"] "+ numLine + ", La variable <"+id+
+					bwErr.write("[" + error +"] "+ numLine + ", La variable <"+string+
 							"> i l'expressió de assignació tenen tipus diferents.\n\tEl tipus de la variable és <"+tipus1+
 							"> i el de l'expressió <"+tipus2+">.\n");
 					break;
 				case ERR_SEM_26:
-					if (id.charAt(0) == '!') id = id.substring(1);
-					bwErr.write("[" + error +"] "+ numLine + ", El tipus de la funció <"+id+
+					if (string.charAt(0) == '!') string = string.substring(1);
+					bwErr.write("[" + error +"] "+ numLine + ", El tipus de la funció <"+string+
 							"> i el tipus de retorn són diferents.\n\tEl tipus de retorn de la funció és <"+tipus1+
 							"> i retorna <"+tipus2+">.\n");
 					break;

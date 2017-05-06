@@ -58,25 +58,19 @@ public class Data {
 		getAttributes().put(attributeID,attributeValue);
 	}
 
-	public void move(String atrib_dest, String atrib_orig){
-		setValue(atrib_dest, getValue(atrib_orig));
-		removeAttribute(atrib_orig);
+	public void move(Object attrib_dest, Object attrib_orig){
+		setValue(attrib_dest, getValue(attrib_orig));
+		removeAttribute(attrib_orig);
 	}
 
-	public void copy(String atrib_dest, String atrib_orig){
-		setValue(atrib_dest, getValue(atrib_orig));
+	public void copy(Object attrib_dest, Object attrib_orig){
+		setValue(attrib_dest, getValue(attrib_orig));
 	}
 
-	public void remove(String atrib){
+	public void remove(Object atrib){
 		removeAttribute(atrib);
 	}
 
-
-	/**
-	 * Mètode per a realitzar un 
-	 * @param block_dest
-	 * @param block_orig
-	 */
 	public void moveBlock(String block_dest, String block_orig){
 		String [] info_dest = block_dest.split("\\.");
 		String [] info_orig = block_orig.split("\\.");
@@ -103,7 +97,7 @@ public class Data {
 		remove(info[0]+".e"+info[1]);
 	}
 
-	public void setBloc(String block, Object v, Object t, Object e){
+	public void setBlock(String block, Object v, Object t, Object e){
 		String [] info = block.split("\\.");
 
 		setValue(info[0]+".v"+info[1], v);

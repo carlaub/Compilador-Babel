@@ -371,7 +371,7 @@ public class SyntacticClean {
 			//FACTOR
 			case SENCER_CST:
 				int valor = Integer.parseInt(lookahead.getLexema());
-				data.setBloc("terme.s", valor, new TipusSimple("SENCER"), true);
+				data.setBlock("terme.s", valor, new TipusSimple("SENCER"), true);
 				accept(Type.SENCER_CST);
 				semantic.checkOp_unari(data);
 				semantic.checkOp_binari(data);
@@ -379,7 +379,7 @@ public class SyntacticClean {
 				break;
 
 			case LOGIC_CST:
-				data.setBloc("terme.s", lookahead.getLexema().equals("CERT"), new TipusSimple("LOGIC"), true);
+				data.setBlock("terme.s", lookahead.getLexema().equals("CERT"), new TipusSimple("LOGIC"), true);
 				accept(Type.LOGIC_CST);
 				semantic.checkOp_unari(data);
 				semantic.checkOp_binari(data);
@@ -387,7 +387,7 @@ public class SyntacticClean {
 				break;
 
 			case CADENA:
-				data.setBloc("terme.s", lookahead.getLexema(), new TipusCadena("CADENA", lookahead.getLexema().length(), lookahead.getLexema().length()), true);
+				data.setBlock("terme.s", lookahead.getLexema(), new TipusCadena("CADENA", lookahead.getLexema().length(), lookahead.getLexema().length()), true);
 				accept(Type.CADENA);
 				break;
 
@@ -395,7 +395,7 @@ public class SyntacticClean {
 				accept(Type.OPARENT);
 				Data exp = exp();
 
-				data.setBloc("terme.s", exp.getValue("exp.vs"), exp.getValue("exp.ts"), exp.getValue("exp.es"));
+				data.setBlock("terme.s", exp.getValue("exp.vs"), exp.getValue("exp.ts"), exp.getValue("exp.es"));
 
 				accept(Type.CPARENT);
 				semantic.checkOp_unari(data);

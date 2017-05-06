@@ -142,22 +142,22 @@ public class SemanticAnalyzer {
 		if (taulaSimbols.obtenirBloc(blocActual).existeixConstant(id)) {
 
 			Constant constant = taulaSimbols.obtenirBloc(blocActual).obtenirConstant(id);
-			data.setBloc("terme.s", constant.getValor(), constant.getTipus(), true);
+			data.setBlock("terme.s", constant.getValor(), constant.getTipus(), true);
 
 		} else if (taulaSimbols.obtenirBloc(blocActual).existeixVariable(id)) {
 
 			Variable variable = taulaSimbols.obtenirBloc(blocActual).obtenirVariable(id);
-			data.setBloc("terme.s", variable, variable.getTipus(), false);
+			data.setBlock("terme.s", variable, variable.getTipus(), false);
 
 		} else if (taulaSimbols.obtenirBloc(0).existeixConstant(id)) {
 
 			Constant constant = taulaSimbols.obtenirBloc(0).obtenirConstant(id);
-			data.setBloc("terme.s", constant.getValor(), constant.getTipus(), true);
+			data.setBlock("terme.s", constant.getValor(), constant.getTipus(), true);
 
 		} else if (taulaSimbols.obtenirBloc(0).existeixVariable(id)) {
 
 			Variable variable = taulaSimbols.obtenirBloc(0).obtenirVariable(id);
-			data.setBloc("terme.s",
+			data.setBlock("terme.s",
 					variable,
 					variable.getTipus() instanceof TipusArray ?
 							((TipusArray) variable.getTipus()).getTipusElements() :
@@ -166,10 +166,10 @@ public class SemanticAnalyzer {
 
 		} else if (taulaSimbols.obtenirBloc(0).existeixProcediment(id)) {
 			Funcio funcio = (Funcio) taulaSimbols.obtenirBloc(0).obtenirProcediment(id);
-			data.setBloc("terme.s", funcio, funcio.getTipus(), false);
+			data.setBlock("terme.s", funcio, funcio.getTipus(), false);
 		} else {
 			error.insertError(TypeError.ERR_SEM_9, id);
-			data.setBloc("terme.s", id, new TipusIndefinit("indef"), false);
+			data.setBlock("terme.s", id, new TipusIndefinit("indef"), false);
 		}
 	}
 
@@ -347,7 +347,7 @@ public class SemanticAnalyzer {
 				if (data_terme_simple_th.getTamany() != INDEF && info_terme_ts.getTamany() != INDEF) {
 
 					if (!((boolean) data.getValue("terme_simple.eh") && (boolean) info.getValue("terme.es"))) {
-						info.setBloc("terme.s", 0, new TipusSimple("SENCER"), false);
+						info.setBlock("terme.s", 0, new TipusSimple("SENCER"), false);
 						data.setValue("op", true);
 					} else {
 						int op1 = (int) data.getValue("terme_simple.vh");
@@ -376,7 +376,7 @@ public class SemanticAnalyzer {
 
 					if (!((boolean) data.getValue("terme_simple.eh") && (boolean) info.getValue("terme.es"))) {
 
-						info.setBloc("terme.s", 0, new TipusSimple("SENCER"), false);
+						info.setBlock("terme.s", 0, new TipusSimple("SENCER"), false);
 						data.setValue("op", true);
 					} else {
 						int op1 = (int) data.getValue("terme_simple.vh");
@@ -403,7 +403,7 @@ public class SemanticAnalyzer {
 
 					if (!((boolean) data.getValue("terme_simple.eh") && (boolean) info.getValue("terme.es"))) {
 
-						info.setBloc("terme.s", 0, new TipusSimple("LOGIC"), false);
+						info.setBlock("terme.s", 0, new TipusSimple("LOGIC"), false);
 						data.setValue("op", true);
 					} else {
 						boolean op1 = (boolean) data.getValue("terme_simple.vh");
@@ -485,16 +485,16 @@ public class SemanticAnalyzer {
 		if (!data_exp_aux_th.getNom().equals("SENCER") || !info_exp_simple_ts.getNom().equals("SENCER")) {
 
 			error.insertError(TypeError.ERR_SEM_6);
-			data.setBloc("exp_aux.s", 0, new TipusIndefinit("indef"), true);
+			data.setBlock("exp_aux.s", 0, new TipusIndefinit("indef"), true);
 
 		} else if (data_exp_aux_th.getTamany() == INDEF || info_exp_simple_ts.getTamany() == INDEF) {
 
-			data.setBloc("exp_aux.s", 0, new TipusIndefinit("indef"), true);
+			data.setBlock("exp_aux.s", 0, new TipusIndefinit("indef"), true);
 
 		} else if (!(boolean) data.getValue("exp_aux.eh")
 				|| !(boolean) info.getValue("exp_simple.es")) {
 
-			data.setBloc("exp_aux.s", false, new TipusSimple("LOGIC"), false);
+			data.setBlock("exp_aux.s", false, new TipusSimple("LOGIC"), false);
 
 		} else {
 
@@ -503,22 +503,22 @@ public class SemanticAnalyzer {
 
 			switch ((String) data.getValue("op_relacional.vs")) {
 				case ">":
-					data.setBloc("exp_aux.s", exp1 > exp2, new TipusSimple("LOGIC"), true);
+					data.setBlock("exp_aux.s", exp1 > exp2, new TipusSimple("LOGIC"), true);
 					break;
 				case "<":
-					data.setBloc("exp_aux.s", exp1 < exp2, new TipusSimple("LOGIC"), true);
+					data.setBlock("exp_aux.s", exp1 < exp2, new TipusSimple("LOGIC"), true);
 					break;
 				case "<=":
-					data.setBloc("exp_aux.s", exp1 <= exp2, new TipusSimple("LOGIC"), true);
+					data.setBlock("exp_aux.s", exp1 <= exp2, new TipusSimple("LOGIC"), true);
 					break;
 				case ">=":
-					data.setBloc("exp_aux.s", exp1 >= exp2, new TipusSimple("LOGIC"), true);
+					data.setBlock("exp_aux.s", exp1 >= exp2, new TipusSimple("LOGIC"), true);
 					break;
 				case "==":
-					data.setBloc("exp_aux.s", exp1 == exp2, new TipusSimple("LOGIC"), true);
+					data.setBlock("exp_aux.s", exp1 == exp2, new TipusSimple("LOGIC"), true);
 					break;
 				case "<>":
-					data.setBloc("exp_aux.s", exp1 != exp2, new TipusSimple("LOGIC"), true);
+					data.setBlock("exp_aux.s", exp1 != exp2, new TipusSimple("LOGIC"), true);
 					break;
 			}
 		}
@@ -721,12 +721,12 @@ public class SemanticAnalyzer {
 		if (taulaSimbols.obtenirBloc(blocActual).existeixVariable(lexema)) {
 
 			Variable variable = taulaSimbols.obtenirBloc(blocActual).obtenirVariable(lexema);
-			data.setBloc("variable_aux.h", variable, variable.getTipus(), false);
+			data.setBlock("variable_aux.h", variable, variable.getTipus(), false);
 
 		} else if (taulaSimbols.obtenirBloc(0).existeixVariable(lexema)) {
 
 			Variable variable = taulaSimbols.obtenirBloc(0).obtenirVariable(lexema);
-			data.setBloc("variable_aux.h", variable, variable.getTipus(), false);
+			data.setBlock("variable_aux.h", variable, variable.getTipus(), false);
 
 		} else {
 
@@ -736,7 +736,7 @@ public class SemanticAnalyzer {
 			} else {
 				error.insertError(TypeError.ERR_SEM_9, lexema);
 			}
-			data.setBloc("variable_aux.h", new Variable(lexema, new TipusIndefinit("indef"), 0),
+			data.setBlock("variable_aux.h", new Variable(lexema, new TipusIndefinit("indef"), 0),
 					new TipusIndefinit("indef"), false);
 		}
 		return data;
@@ -810,25 +810,25 @@ public class SemanticAnalyzer {
 		if (taulaSimbols.obtenirBloc(blocActual).existeixVariable(lexema)) {
 
 			Variable variable = taulaSimbols.obtenirBloc(blocActual).obtenirVariable(lexema);
-			data.setBloc("variable_aux.h", variable, variable.getTipus(), false);
+			data.setBlock("variable_aux.h", variable, variable.getTipus(), false);
 
 		} else if (taulaSimbols.obtenirBloc(0).existeixVariable(lexema)) {
 
 			Variable variable = taulaSimbols.obtenirBloc(0).obtenirVariable(lexema);
-			data.setBloc("variable_aux.h", variable, variable.getTipus(), false);
+			data.setBlock("variable_aux.h", variable, variable.getTipus(), false);
 
 		} else if (taulaSimbols.obtenirBloc(blocActual).existeixID(lexema) ||
 				taulaSimbols.obtenirBloc(0).existeixID(lexema)) {
 
 			data.setValue("llegir.id", lexema);
 			error.insertError(TypeError.ERR_SEM_10, lexema);
-			data.setBloc("variable_aux.h", new Variable(lexema, new TipusIndefinit("indef"), 0),
+			data.setBlock("variable_aux.h", new Variable(lexema, new TipusIndefinit("indef"), 0),
 					new TipusIndefinit("indef"), false);
 
 		} else {
 			error.insertError(TypeError.ERR_SEM_9, lexema);
 			data.setValue("llegir.id", lexema);
-			data.setBloc("variable_aux.h", new Variable(lexema, new TipusIndefinit("indef"), 0),
+			data.setBlock("variable_aux.h", new Variable(lexema, new TipusIndefinit("indef"), 0),
 					new TipusIndefinit("indef"), false);
 		}
 		return data;
