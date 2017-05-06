@@ -103,7 +103,7 @@ public class Data {
 		remove(info[0]+".e"+info[1]);
 	}
 
-	public void createBloc(String block, Object v, Object t, Object e){
+	public void setBloc(String block, Object v, Object t, Object e){
 		String [] info = block.split("\\.");
 
 		setValue(info[0]+".v"+info[1], v);
