@@ -93,5 +93,10 @@ public class Constant {
     	if (tipus != null) result += tipus.toXml();
     	result += "</Constant>";
         return result;
-    } 
+    }
+
+    @Override
+	public String toString(){
+    	return toXml();
+	}
  }

@@ -181,7 +181,8 @@ public class SyntacticClean {
 				tipus = lookahead.getLexema();
 				accept(Type.TIPUS_SIMPLE);
 				//TODO: Canviar mida del tipus
-				return new TipusSimple(tipus, 0);
+				return new TipusSimple(tipus);
+
 			case VECTOR:
 				accept(Type.VECTOR);
 				accept(Type.OCLAU);
@@ -192,16 +193,8 @@ public class SyntacticClean {
 				accept(Type.DE);
 				tipus = lookahead.getLexema();
 				accept(Type.TIPUS_SIMPLE);
+				return semantic.checkVector(tipus, exp1, exp2);
 
-				semantic.checkVector(exp1, exp2);
-				int lower_limit = (int)exp1.getValue("exp.vs");
-				int upper_limit = (int)exp2.getValue("exp.vs");
-				//TODO: Ficar el nom correcte, la mida correcta i el tamany del tipus simple correcte
-				TipusArray tipusArray = new TipusArray("", 0, new TipusSimple(tipus, 0));
-				//Això realment funciona així?
-				DimensioArray dimensioArray = new DimensioArray(new TipusSimple("SENCER", 0), lower_limit, upper_limit);
-				tipusArray.inserirDimensio(dimensioArray);
-				return tipusArray;
 			default:
 				System.out.println("ERROR - tipus()");
 				return new TipusIndefinit("indef", 0);

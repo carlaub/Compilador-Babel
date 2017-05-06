@@ -11,6 +11,7 @@ var  v1:sencer;
 const v6 = 45;
 
 VaR v5: vector [MIN .. MAX] de sencer;
+var v7: vector [0 .. 100] de sencer;
 
 ///////////////
 // Funciones //
@@ -50,7 +51,7 @@ func
 	fisi;
 fifunc;
 
-funcio esta(perref int : sencer, perval vec : vector [0 .. 100] de sencer): logic;
+funcio esta(perref int : sencer, perval vec : vector [0 .. 100] de sencer, perval boolean : logic): logic;
 func
 	retornar cert;
 fifunc;
@@ -82,7 +83,7 @@ func
 	si (ref1 and FAls) OR (12 <> 13) llavors
 		retornar 0; 
 	sino
-		si esta(j, v5) llavors
+		si esta(j, v7, cert) llavors
 			escriure("Bingo!");
 		sino
 			j = 10;

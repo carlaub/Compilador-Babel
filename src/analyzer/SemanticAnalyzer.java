@@ -39,10 +39,6 @@ public class SemanticAnalyzer {
 	}
 
 	public void previousBloc() {
-		//Personalment preferiria posar blocActual--;
-		//La següent línia ha d'anar descomentada, fer-ho en els següents casos:
-//			-Estem en producció i ja no necessitem mirar el bloc
-//			-Tenim més d'una única funció declarada
 		System.out.println("BLOC -------------------------------------------------------------------------");
 		System.out.println(taulaSimbols.obtenirBloc(1));
 		taulaSimbols.esborrarBloc(1);
@@ -132,25 +128,25 @@ public class SemanticAnalyzer {
 		data.removeAttribute("id.name");
 		if (taulaSimbols.obtenirBloc(blocActual).existeixConstant(id)) {
 			Constant constant = taulaSimbols.obtenirBloc(blocActual).obtenirConstant(id);
-			System.out.println("CONST: " + constant.toXml());
+			System.out.println("CONST: " + constant);
 			data.setValue("terme.vs", constant.getValor());
 			data.setValue("terme.ts", constant.getTipus());
 			data.setValue("terme.es", true);
 		} else if (taulaSimbols.obtenirBloc(blocActual).existeixVariable(id)) {
 			Variable variable = taulaSimbols.obtenirBloc(blocActual).obtenirVariable(id);
-			System.out.println("VAR: " + variable.toXml());
+			System.out.println("VAR: " + variable);
 			data.setValue("terme.vs", variable);
 			data.setValue("terme.ts", variable.getTipus());
 			data.setValue("terme.es", false);
 		} else if (taulaSimbols.obtenirBloc(0).existeixConstant(id)) {
 			Constant constant = taulaSimbols.obtenirBloc(0).obtenirConstant(id);
-			System.out.println("CONST: " + constant.toXml());
+			System.out.println("CONST: " + constant);
 			data.setValue("terme.vs", constant.getValor());
 			data.setValue("terme.ts", constant.getTipus());
 			data.setValue("terme.es", true);
 		}  else if (taulaSimbols.obtenirBloc(0).existeixVariable(id)) {
 			Variable variable = taulaSimbols.obtenirBloc(0).obtenirVariable(id);
-			System.out.println("VAR: " + variable.toXml());
+			System.out.println("VAR: " + variable);
 			data.setValue("terme.vs", variable);
 			if (variable.getTipus() instanceof TipusArray){
 				data.setValue("terme.ts", ((TipusArray) variable.getTipus()).getTipusElements());
@@ -524,6 +520,7 @@ public class SemanticAnalyzer {
 
 			System.out.println("CHECK PARAM: " + data);
 			System.out.println("CHECK PARAM INFO: " + info);
+			System.out.println("PARAM: "+parametre);
 
 			if (parametre.getTipusPasParametre().toString().equals("PERREF") &&
 					(boolean) info.getValue("exp.es") || info.getValue("op") != null) {
@@ -532,7 +529,18 @@ public class SemanticAnalyzer {
 
 			if (!(info.getValue("exp.ts") instanceof TipusIndefinit)
 					&& !exp_ts.getNom().equals(parametre.getTipus().getNom())) {
-				error.insertError(TypeError.ERR_SEM_16, param_index, parametre.getTipus().getNom());
+				Object vs = info.getValue("exp.vs");
+				if (!(vs instanceof Variable && ((Variable) vs).getTipus() instanceof TipusArray &&
+						((Variable) vs).getTipus().getNom().equals(parametre.getTipus().getNom()))){
+					if (parametre.getTipus() instanceof TipusArray){
+						DimensioArray dimensioArray = ((TipusArray) parametre.getTipus()).obtenirDimensio(0);
+						error.insertError(TypeError.ERR_SEM_16, param_index,
+								"VECTOR ["+dimensioArray.getLimitInferior()+".."+dimensioArray.getLimitSuperior()+
+										"] DE "+((TipusArray) parametre.getTipus()).getTipusElements().getNom());
+					} else {
+						error.insertError(TypeError.ERR_SEM_16, param_index, parametre.getTipus().getNom());
+					}
+				}
 			}
 		}
 	}
@@ -550,23 +558,32 @@ public class SemanticAnalyzer {
 	}
 
 
-	public void checkVector(Data exp1, Data exp2) {
+	public TipusArray checkVector(String tipus, Data exp1, Data exp2) {
 		//TODO: Afegir valors a retornar per a la declaració del vector
+		int lower_limit = (int)exp1.getValue("exp.vs");
+		int upper_limit = (int)exp2.getValue("exp.vs");
 		if (((ITipus) exp1.getValue("exp.ts")).getNom().equals("SENCER") &&
 				((ITipus) exp2.getValue("exp.ts")).getNom().equals("SENCER")) {
 			if ((boolean) exp1.getValue("exp.es") && (boolean) exp2.getValue("exp.es")) {
 				if ((int) exp1.getValue("exp.vs") > (int) exp2.getValue("exp.vs")) {
 					error.insertError(TypeError.ERR_SEM_5);
-				} else return;
+					lower_limit = upper_limit = 0;
+				}
 			} else {
 				error.insertError(TypeError.ERR_SEM_20);
+				lower_limit = upper_limit = 0;
 			}
 
 		} else {
 			error.insertError(TypeError.ERR_SEM_6);
+			lower_limit = upper_limit = 0;
 		}
-		exp1.setValue("exp.vs", 0);
-		exp2.setValue("exp.vs", 0);
+		TipusSimple tipusSimple = new TipusSimple(tipus);
+		TipusArray tipusArray = new TipusArray("V_"+lower_limit+"_"+upper_limit+"_"+tipusSimple.getNom(), (upper_limit - lower_limit) * tipusSimple.getTamany(), tipusSimple);
+		DimensioArray dimensioArray = new DimensioArray(new TipusSimple("SENCER"), lower_limit, upper_limit);
+
+		tipusArray.inserirDimensio(dimensioArray);
+		return tipusArray;
 	}
 
 	public void checkVectorAccess(Data data, Data info) {
