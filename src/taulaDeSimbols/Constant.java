@@ -21,9 +21,9 @@ public class Constant {
     
     /**
      * <p>Creador de la clase Constant</p>
-     * @param (String) nom
-     * @param (ITipus) tipus
-     * @param (Object) valor
+     * @param nom
+     * @param tipus
+     * @param valor
      */
     public Constant(String nom, ITipus tipus, Object valor) {
     	this.nom = nom;
@@ -41,7 +41,7 @@ public class Constant {
 
 	/**
 	 * <p>Estableix el nom de la constant</p>
-	 * @param (String)nom 
+	 * @param nom
 	 */
     public void setNom(String nom) {        
         this.nom = nom;
@@ -57,7 +57,7 @@ public class Constant {
 
 	/**
 	 * <p>Estableix el valor de la constant</p>
-	 * @param (Object) valor 
+	 * @param valor
 	 */
     public void setValor(Object valor) {        
         this.valor = valor;
@@ -73,7 +73,7 @@ public class Constant {
 
 	/**
 	 * <p>Estableix el tipus de la constant</p>
-	 * @param (ITipus) tipus 
+	 * @param tipus
 	 */
     public void setTipus(ITipus tipus) {        
         this.tipus = tipus;

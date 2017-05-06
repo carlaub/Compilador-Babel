@@ -18,8 +18,8 @@ public class TipusSimple extends ITipus {
 	
 	/**
 	 * <p>Constructor de TipusSimple</p>
-	 * @param (String) nom del tipus
-	 * @param (int) tamany que ocupa el tipus
+	 * @param nom del tipus
+	 * @param tamany que ocupa el tipus
 	 */
 	public TipusSimple(String nom, int tamany) {
 		this.nom = nom;

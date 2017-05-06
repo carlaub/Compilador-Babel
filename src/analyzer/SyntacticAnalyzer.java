@@ -1,7 +1,6 @@
 package analyzer;
 
 import com.sun.deploy.util.ArrayUtil;
-import taulaDeSimbols.*;
 import utils.*;
 import utils.Error;
 
@@ -16,13 +15,10 @@ import static analyzer.Sincronization.*;
  * i construir un arbre top-down mitjançant crides recursives.
  */
 public class SyntacticAnalyzer {
-    private static SyntacticAnalyzer instance;
-    private static LexicographicAnalyzer lexic;
-    private static SemanticAnalyzer semantic;
-    private static Token lookahead;
-    private static Error error;
-//    private static TaulaSimbols taulaSimbols;
-
+	private static SyntacticAnalyzer instance;
+	private static LexicographicAnalyzer lexic;
+	private static Token lookahead;
+	private static Error error;
 	private static int errorLine = 0;
 	private static int nCicle = 0;	//cicle, mentre, si, percada (no té sentit controlar funció)
 	private static int nMentre = 0;
@@ -30,7 +26,7 @@ public class SyntacticAnalyzer {
 	private static int nPercada = 0;
 
 
-    //Si agafem el valor de la línia de l'últim token acceptat correctament aleshores encertarem la línia si
+	//Si agafem el valor de la línia de l'últim token acceptat correctament aleshores encertarem la línia si
 	//l'usuari s'ha deixat el SEMICOLON
 	//Crec que com a paràmetre de nLina hauriem de passar:
 	// - Si es tracta d'un error a accept: la línia de l'últim token correcte
@@ -45,20 +41,19 @@ public class SyntacticAnalyzer {
 	 * @return Instància única de {@link SyntacticAnalyzer}
 	 * @throws IOException Quan no es pot obrir l'arxiu a compilar.
 	 */
-    public static SyntacticAnalyzer getInstance(String fileName) throws IOException {
-        if (instance == null) instance = new SyntacticAnalyzer(fileName);
-        return instance;
-    }
+	public static SyntacticAnalyzer getInstance(String fileName) throws IOException {
+		if (instance == null) instance = new SyntacticAnalyzer(fileName);
+		return instance;
+	}
 
-    /**
+	/**
 	 * Constructor privat de {@link SyntacticAnalyzer}. Privat a causa del patró Singleton.
 	 * @param fileName Arxiu que conté el programa a compilar
 	 * @throws IOException Quan no es pot obrir l'arxiu a compilar.
 	 */
-    private SyntacticAnalyzer(String fileName) throws IOException {
+	private SyntacticAnalyzer(String fileName) throws IOException {
 		lexic = LexicographicAnalyzer.getInstance(fileName);
 		error = Error.getInstance();
-		semantic = new SemanticAnalyzer();
 	}
 
 	/**
@@ -67,8 +62,8 @@ public class SyntacticAnalyzer {
 	 * @param type Token esperat
 	 * @throws ParseException Excepció amb el codi del tipus d'error ({@link TypeError}) donat.
 	 */
-    private void accept(Type type) throws ParseException{
-    	System.out.println(lexic.getActualLine()+": "+ "Espera: "+ type+" - "+ "Rep: "+lookahead.getToken() +" - "+lookahead.getLexema());
+	private void accept(Type type) throws ParseException{
+		System.out.println(lexic.getActualLine()+": "+ "Espera: "+ type+" - "+ "Rep: "+lookahead.getToken() +" - "+lookahead.getLexema());
 		if(lookahead.getToken().equals(type)){
 			errorLine = lexic.getActualLine();
 			lookahead = lexic.getToken();
@@ -76,7 +71,7 @@ public class SyntacticAnalyzer {
 			System.out.println("ERROR");
 			throw new ParseException(TypeError.ERR_SIN_1);
 		}
-    }
+	}
 
 	/**
 	 * Mètode per a la recuperació d'errors. Aquest mètode consumeix tokens fins a trobar-ne un que estigui
@@ -86,8 +81,8 @@ public class SyntacticAnalyzer {
 	 * @return Booleà indicant si ha consumit algun token.
 	 */
 	private boolean consume(Type[] cnj) {
-    	boolean flag = false;
-    	do {
+		boolean flag = false;
+		do {
 			//lookahead = lexic.getToken();
 			if(Arrays.asList(cnj).contains(lookahead.getToken())){
 				return flag;
@@ -95,26 +90,20 @@ public class SyntacticAnalyzer {
 			lookahead = lexic.getToken();
 			flag = true;
 		} while(!lookahead.getToken().equals(Type.EOF));
-    	System.out.println("FOUND EOF");
+		System.out.println("FOUND EOF");
 		return true;
 	}
 
 	/**
 	 * Mètode públic per a iniciar la construcció de crides recursives per a construir l'arbre sintàctic.
 	 */
-    public void programa () {
-        lookahead = lexic.getToken();
-//		taulaSimbols = new TaulaSimbols();
-//		Bloc bloc = new Bloc();
-//		taulaSimbols.inserirBloc(bloc);
-//		taulaSimbols.setBlocActual(0);
-//		System.out.println(taulaSimbols.toXml());
-		System.out.println(semantic);
+	public void programa () {
+		lookahead = lexic.getToken();
 
 		try {
-        	int nlinia = lexic.getActualLine();
-        	if(consume(cnj_var_const_prev)){
-        		error.insertError(TypeError.ERR_SIN_10, nlinia);
+			int nlinia = lexic.getActualLine();
+			if(consume(cnj_var_const_prev)){
+				error.insertError(TypeError.ERR_SIN_10, nlinia);
 			}
 			decl();
 
@@ -131,56 +120,43 @@ public class SyntacticAnalyzer {
 		} finally {
 			lexic.close();
 		}
-		System.out.println(semantic);
+
 	}
 
-    private void decl() throws ParseException {
-        decl_cte_var();
-        decl_func();
-    }
+	private void decl() throws ParseException {
+		decl_cte_var();
+		decl_func();
+	}
 
-    private void decl_cte_var() throws ParseException{
+	private void decl_cte_var() throws ParseException{
 		int nlinia = lexic.getActualLine();
 		if(consume(cnj_var_const_prev)){
 			error.insertError(TypeError.ERR_SIN_10, nlinia);
 		}
-        switch(lookahead.getToken()) {
-            case CONST:
-                accept(Type.CONST);
-                try {
-
-					//TODO: Afegir tipus i valor a data
-					Data data = new Data();
-					data.setValue("name", lookahead.getLexema());
+		switch(lookahead.getToken()) {
+			case CONST:
+				accept(Type.CONST);
+				try {
 					accept(Type.ID);
 					accept(Type.IGUAL);
 					exp();
 					accept(Type.SEMICOLON);
-
-					semantic.checkConstant(data);
-
-                } catch (ParseException e) {
-                	//Si l'exepció salta a accept(SEMICOLON) es mostra el número de línia del següent token
+				} catch (ParseException e) {
+					//Si l'exepció salta a accept(SEMICOLON) es mostra el número de línia del següent token
 					error.insertError(TypeError.ERR_SIN_3, lexic.getActualLine());
 //					error.insertError(TypeError.ERR_SIN_3, errorLine);
 					consume(cnj_var_const);
 					//Ens mengem el SEMICOLON per a començar la següent instrucció
 					if(lookahead.getToken().equals(Type.SEMICOLON)) lookahead = lexic.getToken();
 				}
-                break;
-            case VAR:
-                accept(Type.VAR);
-                try {
-					Data data = new Data();
-					data.setValue("name", lookahead.getLexema());
-//					String id = lookahead.getLexema();
+				break;
+			case VAR:
+				accept(Type.VAR);
+				try {
 					accept(Type.ID);
-
 					accept(Type.COLON);
-					data.setValue("type", tipus());
+					tipus();
 					accept(Type.SEMICOLON);
-					semantic.checkVariable(data);
-
 				} catch (ParseException e) {
 					//Si l'exepció salta a accept(SEMICOLON) es mostra el número de línia del següent token
 					error.insertError(TypeError.ERR_SIN_4, lexic.getActualLine());
@@ -188,43 +164,30 @@ public class SyntacticAnalyzer {
 					if(lookahead.getToken().equals(Type.SEMICOLON)) lookahead = lexic.getToken();
 				}
 
-                break;
-            default: return;
-        }
-        decl_cte_var();
-    }
+				break;
+			default: return;
+		}
+		decl_cte_var();
+	}
 
-    private void decl_func() throws ParseException{
+	private void decl_func() throws ParseException{
 		int nlinia = lexic.getActualLine();
 		if(consume(cnj_decl_func_prev)){
 			error.insertError(TypeError.ERR_SIN_10, nlinia);
 		}
 
-        switch (lookahead.getToken()) {
-            case FUNCIO:
+		switch (lookahead.getToken()) {
+			case FUNCIO:
 				accept(Type.FUNCIO);
 				//Sabies que amb "sout<TAB>" s'escriu "System.out.println();" ? Ho acabo de descobrir
 				try {
-					Data data = new Data();
-					data.setValue("name", lookahead.getLexema());
-
 					accept(Type.ID);
-
-					//TODO: Afegir llista paràmetres
-
-					semantic.checkFuncio(data);
-					semantic.nextBloc();
-
 					accept(Type.OPARENT);
-
-					llista_param((String)data.getValue("name"));
-
+					llista_param();
 					accept(Type.CPARENT);
 					accept(Type.COLON);
 					accept(Type.TIPUS_SIMPLE);
 					accept(Type.SEMICOLON);
-					//TODO: Afegir paràmetres a la llista de variables del bloc
-
 				}catch (ParseException e){
 					error.insertError(TypeError.ERR_SIN_5, lexic.getActualLine());
 					consume(cnj_decl_func);
@@ -237,26 +200,23 @@ public class SyntacticAnalyzer {
 					consume(cnj_inst_prev);
 				}
 
-                llista_inst();
+				llista_inst();
 
 				try {
 					accept(Type.FIFUNC);
 					accept(Type.SEMICOLON);
-
-					semantic.previousBloc();
-
 				} catch (ParseException e){
 					consume(cnj_decl_func);
 					if(lookahead.getToken().equals(Type.SEMICOLON)) lookahead = lexic.getToken();
 				}
 
-                decl_func();
-                break;
-            default: return;
-        }
-    }
+				decl_func();
+				break;
+			default: return;
+		}
+	}
 
-	private void llista_param(String idFuncio) throws ParseException {
+	private void llista_param() throws ParseException {
 
 		int nlinia = lexic.getActualLine();
 		Type token = lookahead.getToken();
@@ -264,164 +224,137 @@ public class SyntacticAnalyzer {
 			error.insertError(TypeError.ERR_SIN_1, nlinia, cnj_param_prev, token);
 			if (lookahead.getToken().equals(Type.COMA)){
 				lookahead = lexic.getToken();
-				llista_param(idFuncio);
+				llista_param();
 			}
 		}
 		switch (lookahead.getToken()) {
 			case TIPUS_PARAM:
-				llista_param_aux(idFuncio);
+				llista_param_aux();
 				break;
 			default:
 				return;
 		}
 	}
 
-	private void llista_param_aux(String idFuncio) throws ParseException{
+	private void llista_param_aux() throws ParseException{
 
 		int nlinia = lexic.getActualLine();
 		Type token = lookahead.getToken();
 		if(consume(cnj_param)){
 			error.insertError(TypeError.ERR_SIN_1, nlinia, cnj_param_prev, token);
 //			if (lookahead.getToken().equals(Type.COMA)) lookahead = lexic.getToken();
-			param_aux(idFuncio);
+			param_aux();
 		}else {
 
 			try {
-				Data data = new Data();
-				data.setValue("idFunction", idFuncio);
-				data.setValue("typeParam", lookahead.getLexema());
-//				String tipusParam = lookahead.getLexema();
 				accept(token = Type.TIPUS_PARAM);
-				data.setValue("name", lookahead.getLexema());
-//				String id = lookahead.getLexema();
 				accept(token = Type.ID);
 				accept(token = Type.COLON);
-				data.setValue("type", tipus());
-//				ITipus tipus = tipus();
-
-//				Parametre parametre = new Parametre();
-//				parametre.setNom(id);
-//				parametre.setTipus(tipus);
-//				parametre.setTipusPasParametre(new TipusPasParametre(tipusParam));
-
-				//TODO: Afegir el tipus al paràmetre i el tipus de paràmetre
-//				taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio).inserirParametre(parametre);
-				semantic.addParameter(data);
-//				taulaSimbols.obtenirBloc(1).inserirVariable(parametre);
-
+				tipus();
 			} catch (ParseException e) {
 				error.insertError(TypeError.ERR_SIN_1, nlinia, new Type[]{token}, lookahead.getToken());
 				consume(cnj_param);
 			}
-			param_aux(idFuncio);
+			param_aux();
 		}
 	}
 
-    private void param_aux(String idFuncio) throws ParseException {
-        switch (lookahead.getToken()) {
-            case COMA:
-                accept(Type.COMA);
-                llista_param_aux(idFuncio);
-                break;
-            default: return;
-        }
-    }
+	private void param_aux() throws ParseException {
+		switch (lookahead.getToken()) {
+			case COMA:
+				accept(Type.COMA);
+				llista_param_aux();
+				break;
+			default: return;
+		}
+	}
 
-    private ITipus tipus() throws ParseException {
-		String tipus;
-        switch (lookahead.getToken()) {
-            case TIPUS_SIMPLE:
-            	tipus = lookahead.getLexema();
-                accept(Type.TIPUS_SIMPLE);
-                //TODO: Canviar mida del tipus
-                TipusSimple tipusSimple = new TipusSimple(tipus, 0);
-                return tipusSimple;
-            case VECTOR:
-                accept(Type.VECTOR);
-                accept(Type.OCLAU);
-//                int exp1 = exp();
+	private void tipus() throws ParseException {
+		switch (lookahead.getToken()) {
+			case TIPUS_SIMPLE:
+				accept(Type.TIPUS_SIMPLE);
+				break;
+			case VECTOR:
+				accept(Type.VECTOR);
+				accept(Type.OCLAU);
 				exp();
-                accept(Type.DPOINT);
-//                int exp2 = exp();
-                exp();
-                accept(Type.CCLAU);
-                accept(Type.DE);
-				tipus = lookahead.getLexema();
-                accept(Type.TIPUS_SIMPLE);
-                //TODO: Ficar el nom correcte, la mida correcta i el tamany del tipus simple correcte
-                TipusArray tipusArray = new TipusArray("", 0/*exp2-exp1*/, new TipusSimple(tipus, 0));
-                return tipusArray;
-            default: //ERROR
+				accept(Type.DPOINT);
+				exp();
+				accept(Type.CCLAU);
+				accept(Type.DE);
+				accept(Type.TIPUS_SIMPLE);
+				break;
+			default: //ERROR
 				throw new ParseException(TypeError.ERR_SIN_1);
-        }
-    }
+		}
+	}
 
-    private void exp() throws ParseException {
-    	try{
+	private void exp() throws ParseException {
+		try{
 			exp_simple();
 		}catch (ParseException e){
-    		//Aquest conjunt que li passem és incorrecte
+			//Aquest conjunt que li passem és incorrecte
 			error.insertError(TypeError.ERR_SIN_8, lexic.getActualLine(), cnj_exp, lookahead.getToken());
 			System.out.println(lookahead.getToken());
 			consume(cnj_exp);
 			System.out.println(lookahead.getToken());
 		}
 		exp_aux();	//No salta excepció
-    }
+	}
 
-    private void exp_simple() throws ParseException {
-        op_unari();
-        terme();
-        terme_simple();
+	private void exp_simple() throws ParseException {
+		op_unari();
+		terme();
+		terme_simple();
 
-    }
+	}
 
-    private void op_unari() throws ParseException {
-        switch(lookahead.getToken()) {
-            case SUMA:
-                accept(Type.SUMA);
-                break;
-            case RESTA:
-                accept(Type.RESTA);
-                break;
-            case NOT:
-                accept(Type.NOT);
-                break;
-            default:
-                return;
-        }
-    }
+	private void op_unari() throws ParseException {
+		switch(lookahead.getToken()) {
+			case SUMA:
+				accept(Type.SUMA);
+				break;
+			case RESTA:
+				accept(Type.RESTA);
+				break;
+			case NOT:
+				accept(Type.NOT);
+				break;
+			default:
+				return;
+		}
+	}
 
 	private void terme_simple() throws ParseException {
 		switch (lookahead.getToken()){
-            case SUMA:
-            case RESTA:
-            case OR:
-                op_aux();
-                terme();
-                terme_simple();
-			    break;
+			case SUMA:
+			case RESTA:
+			case OR:
+				op_aux();
+				terme();
+				terme_simple();
+				break;
 			default:return;
 		}
 	}
 
 	private void op_aux() throws ParseException {
-	    switch(lookahead.getToken()) {
-            case SUMA:
-                accept(Type.SUMA);
-                break;
-            case RESTA:
-                accept(Type.RESTA);
-                break;
-            case OR:
-                accept(Type.OR);
-                break;
-            default:
-            	break;
-        }
-    }
+		switch(lookahead.getToken()) {
+			case SUMA:
+				accept(Type.SUMA);
+				break;
+			case RESTA:
+				accept(Type.RESTA);
+				break;
+			case OR:
+				accept(Type.OR);
+				break;
+			default:
+				break;
+		}
+	}
 
-    private void terme() throws ParseException {
+	private void terme() throws ParseException {
 		switch (lookahead.getToken()) {
 			//FACTOR
 			case SENCER_CST:
@@ -442,7 +375,7 @@ public class SyntacticAnalyzer {
 				accept(Type.ID);
 				factor_aux();
 				break;
-            default: //ERROR - CODI PENDENT DE REVISIÓ
+			default: //ERROR - CODI PENDENT DE REVISIÓ
 				System.out.println("ERROR " + lookahead.getToken());
 				throw new ParseException(TypeError.ERR_SIN_8);
 		}
@@ -450,36 +383,36 @@ public class SyntacticAnalyzer {
 	}
 
 	private void terme_aux() throws ParseException {
-    	switch (lookahead.getToken()){
-            case MUL:
-            case DIV:
-            case AND:
-                op_binaria();
-                terme();
-                break;
+		switch (lookahead.getToken()){
+			case MUL:
+			case DIV:
+			case AND:
+				op_binaria();
+				terme();
+				break;
 			default:
 				return;
 		}
 	}
 
 	private void op_binaria() throws ParseException {
-	    switch(lookahead.getToken()) {
-            case MUL:
-                accept(Type.MUL);
-                break;
-            case DIV:
-                accept(Type.DIV);
-                break;
-            case AND:
-                accept(Type.AND);
-                break;
-            default:
-                return;
-        }
-    }
+		switch(lookahead.getToken()) {
+			case MUL:
+				accept(Type.MUL);
+				break;
+			case DIV:
+				accept(Type.DIV);
+				break;
+			case AND:
+				accept(Type.AND);
+				break;
+			default:
+				return;
+		}
+	}
 
 	private void factor_aux() throws ParseException {
-    	switch (lookahead.getToken()){
+		switch (lookahead.getToken()){
 			case OPARENT:
 				accept(Type.OPARENT);
 				llista_exp();
@@ -490,11 +423,11 @@ public class SyntacticAnalyzer {
 				variable_aux();
 				break;
 
-    	}
+		}
 	}
 
 	private void llista_exp() throws ParseException {
-    	switch (lookahead.getToken()){
+		switch (lookahead.getToken()){
 			case SUMA:
 			case RESTA:
 			case NOT:
@@ -505,8 +438,8 @@ public class SyntacticAnalyzer {
 			case OPARENT:
 				exp();
 				llista_exp_aux();
-            default:
-                return;
+			default:
+				return;
 		}
 
 	}
@@ -534,17 +467,17 @@ public class SyntacticAnalyzer {
 		}
 	}
 
-    private void exp_aux() throws ParseException {
-        switch(lookahead.getToken()) {
-            case OP_RELACIONAL:
-                accept(Type.OP_RELACIONAL);
-                exp_simple();
-                break;
-            default: return;
-        }
-    }
+	private void exp_aux() throws ParseException {
+		switch(lookahead.getToken()) {
+			case OP_RELACIONAL:
+				accept(Type.OP_RELACIONAL);
+				exp_simple();
+				break;
+			default: return;
+		}
+	}
 
-    private void llista_inst() throws ParseException{
+	private void llista_inst() throws ParseException{
 
 		int nlinia = lexic.getActualLine();
 		if(consume(cnj_inst_prev)){
@@ -556,16 +489,16 @@ public class SyntacticAnalyzer {
 		} catch (ParseException e){
 			error.insertError(TypeError.ERR_SIN_2, errorLine, Type.SEMICOLON);
 			consume(cnj_inst);
-            if(lookahead.getToken().equals(Type.SEMICOLON)) lookahead = lexic.getToken();
+			if(lookahead.getToken().equals(Type.SEMICOLON)) lookahead = lexic.getToken();
 		}
 		nlinia = lexic.getActualLine();
 		if(consume(cnj_inst_prev)){
 			error.insertError(TypeError.ERR_SIN_10, nlinia);
 		}
 		llista_inst_aux();
-    }
+	}
 
-    private void llista_inst_aux() throws ParseException{
+	private void llista_inst_aux() throws ParseException{
 		int nlinia = lexic.getActualLine();
 		if(consume(cnj_inst_prev)){
 			error.insertError(TypeError.ERR_SIN_10, nlinia);
@@ -736,7 +669,7 @@ public class SyntacticAnalyzer {
 	private void igual_aux() throws ParseException{
 		switch (lookahead.getToken()){
 			case SI:
-			    accept(Type.SI);
+				accept(Type.SI);
 				accept(Type.OPARENT);
 				exp();
 				accept(Type.CPARENT);
@@ -745,15 +678,15 @@ public class SyntacticAnalyzer {
 				accept(Type.COLON);
 				exp();
 				break;
-            case SUMA:
-            case RESTA:
-            case NOT:
-            case SENCER_CST:
-            case LOGIC_CST:
-            case CADENA:
-            case ID:
-            case OPARENT:
-                exp();
+			case SUMA:
+			case RESTA:
+			case NOT:
+			case SENCER_CST:
+			case LOGIC_CST:
+			case CADENA:
+			case ID:
+			case OPARENT:
+				exp();
 			default:
 				//ERROR
 				break;

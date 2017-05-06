@@ -14,12 +14,21 @@ public class TipusIndefinit extends ITipus {
 	
 	/**
 	 * <p>Creador del tipus indefinit</p>
-	 * @param (String) nom
-	 * @param (int) tamany
+	 * @param nom
+	 * @param tamany
 	 */
 	public TipusIndefinit(String nom, int tamany) {
 		super.nom = nom;
 		super.tamany = tamany;
+	}
+
+	/**
+	 * <p>Creador del tipus indefinit</p>
+	 * @param nom
+	 */
+	public TipusIndefinit(String nom) {
+		super.nom = nom;
+		super.tamany = 0;
 	}
 
 	/**
@@ -32,6 +41,7 @@ public class TipusIndefinit extends ITipus {
 		return str;
 	}
 
+	@Override
 	public String toString() {
 		String str = "<TipusIndefinit Nom=\"" + nom +
 				"\" Tamany=\"" + tamany + "\"></TipusIndefinit>";

@@ -5,33 +5,60 @@ import taulaDeSimbols.*;
 
 import java.io.IOException;
 
-
+/**
+ * Analitzador sintàctic.
+ * S'encarrega de demanar tokens al {@link LexicographicAnalyzer} per tal de poder parsejar el codi font
+ * i construir un arbre top-down mitjançant crides recursives.
+ */
 public class SyntacticClean {
 	private static SyntacticClean instance;
 	private static LexicographicAnalyzer lexic;
 	private static SemanticAnalyzer semantic;
 	private static Token lookahead;
 
+	/**
+	 * Mètode públic per a obtenir una instància de l'analitzador sintàctic.
+	 * Com que s'utilitza el patró Singleton sempre retorna la mateixa instància.
+	 *
+	 * @param fileName Arxiu que conté el programa a compilar
+	 * @return Instància única de {@link SyntacticClean}
+	 * @throws IOException Quan no es pot obrir l'arxiu a compilar.
+	 */
 	public static SyntacticClean getInstance(String fileName) throws IOException {
 		if (instance == null) instance = new SyntacticClean(fileName);
 		return instance;
 	}
 
+	/**
+	 * Constructor privat de {@link SyntacticClean}. Privat a causa del patró Singleton.
+	 *
+	 * @param fileName Arxiu que conté el programa a compilar
+	 * @throws IOException Quan no es pot obrir l'arxiu a compilar.
+	 */
 	private SyntacticClean(String fileName) throws IOException {
 		lexic = LexicographicAnalyzer.getInstance(fileName);
 		semantic = new SemanticAnalyzer();
 	}
 
-	private void accept(Type type){
-		if(lookahead.getToken().equals(type)){
+	/**
+	 * Mètode per a acceptar el token actual de lookahead. És a dir, comprovem que el token actual trobat al codi font
+	 * ({@link SyntacticClean#lookahead}) és realment el que hauríem de trobar segons l'arbre construït ({@code type}).
+	 *
+	 * @param type Token esperat
+	 */
+	private void accept(Type type) {
+		if (lookahead.getToken().equals(type)) {
 			lookahead = lexic.getToken();
-		}else{
+		} else {
 			System.out.println("ERROR - accept()");
-			System.out.println(lexic.getActualLine()+" - "+lookahead.getLexema() +" -> "+ type);
+			System.out.println(lexic.getActualLine() + " - " + lookahead.getLexema() + " -> " + type);
 		}
 	}
 
-	public void programa () {
+	/**
+	 * Mètode públic per a iniciar la construcció de crides recursives per a construir l'arbre sintàctic.
+	 */
+	public void programa() {
 		lookahead = lexic.getToken();
 
 		decl();
@@ -41,21 +68,22 @@ public class SyntacticClean {
 		accept(Type.FIPROG);
 		accept(Type.EOF);
 
-		lexic.close();
 		System.out.println(semantic);
+
+		lexic.close();
 	}
 
-	private void decl(){
+	private void decl() {
 		decl_cte_var();
 		decl_func();
 	}
 
-	private void decl_cte_var(){
+	private void decl_cte_var() {
 		Data data = new Data();
-		switch(lookahead.getToken()) {
+		switch (lookahead.getToken()) {
 			case CONST:
 				accept(Type.CONST);
-				//TODO: Afegir tipus i valor a data
+
 				String const_name = lookahead.getLexema();
 
 				data.setValue("name", lookahead.getLexema());
@@ -90,7 +118,7 @@ public class SyntacticClean {
 		decl_cte_var();
 	}
 
-	private void decl_func(){
+	private void decl_func() {
 		switch (lookahead.getToken()) {
 			case FUNCIO:
 				accept(Type.FUNCIO);
@@ -99,8 +127,6 @@ public class SyntacticClean {
 				data.setValue("name", id);
 
 				accept(Type.ID);
-
-				//TODO: Afegir llista paràmetres
 
 				id = semantic.checkFuncio(data);
 				semantic.nextBloc();
@@ -115,8 +141,6 @@ public class SyntacticClean {
 				semantic.setTipusFuncio(id, tipus);
 				accept(Type.TIPUS_SIMPLE);
 				accept(Type.SEMICOLON);
-					//TODO: Afegir paràmetres a la llista de variables del bloc
-
 				decl_cte_var();
 				accept(Type.FUNC);
 
@@ -135,7 +159,7 @@ public class SyntacticClean {
 		}
 	}
 
-	private void llista_param(String idFuncio){
+	private void llista_param(String idFuncio) {
 
 		switch (lookahead.getToken()) {
 			case TIPUS_PARAM:
@@ -147,7 +171,7 @@ public class SyntacticClean {
 		}
 	}
 
-	private void llista_param_aux(String idFuncio){
+	private void llista_param_aux(String idFuncio) {
 
 		Data data = new Data();
 		data.setValue("idFunction", idFuncio);
@@ -159,28 +183,27 @@ public class SyntacticClean {
 		ITipus type = tipus();
 		data.setValue("type", type);
 
-		//TODO: Afegir el tipus al paràmetre i el tipus de paràmetre
 		semantic.addParameter(data);
 		param_aux(idFuncio);
 	}
 
-	private void param_aux(String idFuncio){
+	private void param_aux(String idFuncio) {
 		switch (lookahead.getToken()) {
 			case COMA:
 				accept(Type.COMA);
 				llista_param_aux(idFuncio);
 				break;
-			default: return;
+			default:
+				return;
 		}
 	}
 
-	private ITipus tipus(){
+	private ITipus tipus() {
 		String tipus;
 		switch (lookahead.getToken()) {
 			case TIPUS_SIMPLE:
 				tipus = lookahead.getLexema();
 				accept(Type.TIPUS_SIMPLE);
-				//TODO: Canviar mida del tipus
 				return new TipusSimple(tipus);
 
 			case VECTOR:
@@ -201,22 +224,17 @@ public class SyntacticClean {
 		}
 	}
 
-	private Data exp(){
-		System.out.println("BEGIN");
+	private Data exp() {
+
 		Data data = exp_simple();
 
 		data.moveBlock("exp_aux.h", "exp_simple.s");
-
 		exp_aux(data);
-
-        data.moveBlock("exp.s", "exp_aux.s");
-
-		System.out.println(data);
-		System.out.println("END");
+		data.moveBlock("exp.s", "exp_aux.s");
 		return data;
 	}
 
-	private Data exp_simple(){
+	private Data exp_simple() {
 		Data data = op_unari();
 		terme(data);
 
@@ -231,9 +249,9 @@ public class SyntacticClean {
 		return data;
 	}
 
-	private Data op_unari(){
+	private Data op_unari() {
 		Data data = new Data();
-		switch(lookahead.getToken()) {
+		switch (lookahead.getToken()) {
 			case SUMA:
 				data.setValue("op_unari.vs", TypeVar.SUMA);
 				accept(Type.SUMA);
@@ -256,9 +274,9 @@ public class SyntacticClean {
 		return data;
 	}
 
-	private void terme_simple(Data data){
+	private void terme_simple(Data data) {
 		Data info;
-		switch (lookahead.getToken()){
+		switch (lookahead.getToken()) {
 			case SUMA:
 				op_aux(data);
 
@@ -274,7 +292,6 @@ public class SyntacticClean {
 				info.removeAttribute("terme.ts");
 				data.setValue("terme_simple.eh", info.getValue("terme.es"));
 				info.removeAttribute("terme.es");
-
 
 
 				terme_simple(data);
@@ -325,21 +342,21 @@ public class SyntacticClean {
 		}
 	}
 
-	private void op_aux(Data data){
-		switch(lookahead.getToken()) {
+	private void op_aux(Data data) {
+		switch (lookahead.getToken()) {
 
 			case SUMA:
-				data.setValue("op_aux.vs",TypeVar.SUMA);
+				data.setValue("op_aux.vs", TypeVar.SUMA);
 				accept(Type.SUMA);
 				break;
 
 			case RESTA:
-				data.setValue("op_aux.vs",TypeVar.RESTA);
+				data.setValue("op_aux.vs", TypeVar.RESTA);
 				accept(Type.RESTA);
 				break;
 
 			case OR:
-				data.setValue("op_aux.vs",TypeVar.OR);
+				data.setValue("op_aux.vs", TypeVar.OR);
 				accept(Type.OR);
 				break;
 
@@ -348,56 +365,44 @@ public class SyntacticClean {
 		}
 	}
 
-	private void terme(Data data){
-		System.out.println("|-Terme");
-		System.out.println("| |-"+data);
+	private void terme(Data data) {
 
 		switch (lookahead.getToken()) {
 			//FACTOR
 			case SENCER_CST:
 				int valor = Integer.parseInt(lookahead.getLexema());
-				data.setValue("terme.vs", valor);
-				data.setValue("terme.ts", new TipusSimple("SENCER", 0));
-				data.setValue("terme.es", true);
+				data.setBloc("terme.s", valor, new TipusSimple("SENCER"), true);
 				accept(Type.SENCER_CST);
 				semantic.checkOp_unari(data);
 				semantic.checkOp_binari(data);
-				data.removeAttribute("terme.vh");
-				data.removeAttribute("terme.th");
-				data.removeAttribute("terme.eh");
+				data.removeBlock("terme.h");
 				break;
+
 			case LOGIC_CST:
-				data.setValue("terme.vs", lookahead.getLexema().equals("CERT"));
-				data.setValue("terme.ts", new TipusSimple("LOGIC", 0));
-				data.setValue("terme.es", true);
+				data.setBloc("terme.s", lookahead.getLexema().equals("CERT"), new TipusSimple("LOGIC"), true);
 				accept(Type.LOGIC_CST);
 				semantic.checkOp_unari(data);
 				semantic.checkOp_binari(data);
-				data.removeAttribute("terme.vh");
-				data.removeAttribute("terme.th");
-				data.removeAttribute("terme.eh");
+				data.removeBlock("terme.h");
 				break;
+
 			case CADENA:
-				data.setValue("terme.vs", lookahead.getLexema());
-				data.setValue("terme.ts", new TipusCadena("CADENA", lookahead.getLexema().length(), lookahead.getLexema().length()));
-				data.setValue("terme.es", true);
+				data.setBloc("terme.s", lookahead.getLexema(), new TipusCadena("CADENA", lookahead.getLexema().length(), lookahead.getLexema().length()), true);
 				accept(Type.CADENA);
 				break;
+
 			case OPARENT:
 				accept(Type.OPARENT);
 				Data exp = exp();
 
-				data.setValue("terme.vs", exp.getValue("exp.vs"));
-				data.setValue("terme.ts", exp.getValue("exp.ts"));
-				data.setValue("terme.es", exp.getValue("exp.es"));
+				data.setBloc("terme.s", exp.getValue("exp.vs"), exp.getValue("exp.ts"), exp.getValue("exp.es"));
 
-				//TODO check
 				accept(Type.CPARENT);
 				semantic.checkOp_unari(data);
 				semantic.checkOp_binari(data);
 				break;
+
 			case ID:
-				//TODO
 				data.setValue("id.name", lookahead.getLexema());
 				semantic.checkID(data);
 				accept(Type.ID);
@@ -409,21 +414,15 @@ public class SyntacticClean {
 				System.out.println("ERROR - terme()");
 		}
 
-		System.out.println("|   |-"+data);
 		data.moveBlock("terme_aux.h", "terme.s");
-
-		System.out.println("|     |-"+data);
 		terme_aux(data);
 
 		data.moveBlock("terme.s", "terme_aux.s");
-
-		System.out.println("|       |-"+data);
-
 	}
 
-	private void terme_aux(Data data){
+	private void terme_aux(Data data) {
 
-		switch (lookahead.getToken()){
+		switch (lookahead.getToken()) {
 			case MUL:
 				op_binaria();
 				data.moveBlock("terme.h", "terme_aux.h");
@@ -459,24 +458,27 @@ public class SyntacticClean {
 		}
 	}
 
-	private void op_binaria(){
-		switch(lookahead.getToken()) {
+	private void op_binaria() {
+		switch (lookahead.getToken()) {
 			case MUL:
 				accept(Type.MUL);
 				break;
+
 			case DIV:
 				accept(Type.DIV);
 				break;
+
 			case AND:
 				accept(Type.AND);
 				break;
+
 			default:
 				break;
 		}
 	}
 
-	private void factor_aux(Data data){
-		switch (lookahead.getToken()){
+	private void factor_aux(Data data) {
+		switch (lookahead.getToken()) {
 			case OPARENT:
 				accept(Type.OPARENT);
 				semantic.initFuncio(data);
@@ -490,6 +492,7 @@ public class SyntacticClean {
 
 				accept(Type.CPARENT);
 				break;
+
 			case OCLAU:
 			default:
 				data.moveBlock("variable_aux.h", "factor_aux.h");
@@ -500,8 +503,8 @@ public class SyntacticClean {
 		}
 	}
 
-	private void llista_exp(Data data){
-		switch (lookahead.getToken()){
+	private void llista_exp(Data data) {
+		switch (lookahead.getToken()) {
 			case SUMA:
 			case RESTA:
 			case NOT:
@@ -514,7 +517,7 @@ public class SyntacticClean {
 
 				semantic.checkParam(data, info);
 
-				data.move("llista_exp_aux.vh","llista_exp.vh");
+				data.move("llista_exp_aux.vh", "llista_exp.vh");
 				llista_exp_aux(data);
 				data.move("llista_exp.vs", "llista_exp_aux.vs");
 				break;
@@ -526,8 +529,8 @@ public class SyntacticClean {
 
 	}
 
-	private void llista_exp_aux(Data data){
-		switch (lookahead.getToken()){
+	private void llista_exp_aux(Data data) {
+		switch (lookahead.getToken()) {
 			case COMA:
 				accept(Type.COMA);
 				data.move("llista_exp.vh", "llista_exp_aux.vh");
@@ -541,8 +544,8 @@ public class SyntacticClean {
 		}
 	}
 
-	private void variable_aux(Data data){
-		switch (lookahead.getToken()){
+	private void variable_aux(Data data) {
+		switch (lookahead.getToken()) {
 			case OCLAU:
 				accept(Type.OCLAU);
 				Data info = exp();
@@ -550,33 +553,34 @@ public class SyntacticClean {
 				accept(Type.CCLAU);
 				data.moveBlock("variable_aux.s", "variable_aux.h");
 				break;
+
 			default:
 				semantic.checkErrSem22(data);
-//				try{
-					data.moveBlock("variable_aux.s", "variable_aux.h");
-//				}catch (Exception e){}
+				data.moveBlock("variable_aux.s", "variable_aux.h");
 				return;
 		}
 	}
 
 	private void exp_aux(Data data) {
-		switch(lookahead.getToken()) {
+
+		switch (lookahead.getToken()) {
 			case OP_RELACIONAL:
-                data.setValue("op_relacional.vs",lookahead.getLexema());
+				data.setValue("op_relacional.vs", lookahead.getLexema());
 				accept(Type.OP_RELACIONAL);
 				Data info = exp_simple();
 
-                semantic.checkOp_relacional(data, info);
-                data.removeBlock("exp_aux.h");
-                data.remove("op_relacional.vs");
-                break;
+				semantic.checkOp_relacional(data, info);
+				data.removeBlock("exp_aux.h");
+				data.remove("op_relacional.vs");
+				break;
+
 			default:
 				data.moveBlock("exp_aux.s", "exp_aux.h");
 				break;
 		}
 	}
 
-	private boolean llista_inst(){
+	private boolean llista_inst() {
 
 		boolean ret = inst();
 		accept(Type.SEMICOLON);
@@ -585,8 +589,9 @@ public class SyntacticClean {
 		return ret;
 	}
 
-	private boolean llista_inst_aux(){
-		switch (lookahead.getToken()){
+	private boolean llista_inst_aux() {
+
+		switch (lookahead.getToken()) {
 			case ID:
 			case ESCRIURE:
 			case LLEGIR:
@@ -596,18 +601,19 @@ public class SyntacticClean {
 			case RETORNAR:
 			case PERCADA:
 				return llista_inst();
+
 			default:
 				return false;
 		}
 	}
 
-	private boolean inst(){
+	private boolean inst() {
+
 		switch (lookahead.getToken()) {
 			case ID:
 				Data data = semantic.initAssignation(lookahead.getLexema());
 
 				accept(Type.ID);
-				//TODO: Agafar informació de l'ID i passar-la a variable_aux
 				variable_aux(data);
 				accept(Type.IGUAL);
 				data.moveBlock("igual_aux.h", "variable_aux.s");
@@ -677,10 +683,11 @@ public class SyntacticClean {
 		}
 	}
 
-	private void igual_aux(Data data){
-		switch (lookahead.getToken()){
+	private void igual_aux(Data data) {
+
+		switch (lookahead.getToken()) {
 			case SI:
-				//TODO: Preguntar si s'ha de fer anàlisi semàntic a la ternària
+				//No es fa anàlisi semàntic a la ternària
 				accept(Type.SI);
 				accept(Type.OPARENT);
 				exp();
@@ -690,6 +697,7 @@ public class SyntacticClean {
 				accept(Type.COLON);
 				exp();
 				break;
+
 			case SUMA:
 			case RESTA:
 			case NOT:
@@ -701,47 +709,54 @@ public class SyntacticClean {
 				Data info = exp();
 				semantic.checkAssignation(data, info);
 				break;
+
 			default:
 				System.out.println("ERROR - igual_aux()");
 				break;
 		}
 	}
 
-	private void param_escriure(){
-		Data info = exp();
-		System.out.println("ESCRIURE: "+info);
-		semantic.checkEscriure(info);
-		switch (lookahead.getToken()){
+	private void param_escriure() {
+
+		Data data = exp();
+		semantic.checkEscriure(data);
+
+		switch (lookahead.getToken()) {
 			case COMA:
 				accept(Type.COMA);
 				param_escriure();
 				break;
+
 			default:
 				return;
 		}
 	}
 
-	private void param_llegir(){
+	private void param_llegir() {
+
 		Data data = semantic.initLlegir(lookahead.getLexema());
 		accept(Type.ID);
 		variable_aux(data);
-		System.out.println("LLEGIR: "+data);
 		semantic.checkLlegir(data);
-		switch (lookahead.getToken()){
+
+		switch (lookahead.getToken()) {
 			case COMA:
 				accept(Type.COMA);
 				param_llegir();
 				break;
+
 			default:
 				return;
 		}
 	}
 
-	private boolean fi_aux(){
-		switch (lookahead.getToken()){
+	private boolean fi_aux() {
+
+		switch (lookahead.getToken()) {
 			case SINO:
 				accept(Type.SINO);
 				return llista_inst();
+
 			default:
 				return false;
 		}

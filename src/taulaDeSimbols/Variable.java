@@ -21,9 +21,9 @@ public class Variable {
     
     /**
      * <p>Creador de la clase Variable</p>
-     * @param (String) nom
-     * @param (ITipus) tipus
-     * @param (int) desplacament
+     * @param nom
+     * @param tipus
+     * @param desplacament
      */
     public Variable(String nom, ITipus tipus, int desplacament) {
     	this.nom = nom;
@@ -57,7 +57,7 @@ public class Variable {
 
 	/**
 	 * <p>Estableix el tipus de la variable</p>
-	 * @param (ITipus) tipus 
+	 * @param tipus
 	 */
     public void setTipus(ITipus tipus) {        
         this.tipus = tipus;
@@ -73,7 +73,7 @@ public class Variable {
 
 	/**
 	 * <p>Estableix el despla�ament de la variable</p>
-	 * @param (int) despla�ament 
+	 * @param despla�ament
 	 */
     public void setDesplacament(int desplacament) {        
         this.desplacament = desplacament;

@@ -2,7 +2,7 @@
 //	F2P1.bab	//
 //////////////////////////////////
 const CTE1 = "F2P1.bab" ;
-CONST CTE2 = ((3 - 1) * 4) / 2;
+CONST CTE2 = -((3 - 1) * 4) / 2-2*6/3+2*8/4 <> -4;
 var v4:logic ;
 const MIN = -50;
 const MAX = 50;
@@ -20,6 +20,7 @@ fUNcIO S0(): sencer;
 	var i: sencer;
 	var j:sencer;
 	var x :sencer;
+	var v5 : vector [0 .. 3] de sencer;
 func
 	escriure("Starting ", CTE1);
 	i = min;
@@ -30,6 +31,7 @@ func
 		  escriure(4);
 		sino
 			v5[i] = i + 1;
+			v5[2] = v5[3];
 		fisi;	
 	fimentre;
 	retornar 2;
@@ -65,7 +67,7 @@ func
 	retornar s0();
 	cicle
 		escriure("Enter a number (-1 exits)",v6 );
-		llegir(val1);
+		llegir(v5[3]);
 		si val1 <= -1 llavors
 			ref1 = FaLs;
 		

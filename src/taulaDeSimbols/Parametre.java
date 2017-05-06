@@ -15,9 +15,9 @@ public class Parametre extends Variable {
     
     /**
      * <p>Creador de la clase Variable</p>
-     * @param (String) nom
-     * @param (ITipus) tipus
-     * @param (int) desplacament
+     * @param nom
+     * @param tipus
+     * @param desplacament
      */
     public Parametre(String nom, ITipus tipus, int desplacament) {
     	super(nom, tipus, desplacament);
@@ -25,10 +25,10 @@ public class Parametre extends Variable {
     
     /**
      * <p>Creador de la clase Variable</p>
-     * @param (String) nom
-     * @param (ITipus) tipus
-     * @param (int) desplacament
-     * @param (TipusPasParametre) tipusPas
+     * @param nom
+     * @param tipus
+     * @param desplacament
+     * @param tipusPas
      */
     public Parametre(String nom, ITipus tipus, int desplacament, TipusPasParametre tipusPas) {
     	super(nom, tipus, desplacament);
@@ -45,7 +45,7 @@ public class Parametre extends Variable {
 
 	/**
 	 * <p>Estableix el pas de par�metre que se li fa a aquest parametre</p>
-	 * @param (TipusPasParametre) tipusPas 
+	 * @param tipusPas
 	 */
     public void setTipusPasParametre(TipusPasParametre tipusPas) {        
         this.tipusPas = tipusPas;

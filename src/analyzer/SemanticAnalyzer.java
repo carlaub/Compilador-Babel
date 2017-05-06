@@ -1,15 +1,17 @@
 package analyzer;
 
-import com.sun.deploy.security.ValidationState;
-import com.sun.javafx.stage.FocusUngrabEvent;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
-import javafx.beans.binding.ObjectBinding;
 import taulaDeSimbols.*;
 import utils.Error;
 import utils.TypeError;
 
-import javax.xml.bind.SchemaOutputResolver;
-
+/**
+ * Analitzador semàntic.
+ * S'encarrega de comprovar que la informació llegida del codi font és correcta pel que fa al significat (semàntica).
+ * Aquesta classe és cridada des de l'analitzador sintàctic quan aquest té prou informació com per a poder realitzar
+ * una comprovació semàntica. <br>
+ * Per a facilitar la fase, suposem que no hi ha errors sintàctics, així que utilitzem
+ * {@link SyntacticClean} enlloc de {@link SyntacticAnalyzer}.
+ */
 public class SemanticAnalyzer {
 	private TaulaSimbols taulaSimbols;
 	private int blocActual;
@@ -17,6 +19,9 @@ public class SemanticAnalyzer {
 	private Error error;
 	private static final int INDEF = -1;
 
+	/**
+	 * Constructor de l'analitzador semàntic.
+	 */
 	public SemanticAnalyzer() {
 		blocActual = 0;
 		taulaSimbols = new TaulaSimbols();
@@ -32,28 +37,39 @@ public class SemanticAnalyzer {
 		return taulaSimbols.toXml();
 	}
 
+	/**
+	 * Mètode per a passar al següent bloc. S'utilitza quan es detecta la declaració d'una funció.
+	 */
 	public void nextBloc() {
-		//Personalment preferiria posar blocActual++;
 		blocActual = 1;
 		taulaSimbols.inserirBloc(new Bloc());
 	}
 
+	/**
+	 * Mètode per a tornar al bloc anterior i esborrar l'actual.
+	 * S'utilitza quan es detecta la fi de declaració d'una funció.
+	 */
 	public void previousBloc() {
-		System.out.println("BLOC -------------------------------------------------------------------------");
-		System.out.println(taulaSimbols.obtenirBloc(1));
 		taulaSimbols.esborrarBloc(1);
 		idFuncio = null;
 		blocActual = 0;
 	}
 
+	/**
+	 * Mètode per a comprovar la informació d'una constant i afegir-la al bloc actual de la taula de símbols.
+	 *
+	 * @param data Conté la informació de la constant
+	 */
 	public void checkConstant(Data data) {
-		//TODO: Comprovació de la informació de constant
+
+		ITipus exp_ts = (ITipus) data.getValue("exp.ts");
+		String const_name = (String) data.getValue("const.name");
+
 		//Comprovació de si té tipus
-		if (((ITipus) data.getValue("exp.ts")).getNom().equals("indef") ||
-				((ITipus) data.getValue("exp.ts")).getTamany() == INDEF) {
+		if (exp_ts.getNom().equals("indef") || exp_ts.getTamany() == INDEF) {
 			//L'error ja l'haurem mostrat allà on hem detectat que els tipus no són coincidents
 			Constant constant = new Constant(
-					(String) data.getValue("const.name"),
+					const_name,
 					new TipusIndefinit("indef", 0),
 					false);
 			taulaSimbols.obtenirBloc(blocActual).inserirConstant(constant);
@@ -63,134 +79,136 @@ public class SemanticAnalyzer {
 		if (!(boolean) data.getValue("exp.es")) {
 			error.insertError(TypeError.ERR_SEM_20);
 			Constant constant = new Constant(
-					(String) data.getValue("const.name"),
+					const_name,
 					new TipusIndefinit("indef", 0),
 					false);
 			taulaSimbols.obtenirBloc(blocActual).inserirConstant(constant);
 			return;
 		}
-		String const_name = (String) data.getValue("const.name");
-		//Comprovació de si ha estat declarat com a constant prèviament
-		if (taulaSimbols.obtenirBloc(blocActual).existeixConstant(const_name)) {
-			error.insertError(TypeError.ERR_SEM_1, const_name);
-			return;
-		}
-		//Comprovació de si ha estat declarat com a variable o funció prèviament
+		//Comprovació de si ha estat declarat prèviament
 		if (taulaSimbols.obtenirBloc(blocActual).existeixID(const_name)) {
-			//TODO: Decidir codi d'error per aquest cas.
-			//Si ens decantem per ERR_SEM_1, el condicional anterior perd tot el sentit
 			error.insertError(TypeError.ERR_SEM_1, const_name);
 			return;
 		}
 		Constant constant = new Constant(
 				const_name,
-				(ITipus) data.getValue("exp.ts"),
+				exp_ts,
 				data.getValue("exp.vs")
 		);
 		taulaSimbols.obtenirBloc(blocActual).inserirConstant(constant);
 	}
 
+	/**
+	 * Mètode per a comprovar la informació d'una variable i afegir-la al bloc actual de la taula de símbols.
+	 *
+	 * @param data Conté la informació de la variable
+	 */
 	public void checkVariable(Data data) {
-		//TODO: Comprovació de la informació de variable
-		//TODO: Modificar el desplaçament
+
 		ITipus type = (ITipus) data.getValue("var.type");
+		String var_name = (String) data.getValue("var.name");
+
 		if (type.getNom().equals("indef")) {
 			Variable variable = new Variable(
-					(String) data.getValue("var.name"),
-					new TipusIndefinit("indef", 0),
+					var_name,
+					new TipusIndefinit("indef"),
 					0);
 			taulaSimbols.obtenirBloc(blocActual).inserirVariable(variable);
 			return;
 		}
-		String var_name = (String) data.getValue("var.name");
-		//Comprovació de si ha estat declarat com a variable prèviament
-		if (taulaSimbols.obtenirBloc(blocActual).existeixVariable(var_name)) {
-			error.insertError(TypeError.ERR_SEM_2, var_name);
-			return;
-		}
-		//Comprovació de si ha estat declarat com a constant o funció prèviament
+
+		//Comprovació de si ha estat declarat prèviament
 		if (taulaSimbols.obtenirBloc(blocActual).existeixID(var_name)) {
-			//TODO: Decidir codi d'error per aquest cas.
-			//Si ens decantem per ERR_SEM_2, el condicional anterior perd tot el sentit
 			error.insertError(TypeError.ERR_SEM_2, var_name);
 			return;
 		}
 		Variable variable = new Variable(
 				var_name,
-				(ITipus) data.getValue("var.type"),
+				type,
 				0
 		);
 		taulaSimbols.obtenirBloc(blocActual).inserirVariable(variable);
 	}
 
+	/**
+	 * Mètode per a comprovar un identificador quan apareix a una expressió.
+	 *
+	 * @param data Informació de l'identificador
+	 */
 	public void checkID(Data data) {
 		String id = (String) data.getValue("id.name");
 		data.removeAttribute("id.name");
+
 		if (taulaSimbols.obtenirBloc(blocActual).existeixConstant(id)) {
+
 			Constant constant = taulaSimbols.obtenirBloc(blocActual).obtenirConstant(id);
-			System.out.println("CONST: " + constant);
-			data.setValue("terme.vs", constant.getValor());
-			data.setValue("terme.ts", constant.getTipus());
-			data.setValue("terme.es", true);
+			data.setBloc("terme.s", constant.getValor(), constant.getTipus(), true);
+
 		} else if (taulaSimbols.obtenirBloc(blocActual).existeixVariable(id)) {
+
 			Variable variable = taulaSimbols.obtenirBloc(blocActual).obtenirVariable(id);
-			System.out.println("VAR: " + variable);
-			data.setValue("terme.vs", variable);
-			data.setValue("terme.ts", variable.getTipus());
-			data.setValue("terme.es", false);
+			data.setBloc("terme.s", variable, variable.getTipus(), false);
+
 		} else if (taulaSimbols.obtenirBloc(0).existeixConstant(id)) {
+
 			Constant constant = taulaSimbols.obtenirBloc(0).obtenirConstant(id);
-			System.out.println("CONST: " + constant);
-			data.setValue("terme.vs", constant.getValor());
-			data.setValue("terme.ts", constant.getTipus());
-			data.setValue("terme.es", true);
-		}  else if (taulaSimbols.obtenirBloc(0).existeixVariable(id)) {
+			data.setBloc("terme.s", constant.getValor(), constant.getTipus(), true);
+
+		} else if (taulaSimbols.obtenirBloc(0).existeixVariable(id)) {
+
 			Variable variable = taulaSimbols.obtenirBloc(0).obtenirVariable(id);
-			System.out.println("VAR: " + variable);
-			data.setValue("terme.vs", variable);
-			if (variable.getTipus() instanceof TipusArray){
-				data.setValue("terme.ts", ((TipusArray) variable.getTipus()).getTipusElements());
-			} else data.setValue("terme.ts", variable.getTipus());
-			data.setValue("terme.es", false);
+			data.setBloc("terme.s",
+					variable,
+					variable.getTipus() instanceof TipusArray ?
+							((TipusArray) variable.getTipus()).getTipusElements() :
+							variable.getTipus(),
+					false);
+
 		} else if (taulaSimbols.obtenirBloc(0).existeixProcediment(id)) {
 			Funcio funcio = (Funcio) taulaSimbols.obtenirBloc(0).obtenirProcediment(id);
-			data.setValue("terme.vs", funcio);
-			data.setValue("terme.ts", funcio.getTipus());
-			data.setValue("terme.es", false);
+			data.setBloc("terme.s", funcio, funcio.getTipus(), false);
 		} else {
 			error.insertError(TypeError.ERR_SEM_9, id);
-			data.setValue("terme.vs", id);
-			data.setValue("terme.ts", new TipusIndefinit("indef", 0));
-			data.setValue("terme.es", false);
+			data.setBloc("terme.s", id, new TipusIndefinit("indef"), false);
 		}
 	}
 
+	/**
+	 * Mètode per a comprovar la informació d'una funció i afegir-la al bloc actual de la taula de símbols.
+	 *
+	 * @param data Conté la informació de la funció
+	 */
 	public String checkFuncio(Data data) {
-		//Aquí també seria millor utilitzar blocActual
 		Funcio funcio = new Funcio();
 		funcio.setNom((String) data.getValue("name"));
-		if (!taulaSimbols.obtenirBloc(0).existeixProcediment(funcio.getNom())){
+		if (!taulaSimbols.obtenirBloc(0).existeixProcediment(funcio.getNom())) {
 			taulaSimbols.obtenirBloc(0).inserirProcediment(funcio);
 		} else {
 			error.insertError(TypeError.ERR_SEM_3, funcio.getNom());
-			funcio.setNom("!"+funcio.getNom());
+			funcio.setNom("!" + funcio.getNom());
 			taulaSimbols.obtenirBloc(0).inserirProcediment(funcio);
 		}
 		idFuncio = funcio.getNom();
 		return idFuncio;
 	}
 
+	/**
+	 * Mètode per a inserir un paràmetre a una funció que s'està declarant.
+	 *
+	 * @param data Informació del paràmetre i la funció
+	 */
 	public void addParameter(Data data) {
 
-		Parametre parametre = new Parametre();
-		parametre.setNom((String) data.getValue("name"));
-		parametre.setTipus((ITipus) data.getValue("type"));
-		parametre.setTipusPasParametre(new TipusPasParametre((String) data.getValue("typeParam")));
+		Parametre parametre = new Parametre(
+				(String) data.getValue("name"),
+				(ITipus) data.getValue("type"),
+				0,
+				new TipusPasParametre((String) data.getValue("typeParam"))
+		);
 		if (taulaSimbols.obtenirBloc(1).obtenirVariable(parametre.getNom()) == null) {
-			String id = (String) data.getValue("idFunction");
-				taulaSimbols.obtenirBloc(0)
-						.obtenirProcediment((String) data.getValue("idFunction"))
-						.inserirParametre(parametre);
+			taulaSimbols.obtenirBloc(0)
+					.obtenirProcediment((String) data.getValue("idFunction"))
+					.inserirParametre(parametre);
 			taulaSimbols.obtenirBloc(1).inserirVariable(parametre);
 		} else {
 			error.insertError(TypeError.ERR_SEM_4, parametre.getNom());
@@ -198,25 +216,34 @@ public class SemanticAnalyzer {
 
 	}
 
+	/**
+	 * Mètode per a comprovar i realitzar una operació binaria d'alta prioritat.
+	 *
+	 * @param data Informació de l'expressió
+	 */
 	public void checkOp_binari(Data data) {
+
+		ITipus terme_th = (ITipus) data.getValue("terme.th");
+
 		if (data.getValue("MUL") != null) {
-			if (!(data.getValue("terme.th") instanceof TipusIndefinit)
-					&& ((ITipus) data.getValue("terme.th")).getNom().equals("SENCER") &&
+
+			if (!(terme_th instanceof TipusIndefinit) && terme_th.getNom().equals("SENCER") &&
 					((ITipus) data.getValue("terme.ts")).getNom().equals("SENCER")) {
-				if (((ITipus) data.getValue("terme.th")).getTamany() != INDEF &&
-						((ITipus) data.getValue("terme.th")).getTamany() != INDEF) {
+
+				if (terme_th.getTamany() != INDEF) {
 
 					if ((boolean) data.getValue("terme.eh") && (boolean) data.getValue("terme.es")) {
+
 						int op1 = (int) data.getValue("terme.vh");
 						int op2 = (int) data.getValue("terme.vs");
-						int resultat = op1 * op2;
-						data.setValue("terme.vs", resultat);
+						data.setValue("terme.vs", op1 * op2);
 						data.setValue("terme.es", true);
+
 					} else {
+
 						data.setValue("terme.ts", new TipusSimple("SENCER", INDEF));
 						data.setValue("terme.vs", 0);
 						data.setValue("op", true);
-
 					}
 				} else {
 					data.setValue("terme.es", false);
@@ -229,20 +256,21 @@ public class SemanticAnalyzer {
 				data.setValue("terme.vs", 0);
 			}
 			data.removeAttribute("MUL");
+
 		} else if (data.getValue("DIV") != null) {
-			if (!(data.getValue("terme.th") instanceof TipusIndefinit)
-					&& ((ITipus) data.getValue("terme.th")).getNom().equals("SENCER") &&
+
+			if (!(terme_th instanceof TipusIndefinit)
+					&& terme_th.getNom().equals("SENCER") &&
 					((ITipus) data.getValue("terme.ts")).getNom().equals("SENCER")) {
-				if (((ITipus) data.getValue("terme.th")).getTamany() != INDEF &&
-						((ITipus) data.getValue("terme.th")).getTamany() != INDEF) {
+
+				if (terme_th.getTamany() != INDEF) {
 
 					if ((boolean) data.getValue("terme.eh") && (boolean) data.getValue("terme.es")) {
+
 						int op1 = (int) data.getValue("terme.vh");
 						int op2 = (int) data.getValue("terme.vs");
 						if (op2 != 0) {
-							int resultat = op1 / op2;
-							data.setValue("terme.vs", resultat);
-
+							data.setValue("terme.vs", op1 / op2);
 							data.setValue("terme.es", true);
 						} else {
 							error.insertError(TypeError.ERR_SEM_21);
@@ -256,7 +284,6 @@ public class SemanticAnalyzer {
 
 					}
 
-
 				} else {
 					data.setValue("terme.ts", new TipusSimple("SENCER", INDEF));
 					data.setValue("terme.vs", 0);
@@ -268,17 +295,19 @@ public class SemanticAnalyzer {
 			}
 
 			data.removeAttribute("DIV");
+
 		} else if (data.getValue("AND") != null) {
-			if (!(data.getValue("terme.th") instanceof TipusIndefinit)
-					&& ((ITipus) data.getValue("terme.th")).getNom().equals("LOGIC") &&
+
+			if (!(terme_th instanceof TipusIndefinit) && terme_th.getNom().equals("LOGIC") &&
 					((ITipus) data.getValue("terme.ts")).getNom().equals("LOGIC")) {
-				if (((ITipus) data.getValue("terme.th")).getTamany() != INDEF &&
-						((ITipus) data.getValue("terme.th")).getTamany() != INDEF) {
+
+				if (terme_th.getTamany() != INDEF) {
+
 					if ((boolean) data.getValue("terme.eh") && (boolean) data.getValue("terme.es")) {
+
 						boolean op1 = (boolean) data.getValue("terme.vh");
 						boolean op2 = (boolean) data.getValue("terme.vs");
-						boolean resultat = op1 && op2;
-						data.setValue("terme.vs", resultat);
+						data.setValue("terme.vs", op1 && op2);
 						data.setValue("terme.es", true);
 					} else {
 						data.setValue("terme.es", false);
@@ -291,39 +320,39 @@ public class SemanticAnalyzer {
 					data.setValue("terme.vs", 0);
 				}
 			} else {
-				//TODO: recuperació errors
 				error.insertError(TypeError.ERR_SEM_7);
 				data.setValue("terme.ts", new TipusSimple("LOGIC", INDEF));
 				data.setValue("terme.vs", 0);
 			}
-			System.out.println("DATA:" + data);
 			data.removeAttribute("AND");
 		}
 	}
 
+	/**
+	 * Mètode per a comprovar i realitzar una operació binaria de baixa prioritat.
+	 *
+	 * @param data Informació de la primera expressió
+	 * @param info Informació de la segona expressió
+	 */
 	public void checkOp_aux(Data data, Data info) {
-		//TODO: Control d'errors
+
+		ITipus data_terme_simple_th = (ITipus) data.getValue("terme_simple.th");
+		ITipus info_terme_ts = (ITipus) info.getValue("terme.ts");
 
 		if (data.getValue("op_aux.vs") == TypeVar.SUMA) {
-			System.out.println("DATA:" + data);
-			System.out.println(data.getValue("terme_simple.th"));
-			System.out.println(data);
-			if (!(data.getValue("terme_simple.th") instanceof TipusIndefinit)
-					&& ((ITipus) data.getValue("terme_simple.th")).getNom().equals("SENCER") &&
-					((ITipus) info.getValue("terme.ts")).getNom().equals("SENCER")) {
-				if (((ITipus) data.getValue("terme_simple.th")).getTamany() != INDEF &&
-						((ITipus) info.getValue("terme.ts")).getTamany() != INDEF) {
+
+			if (!(data_terme_simple_th instanceof TipusIndefinit) && data_terme_simple_th.getNom().equals("SENCER") &&
+					info_terme_ts.getNom().equals("SENCER")) {
+
+				if (data_terme_simple_th.getTamany() != INDEF && info_terme_ts.getTamany() != INDEF) {
 
 					if (!((boolean) data.getValue("terme_simple.eh") && (boolean) info.getValue("terme.es"))) {
-						info.setValue("terme.es", false);
-						info.setValue("terme.vs", 0);
-						info.setValue("terme.ts", new TipusSimple("SENCER", 0));
+						info.setBloc("terme.s", 0, new TipusSimple("SENCER"), false);
 						data.setValue("op", true);
 					} else {
 						int op1 = (int) data.getValue("terme_simple.vh");
 						int op2 = (int) info.getValue("terme.vs");
-						int res = op1 + op2;
-						info.setValue("terme.vs", res);
+						info.setValue("terme.vs", op1 + op2);
 						info.setValue("terme.es", true);
 					}
 				} else {
@@ -332,29 +361,27 @@ public class SemanticAnalyzer {
 				}
 			} else {
 
-				//TODO: recuperació errors
 				error.insertError(TypeError.ERR_SEM_6);
 				//Si el tamany és negatiu, vol dir que hi ha hagut un error al tipus
 				info.setValue("terme.ts", new TipusSimple("SENCER", INDEF));
 				info.setValue("terme.vs", 0);
 			}
 			data.removeAttribute("op_aux.vs");
+
 		} else if (data.getValue("op_aux.vs") == TypeVar.RESTA) {
-			if (((ITipus) data.getValue("terme_simple.th")).getNom().equals("SENCER") &&
-					((ITipus) info.getValue("terme.ts")).getNom().equals("SENCER")) {
-				if (((ITipus) data.getValue("terme_simple.th")).getTamany() != INDEF &&
-						((ITipus) info.getValue("terme.ts")).getTamany() != INDEF) {
+
+			if (data_terme_simple_th.getNom().equals("SENCER") && info_terme_ts.getNom().equals("SENCER")) {
+
+				if (data_terme_simple_th.getTamany() != INDEF && info_terme_ts.getTamany() != INDEF) {
 
 					if (!((boolean) data.getValue("terme_simple.eh") && (boolean) info.getValue("terme.es"))) {
-						info.setValue("terme.es", false);
-						info.setValue("terme.vs", 0);
-						info.setValue("terme.ts", new TipusSimple("SENCER", 0));
+
+						info.setBloc("terme.s", 0, new TipusSimple("SENCER"), false);
 						data.setValue("op", true);
 					} else {
 						int op1 = (int) data.getValue("terme_simple.vh");
 						int op2 = (int) info.getValue("terme.vs");
-						int res = op1 - op2;
-						info.setValue("terme.vs", res);
+						info.setValue("terme.vs", op1 - op2);
 						info.setValue("terme.es", true);
 					}
 				} else {
@@ -363,28 +390,25 @@ public class SemanticAnalyzer {
 				}
 
 			} else {
-				//TODO: recuperació errors
 				error.insertError(TypeError.ERR_SEM_6);
 				info.setValue("terme.ts", new TipusSimple("SENCER", INDEF));
 				info.setValue("terme.vs", 0);
 			}
 			data.removeAttribute("op_aux.vs");
+
 		} else if (data.getValue("op_aux.vs") == TypeVar.OR) {
-			if (((ITipus) data.getValue("terme_simple.th")).getNom().equals("LOGIC") &&
-					((ITipus) info.getValue("terme.ts")).getNom().equals("LOGIC")) {
-				if (((ITipus) data.getValue("terme_simple.th")).getTamany() != INDEF &&
-						((ITipus) info.getValue("terme.ts")).getTamany() != INDEF) {
+
+			if (data_terme_simple_th.getNom().equals("LOGIC") && info_terme_ts.getNom().equals("LOGIC")) {
+				if (data_terme_simple_th.getTamany() != INDEF && info_terme_ts.getTamany() != INDEF) {
 
 					if (!((boolean) data.getValue("terme_simple.eh") && (boolean) info.getValue("terme.es"))) {
-						info.setValue("terme.es", false);
-						info.setValue("terme.vs", 0);
-						info.setValue("terme.ts", new TipusSimple("LOGIC", 0));
+
+						info.setBloc("terme.s", 0, new TipusSimple("LOGIC"), false);
 						data.setValue("op", true);
 					} else {
 						boolean op1 = (boolean) data.getValue("terme_simple.vh");
 						boolean op2 = (boolean) info.getValue("terme.vs");
-						boolean res = op1 || op2;
-						info.setValue("terme.vs", res);
+						info.setValue("terme.vs", op1 || op2);
 						info.setValue("terme.es", true);
 					}
 				} else {
@@ -392,7 +416,6 @@ public class SemanticAnalyzer {
 					info.setValue("terme.vs", 0);
 				}
 			} else {
-				//TODO: recuperació errors
 				error.insertError(TypeError.ERR_SEM_7);
 				info.setValue("terme.ts", new TipusSimple("LOGIC", INDEF));
 				info.setValue("terme.vs", 0);
@@ -401,13 +424,20 @@ public class SemanticAnalyzer {
 		}
 	}
 
+	/**
+	 * Mètode per a comprovar i realitzar una operació unària.
+	 *
+	 * @param data Informació del factor i de l'operador
+	 */
 	public void checkOp_unari(Data data) {
 
-		//TODO: tamanys
+		Object op_unari = data.getValue("op_unari.vs");
+		ITipus terme_ts = (ITipus) data.getValue("terme.ts");
 
-		if (data.getValue("op_unari.vs") == TypeVar.RESTA) {
+		if (op_unari == TypeVar.RESTA) {
 
-			if (((ITipus) data.getValue("terme.ts")).getNom().equals("SENCER")) {
+			if (terme_ts.getNom().equals("SENCER")) {
+
 				data.setValue("terme.vs", -(int) data.getValue("terme.vs"));
 
 			} else {
@@ -416,15 +446,19 @@ public class SemanticAnalyzer {
 				data.setValue("terme.ts", new TipusSimple("SENCER", INDEF));
 			}
 
-		} else if (data.getValue("op_unari.vs") == TypeVar.SUMA) {
-			if (!((ITipus) data.getValue("terme.ts")).getNom().equals("SENCER")) {
+		} else if (op_unari == TypeVar.SUMA) {
+
+			if (!terme_ts.getNom().equals("SENCER")) {
+
 				error.insertError(TypeError.ERR_SEM_6);
 				data.setValue("terme.vs", 0);
 				data.setValue("terme.ts", new TipusSimple("SENCER", INDEF));
 			}
 
-		} else if (data.getValue("op_unari.vs") == TypeVar.NOT) {
-			if (((ITipus) data.getValue("terme.ts")).getNom().equals("LOGIC")) {
+		} else if (op_unari == TypeVar.NOT) {
+
+			if (terme_ts.getNom().equals("LOGIC")) {
+
 				data.setValue("terme.vs", !(boolean) data.getValue("terme.vs"));
 
 			} else {
@@ -436,69 +470,74 @@ public class SemanticAnalyzer {
 		data.removeAttribute("op_unari.vs");
 	}
 
+	/**
+	 * Mètode per a comprovar i realitzar una operació relacional.
+	 *
+	 * @param data Informació de la primera expressió
+	 * @param info Informació de la segona expressió
+	 */
 	public void checkOp_relacional(Data data, Data info) {
 
-		//Comprovem que els tipus a evaluar son tots dos sencer, en cas que no sigui aixi, error
-		System.out.println("OP_REL: "+data);
-		if (!((ITipus) data.getValue("exp_aux.th")).getNom().equals("SENCER") ||
-				!((ITipus) info.getValue("exp_simple.ts")).getNom().equals("SENCER")) {
-			error.insertError(TypeError.ERR_SEM_6);
+		ITipus data_exp_aux_th = (ITipus) data.getValue("exp_aux.th");
+		ITipus info_exp_simple_ts = (ITipus) info.getValue("exp_simple.ts");
 
-			data.setValue("exp_aux.vs", 0);
-			data.setValue("exp_aux.ts", new TipusIndefinit("indef", 0));
-			data.setValue("exp_aux.es", true);
-		} else if (((ITipus) data.getValue("exp_aux.th")).getTamany() == INDEF ||
-				((ITipus) info.getValue("exp_simple.ts")).getTamany() == INDEF) {
-			data.setValue("exp_aux.vs", 0);
-			data.setValue("exp_aux.ts", new TipusIndefinit("indef", 0));
-			data.setValue("exp_aux.es", true);
+		//Comprovem que els tipus a evaluar son tots dos sencer, en cas que no sigui aixi, error
+		if (!data_exp_aux_th.getNom().equals("SENCER") || !info_exp_simple_ts.getNom().equals("SENCER")) {
+
+			error.insertError(TypeError.ERR_SEM_6);
+			data.setBloc("exp_aux.s", 0, new TipusIndefinit("indef"), true);
+
+		} else if (data_exp_aux_th.getTamany() == INDEF || info_exp_simple_ts.getTamany() == INDEF) {
+
+			data.setBloc("exp_aux.s", 0, new TipusIndefinit("indef"), true);
 
 		} else if (!(boolean) data.getValue("exp_aux.eh")
 				|| !(boolean) info.getValue("exp_simple.es")) {
-			data.setValue("exp_aux.ts", new TipusSimple("LOGIC", 0));
-			data.setValue("exp_aux.es", false);
-			data.setValue("exp_aux.vs", false);
+
+			data.setBloc("exp_aux.s", false, new TipusSimple("LOGIC"), false);
+
 		} else {
-			//TODO tamany?
-			//TODO estatic?
-			if (data.getValue("op_relacional.vs").equals(">")) {
-				data.setValue("exp_aux.vs", (int) data.getValue("exp_aux.vh") > (int) info.getValue("exp_simple.vs"));
-				data.setValue("exp_aux.ts", new TipusSimple("LOGIC", 0));
-				data.setValue("exp_aux.es", true);
 
-			} else if (data.getValue("op_relacional.vs").equals("<")) {
-				data.setValue("exp_aux.vs", (int) data.getValue("exp_aux.vh") < (int) info.getValue("exp_simple.vs"));
-				data.setValue("exp_aux.ts", new TipusSimple("LOGIC", 0));
-				data.setValue("exp_aux.es", true);
+			int exp1 = (int) data.getValue("exp_aux.vh");
+			int exp2 = (int) info.getValue("exp_simple.vs");
 
-			} else if (data.getValue("op_relacional.vs").equals("<=")) {
-				data.setValue("exp_aux.vs", (int) data.getValue("exp_aux.vh") <= (int) info.getValue("exp_simple.vs"));
-				data.setValue("exp_aux.ts", new TipusSimple("LOGIC", 0));
-				data.setValue("exp_aux.es", true);
-
-			} else if (data.getValue("op_relacional.vs").equals(">=")) {
-				data.setValue("exp_aux.vs", (int) data.getValue("exp_aux.vh") >= (int) info.getValue("exp_simple.vs"));
-				data.setValue("exp_aux.ts", new TipusSimple("LOGIC", 0));
-				data.setValue("exp_aux.es", true);
-
-			} else if (data.getValue("op_relacional.vs").equals("==")) {
-				data.setValue("exp_aux.vs", (int) data.getValue("exp_aux.vh") == (int) info.getValue("exp_simple.vs"));
-				data.setValue("exp_aux.ts", new TipusSimple("LOGIC", 0));
-				data.setValue("exp_aux.es", true);
-
-			} else if (data.getValue("op_relacional.vs").equals("<>")) {
-				data.setValue("exp_aux.vs", (int) data.getValue("exp_aux.vh") != (int) info.getValue("exp_simple.vs"));
-				data.setValue("exp_aux.ts", new TipusSimple("LOGIC", 0));
-				data.setValue("exp_aux.es", true);
+			switch ((String) data.getValue("op_relacional.vs")) {
+				case ">":
+					data.setBloc("exp_aux.s", exp1 > exp2, new TipusSimple("LOGIC"), true);
+					break;
+				case "<":
+					data.setBloc("exp_aux.s", exp1 < exp2, new TipusSimple("LOGIC"), true);
+					break;
+				case "<=":
+					data.setBloc("exp_aux.s", exp1 <= exp2, new TipusSimple("LOGIC"), true);
+					break;
+				case ">=":
+					data.setBloc("exp_aux.s", exp1 >= exp2, new TipusSimple("LOGIC"), true);
+					break;
+				case "==":
+					data.setBloc("exp_aux.s", exp1 == exp2, new TipusSimple("LOGIC"), true);
+					break;
+				case "<>":
+					data.setBloc("exp_aux.s", exp1 != exp2, new TipusSimple("LOGIC"), true);
+					break;
 			}
 		}
 	}
 
+	/**
+	 * Mètode per a inicialitzar el tractament de la crida d'una funció.
+	 *
+	 * @param data Informació de la funció
+	 */
 	public void initFuncio(Data data) {
+
 		Funcio funcio;
+
 		if (data.getValue("factor_aux.vh") instanceof Funcio) {
+
 			funcio = (Funcio) data.getValue("factor_aux.vh");
 			data.move("llista_exp.vh", "factor_aux.vh");
+
 		} else {
 			funcio = new Funcio();
 			funcio.setTipus(new TipusIndefinit());
@@ -509,18 +548,21 @@ public class SemanticAnalyzer {
 		data.setValue("param.num", funcio.getNumeroParametres());
 	}
 
+	/**
+	 * Mètode per a comprovar i inserir un paràmetre a la crida d'una funció
+	 *
+	 * @param data Informació de la funció
+	 * @param info Informació de l'expressió
+	 */
 	public void checkParam(Data data, Data info) {
 
 		ITipus exp_ts = (ITipus) info.getValue("exp.ts");
 		Funcio funcio = (Funcio) data.getValue("llista_exp.vh");
 		int param_index = (int) data.getValue("param.index") + 1;
 		data.setValue("param.index", param_index);
+
 		if (param_index <= (int) data.getValue("param.num")) {
 			Parametre parametre = funcio.obtenirParametre(param_index - 1);
-
-			System.out.println("CHECK PARAM: " + data);
-			System.out.println("CHECK PARAM INFO: " + info);
-			System.out.println("PARAM: "+parametre);
 
 			if (parametre.getTipusPasParametre().toString().equals("PERREF") &&
 					(boolean) info.getValue("exp.es") || info.getValue("op") != null) {
@@ -529,14 +571,19 @@ public class SemanticAnalyzer {
 
 			if (!(info.getValue("exp.ts") instanceof TipusIndefinit)
 					&& !exp_ts.getNom().equals(parametre.getTipus().getNom())) {
+
 				Object vs = info.getValue("exp.vs");
+
 				if (!(vs instanceof Variable && ((Variable) vs).getTipus() instanceof TipusArray &&
-						((Variable) vs).getTipus().getNom().equals(parametre.getTipus().getNom()))){
-					if (parametre.getTipus() instanceof TipusArray){
+						((Variable) vs).getTipus().getNom().equals(parametre.getTipus().getNom()))) {
+
+					if (parametre.getTipus() instanceof TipusArray) {
+
 						DimensioArray dimensioArray = ((TipusArray) parametre.getTipus()).obtenirDimensio(0);
 						error.insertError(TypeError.ERR_SEM_16, param_index,
-								"VECTOR ["+dimensioArray.getLimitInferior()+".."+dimensioArray.getLimitSuperior()+
-										"] DE "+((TipusArray) parametre.getTipus()).getTipusElements().getNom());
+								"VECTOR [" + dimensioArray.getLimitInferior() + ".." + dimensioArray.getLimitSuperior() +
+										"] DE " + ((TipusArray) parametre.getTipus()).getTipusElements().getNom());
+
 					} else {
 						error.insertError(TypeError.ERR_SEM_16, param_index, parametre.getTipus().getNom());
 					}
@@ -545,30 +592,56 @@ public class SemanticAnalyzer {
 		}
 	}
 
+	/**
+	 * Mètode per a comprovar que una funció ha estat cridat amb el nombre de paràmetres correcte.
+	 *
+	 * @param data Informació de la funció
+	 */
 	public void checkParamNext(Data data) {
-		if ((int) data.getValue("param.index") != (int) data.getValue("param.num")) {
-			error.insertError(TypeError.ERR_SEM_15, (int) data.getValue("param.index"), (int) data.getValue("param.num"));
+
+		int param_index = (int) data.getValue("param.index");
+		int param_num = (int) data.getValue("param.num");
+
+		if (param_index != param_num) {
+			error.insertError(TypeError.ERR_SEM_15, param_index, param_num);
 		}
 	}
 
+	/**
+	 * Mètode per a comprovar si s'està invocant una funció.
+	 *
+	 * @param data Informació de l'identificador
+	 */
 	public void checkErrSem22(Data data) {
+
 		if (data.getValue("variable_aux.vh") instanceof Funcio) {
 			error.insertError(TypeError.ERR_SEM_22, ((Funcio) data.getValue("variable_aux.vh")).getNom());
 		}
 	}
 
-
+	/**
+	 * Mètode per a comprovar la declaració d'un vector tant com a variable com a paràmetre.
+	 *
+	 * @param tipus Tipus simple del vector
+	 * @param exp1  Informació de l'expressió amb el límit inferior del vector
+	 * @param exp2  Informació de l'expressió amb el límit superior del vector
+	 * @return Tipus de vector instanciat
+	 */
 	public TipusArray checkVector(String tipus, Data exp1, Data exp2) {
-		//TODO: Afegir valors a retornar per a la declaració del vector
-		int lower_limit = (int)exp1.getValue("exp.vs");
-		int upper_limit = (int)exp2.getValue("exp.vs");
+
+		int lower_limit = (int) exp1.getValue("exp.vs");
+		int upper_limit = (int) exp2.getValue("exp.vs");
+
 		if (((ITipus) exp1.getValue("exp.ts")).getNom().equals("SENCER") &&
 				((ITipus) exp2.getValue("exp.ts")).getNom().equals("SENCER")) {
+
 			if ((boolean) exp1.getValue("exp.es") && (boolean) exp2.getValue("exp.es")) {
+
 				if ((int) exp1.getValue("exp.vs") > (int) exp2.getValue("exp.vs")) {
 					error.insertError(TypeError.ERR_SEM_5);
 					lower_limit = upper_limit = 0;
 				}
+
 			} else {
 				error.insertError(TypeError.ERR_SEM_20);
 				lower_limit = upper_limit = 0;
@@ -578,30 +651,49 @@ public class SemanticAnalyzer {
 			error.insertError(TypeError.ERR_SEM_6);
 			lower_limit = upper_limit = 0;
 		}
-		TipusSimple tipusSimple = new TipusSimple(tipus);
-		TipusArray tipusArray = new TipusArray("V_"+lower_limit+"_"+upper_limit+"_"+tipusSimple.getNom(), (upper_limit - lower_limit) * tipusSimple.getTamany(), tipusSimple);
-		DimensioArray dimensioArray = new DimensioArray(new TipusSimple("SENCER"), lower_limit, upper_limit);
 
+		TipusSimple tipusSimple = new TipusSimple(tipus);
+		TipusArray tipusArray = new TipusArray("V_" + lower_limit + "_" + upper_limit + "_" + tipusSimple.getNom(),
+				(upper_limit - lower_limit) * tipusSimple.getTamany(), tipusSimple);
+		DimensioArray dimensioArray = new DimensioArray(new TipusSimple("SENCER"), lower_limit, upper_limit);
 		tipusArray.inserirDimensio(dimensioArray);
+
 		return tipusArray;
 	}
 
+	/**
+	 * Mètode per a comprovar que l'accés a un vector s'està realitzant correctament.
+	 *
+	 * @param data Informació del vector
+	 * @param info Informació de l'expressió d'accés al vector
+	 */
 	public void checkVectorAccess(Data data, Data info) {
+
 		Object id = data.getValue("variable_aux.vh");
 		Object type = data.getValue("variable_aux.th");
-		System.out.println("ID: " + data.getValue("variable_aux.th"));
+
 		if (!(id instanceof Variable && type instanceof TipusArray)) {
+
 			error.insertError(TypeError.ERR_SEM_23, getNomId(id));
+
 		} else {
+
 			data.setValue("variable_aux.th", ((TipusArray) type).getTipusElements());
+
 			if (!((ITipus) info.getValue("exp.ts")).getNom().equals("SENCER")) {
+
 				error.insertError(TypeError.ERR_SEM_13, getNomId(id));
+
 			} else {
-				if (info.getValue("exp.vs") instanceof Integer){
+
+				if (info.getValue("exp.vs") instanceof Integer) {
+
 					int index = (int) info.getValue("exp.vs");
-					if ((boolean)info.getValue("exp.es") && (
-							(int)((TipusArray) type).obtenirDimensio(0).getLimitInferior() > index ||
-									(int)((TipusArray) type).obtenirDimensio(0).getLimitSuperior() < index)){
+
+					//TODO: CAL QUE SIGUI ERROR SEMÀNTIC???
+					if ((boolean) info.getValue("exp.es") && (
+							(int) ((TipusArray) type).obtenirDimensio(0).getLimitInferior() > index ||
+									(int) ((TipusArray) type).obtenirDimensio(0).getLimitSuperior() < index)) {
 						error.insertError(TypeError.ERR_SEM_24, getNomId(id));
 					}
 				}
@@ -616,121 +708,192 @@ public class SemanticAnalyzer {
 		return (String) id;
 	}
 
+	/**
+	 * Mètode per a inicialitzar una operació d'assignació.
+	 *
+	 * @param lexema Identificador de la variable
+	 * @return Informació de l'identificador
+	 */
 	public Data initAssignation(String lexema) {
+
 		Data data = new Data();
 
-		if (taulaSimbols.obtenirBloc(blocActual).existeixVariable(lexema)){
+		if (taulaSimbols.obtenirBloc(blocActual).existeixVariable(lexema)) {
+
 			Variable variable = taulaSimbols.obtenirBloc(blocActual).obtenirVariable(lexema);
-			System.out.println("Variable: "+variable);
-			data.setValue("variable_aux.vh", variable);
-			data.setValue("variable_aux.th", variable.getTipus());
-			data.setValue("variable_aux.eh", false);
-		} else if (taulaSimbols.obtenirBloc(0).existeixVariable(lexema)){
+			data.setBloc("variable_aux.h", variable, variable.getTipus(), false);
+
+		} else if (taulaSimbols.obtenirBloc(0).existeixVariable(lexema)) {
+
 			Variable variable = taulaSimbols.obtenirBloc(0).obtenirVariable(lexema);
-			data.setValue("variable_aux.vh", variable);
-			data.setValue("variable_aux.th", variable.getTipus());
-			data.setValue("variable_aux.eh", false);
+			data.setBloc("variable_aux.h", variable, variable.getTipus(), false);
+
 		} else {
+
 			if (taulaSimbols.obtenirBloc(blocActual).existeixID(lexema) ||
-					taulaSimbols.obtenirBloc(0).existeixID(lexema)){
+					taulaSimbols.obtenirBloc(0).existeixID(lexema)) {
 				error.insertError(TypeError.ERR_SEM_11, lexema);
 			} else {
 				error.insertError(TypeError.ERR_SEM_9, lexema);
 			}
-			data.setValue("variable_aux.vh", new Variable(lexema, new TipusIndefinit("indef", 0), 0));
-			data.setValue("variable_aux.th", new TipusIndefinit("indef", 0));
-			data.setValue("variable_aux.eh", false);
+			data.setBloc("variable_aux.h", new Variable(lexema, new TipusIndefinit("indef"), 0),
+					new TipusIndefinit("indef"), false);
 		}
 		return data;
 	}
 
+	/**
+	 * Mètode per a assignar el tipus de retorn a una funció.
+	 *
+	 * @param id    Identificador de la funció
+	 * @param tipus Tipus de retorn de la funció
+	 */
 	public void setTipusFuncio(String id, String tipus) {
-		((Funcio)taulaSimbols.obtenirBloc(0).obtenirProcediment(id)).setTipus(new TipusSimple(tipus));
+		((Funcio) taulaSimbols.obtenirBloc(0).obtenirProcediment(id)).setTipus(new TipusSimple(tipus));
 	}
 
+	/**
+	 * Mètode per a comprovar l'assignació.
+	 *
+	 * @param data Informació del receptor de l'assignació
+	 * @param info Informació de l'expressió a assignar
+	 */
 	public void checkAssignation(Data data, Data info) {
-		if (data.getValue("igual_aux.th") instanceof TipusSimple) {
-			if (!((TipusSimple) data.getValue("igual_aux.th")).getNom().equals(
-					((ITipus) info.getValue("exp.ts")).getNom())) {
-				error.insertError(TypeError.ERR_SEM_12, ((Variable) data.getValue("igual_aux.vh")).getNom(),
-						((Variable) data.getValue("igual_aux.vh")).getTipus().getNom(),
-						((ITipus) info.getValue("exp.ts")).getNom());
-			}
-		} else if (data.getValue("igual_aux.th") instanceof TipusArray)
-			error.insertError(TypeError.ERR_SEM_12, ((Variable) data.getValue("igual_aux.vh")).getNom(),
-					"VECTOR DE " + ((TipusArray) data.getValue("igual_aux.th")).getTipusElements().getNom(),
-					((ITipus) info.getValue("exp.ts")).getNom());
 
+		ITipus igual_aux_th = (ITipus) data.getValue("igual_aux.th");
+		ITipus exp_ts = (ITipus) info.getValue("exp.ts");
+
+		if (igual_aux_th instanceof TipusSimple) {
+
+			if (!igual_aux_th.getNom().equals(exp_ts.getNom())) {
+
+				error.insertError(TypeError.ERR_SEM_12, ((Variable) data.getValue("igual_aux.vh")).getNom(),
+						igual_aux_th.getNom(),
+						exp_ts instanceof TipusArray ?
+								"VECTOR DE " + ((TipusArray) exp_ts).getTipusElements().getNom()
+								:
+								exp_ts.getNom());
+			}
+
+		} else if (igual_aux_th instanceof TipusArray) {
+
+			error.insertError(TypeError.ERR_SEM_12, ((Variable) data.getValue("igual_aux.vh")).getNom(),
+					"VECTOR DE " + ((TipusArray) igual_aux_th).getTipusElements().getNom(),
+					exp_ts.getNom());
+		}
 	}
 
-	public void checkEscriure(Data info) {
-		ITipus tipus = (ITipus) info.getValue("exp.ts");
-		if (!(tipus instanceof TipusSimple || tipus instanceof TipusCadena)){
+	/**
+	 * Mètode per a comprovar l'expressió d'un paràmetre de l'instrucció escriure.
+	 *
+	 * @param data Informació de l'expressió
+	 */
+	public void checkEscriure(Data data) {
+
+		ITipus tipus = (ITipus) data.getValue("exp.ts");
+
+		if (!(tipus instanceof TipusSimple || tipus instanceof TipusCadena)) {
 			error.insertError(TypeError.ERR_SEM_14);
 		}
 	}
 
+	/**
+	 * Mètode per a iniciar la comprovació d'un paràmentre de l'instrucció LLEGIR
+	 *
+	 * @param lexema Identificador que rep llegir com a paràmetre
+	 * @return Informació del paràmetre
+	 */
 	public Data initLlegir(String lexema) {
+
 		Data data = new Data();
 
-		if (taulaSimbols.obtenirBloc(blocActual).existeixVariable(lexema)){
+		if (taulaSimbols.obtenirBloc(blocActual).existeixVariable(lexema)) {
+
 			Variable variable = taulaSimbols.obtenirBloc(blocActual).obtenirVariable(lexema);
-			System.out.println("Variable: "+variable);
-			data.setValue("variable_aux.vh", variable);
-			data.setValue("variable_aux.th", variable.getTipus());
-			data.setValue("variable_aux.eh", false);
-		} else if (taulaSimbols.obtenirBloc(0).existeixVariable(lexema)){
+			data.setBloc("variable_aux.h", variable, variable.getTipus(), false);
+
+		} else if (taulaSimbols.obtenirBloc(0).existeixVariable(lexema)) {
+
 			Variable variable = taulaSimbols.obtenirBloc(0).obtenirVariable(lexema);
-			data.setValue("variable_aux.vh", variable);
-			data.setValue("variable_aux.th", variable.getTipus());
-			data.setValue("variable_aux.eh", false);
+			data.setBloc("variable_aux.h", variable, variable.getTipus(), false);
+
 		} else if (taulaSimbols.obtenirBloc(blocActual).existeixID(lexema) ||
-				taulaSimbols.obtenirBloc(0).existeixID(lexema)){
+				taulaSimbols.obtenirBloc(0).existeixID(lexema)) {
+
 			data.setValue("llegir.id", lexema);
+			error.insertError(TypeError.ERR_SEM_10, lexema);
+			data.setBloc("variable_aux.h", new Variable(lexema, new TipusIndefinit("indef"), 0),
+					new TipusIndefinit("indef"), false);
+
 		} else {
 			error.insertError(TypeError.ERR_SEM_9, lexema);
 			data.setValue("llegir.id", lexema);
-			data.setValue("variable_aux.vh", new Variable(lexema, new TipusIndefinit("indef", 0), 0));
-			data.setValue("variable_aux.th", new TipusIndefinit("indef", 0));
-			data.setValue("variable_aux.eh", false);
+			data.setBloc("variable_aux.h", new Variable(lexema, new TipusIndefinit("indef"), 0),
+					new TipusIndefinit("indef"), false);
 		}
 		return data;
 	}
 
+	/**
+	 * Mètode per a comprovar un paràmetre de l'instrucció LLEGIR
+	 *
+	 * @param data Informació del paràmetre
+	 */
 	public void checkLlegir(Data data) {
+
 		ITipus tipus = (ITipus) data.getValue("variable_aux.ts");
-		if (!(tipus instanceof TipusIndefinit) && !(tipus instanceof TipusSimple)){
+
+		if (!(tipus instanceof TipusIndefinit) && !(tipus instanceof TipusSimple)) {
+
 			if (tipus instanceof TipusArray)
-				error.insertError(TypeError.ERR_SEM_10, ((Variable)data.getValue("variable_aux.vs")).getNom());
+
+				error.insertError(TypeError.ERR_SEM_10, ((Variable) data.getValue("variable_aux.vs")).getNom());
+
 			else
-				error.insertError(TypeError.ERR_SEM_10, (String)data.getValue("llegir.id"));
+				error.insertError(TypeError.ERR_SEM_10, (String) data.getValue("llegir.id"));
 		}
 	}
 
-	public void checkLogic(Data info) {
-		if (!((ITipus)info.getValue("exp.ts")).getNom().equals("LOGIC")){
+	/**
+	 * Mètode per comprovar si una expressió és lògica
+	 *
+	 * @param data Informació de l'expressió
+	 */
+	public void checkLogic(Data data) {
+
+		if (!((ITipus) data.getValue("exp.ts")).getNom().equals("LOGIC")) {
 			error.insertError(TypeError.ERR_SEM_7);
 		}
 	}
 
-	public void checkCamiReturn(boolean ret){
+	/**
+	 * Mètode per a comprovar si hi ha algun camí sense RETORNAR a una funció
+	 *
+	 * @param ret Booleà indicador de si hi ha un RETORNAR
+	 */
+	public void checkCamiReturn(boolean ret) {
 		if (!ret) error.insertError(TypeError.ERR_SEM_25);
 	}
 
-	public void checkReturn(Data data){
+	/**
+	 * Mètode per a comprovar la instrucció RETORNAR
+	 *
+	 * @param data Informació de l'expressió de retorn
+	 */
+	public void checkReturn(Data data) {
 		if (blocActual == 0) {
 			error.insertError(TypeError.ERR_SEM_19);
+
 		} else {
 			ITipus type = (ITipus) data.getValue("exp.ts");
-			System.out.println("TAULA");
-			System.out.println(taulaSimbols);
-			System.out.println(taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio));
-			System.out.println(type);
-			if (!type.getNom().equals(((Funcio)taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio)).getTipus().getNom())){
+
+			if (!type.getNom().equals(((Funcio) taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio)).getTipus().getNom()))
+
 				if (taulaSimbols.obtenirBloc(0).existeixProcediment(idFuncio))
-					error.insertError(TypeError.ERR_SEM_26, idFuncio, ((Funcio)taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio)).getTipus().getNom(),
+
+					error.insertError(TypeError.ERR_SEM_26, idFuncio, ((Funcio) taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio)).getTipus().getNom(),
 							type.getNom());
-			}
+
 		}
 	}
 }
