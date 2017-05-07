@@ -585,12 +585,11 @@ public class SyntacticClean {
 
 		boolean ret = inst();
 		accept(Type.SEMICOLON);
-
-		ret = ret | llista_inst_aux();
+		ret = ret | llista_inst_aux(ret);
 		return ret;
 	}
 
-	private boolean llista_inst_aux() {
+	private boolean llista_inst_aux(boolean ret) {
 
 		switch (lookahead.getToken()) {
 			case ID:
@@ -601,6 +600,7 @@ public class SyntacticClean {
 			case SI:
 			case RETORNAR:
 			case PERCADA:
+				semantic.checkCodiReturn(ret);
 				return llista_inst();
 
 			default:

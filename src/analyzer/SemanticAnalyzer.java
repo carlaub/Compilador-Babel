@@ -904,4 +904,9 @@ public class SemanticAnalyzer {
 
 		}
 	}
+
+	public void checkCodiReturn(boolean ret){
+		if (ret)
+			error.insertError(TypeError.WAR_OPC_3);
+	}
 }

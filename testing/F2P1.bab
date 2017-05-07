@@ -86,7 +86,7 @@ func
 	si (ref1 and FAls) OR (12 <> 13) llavors
 		retornar 0; 
 	sino
-		si esta(s0(), v7, cert) llavors
+		si esta(j, v7, cert) llavors
 			escriure("Bingo!");
 		sino
 			j = MIN;

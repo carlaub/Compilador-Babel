@@ -309,6 +309,9 @@ public class Error {
 				case ERR_SEM_25:
 					bwErr.write("[" + error +"] "+ numLine + ", Existeix un camí on no es retorna cap valor.\n");
 					break;
+				case WAR_OPC_3:
+					bwErr.write("[" + error +"] "+ numLine + ", Hi ha codi després d'un RETORNAR.\n");
+					break;
 
 			}
 		} catch (IOException e) {
