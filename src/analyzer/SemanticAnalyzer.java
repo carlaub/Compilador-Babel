@@ -85,9 +85,14 @@ public class SemanticAnalyzer {
 			taulaSimbols.obtenirBloc(blocActual).inserirConstant(constant);
 			return;
 		}
+		//Comprovació de si ha estat declarat prèviament com a variable
+		if (taulaSimbols.obtenirBloc(blocActual).existeixConstant(const_name)) {
+			error.insertError(TypeError.ERR_SEM_1, const_name);
+			return;
+		}
 		//Comprovació de si ha estat declarat prèviament
 		if (taulaSimbols.obtenirBloc(blocActual).existeixID(const_name)) {
-			error.insertError(TypeError.ERR_SEM_1, const_name);
+			error.insertError(TypeError.ERR_SEM_21, const_name);
 			return;
 		}
 		Constant constant = new Constant(
@@ -116,10 +121,14 @@ public class SemanticAnalyzer {
 			taulaSimbols.obtenirBloc(blocActual).inserirVariable(variable);
 			return;
 		}
-
+		//Comprovació de si ha estat declarat prèviament
+		if (taulaSimbols.obtenirBloc(blocActual).existeixVariable(var_name)) {
+			error.insertError(TypeError.ERR_SEM_2, var_name);
+			return;
+		}
 		//Comprovació de si ha estat declarat prèviament
 		if (taulaSimbols.obtenirBloc(blocActual).existeixID(var_name)) {
-			error.insertError(TypeError.ERR_SEM_2, var_name);
+			error.insertError(TypeError.ERR_SEM_21, var_name);
 			return;
 		}
 		Variable variable = new Variable(
@@ -170,12 +179,18 @@ public class SemanticAnalyzer {
 
 		} else {
 			error.insertError(TypeError.ERR_SEM_9, id);
+			taulaSimbols.obtenirBloc(blocActual).inserirVariable(
+					new Variable(
+							id,
+							new TipusIndefinit("indef"),
+							0));
 			data.setBlock("terme.s", id, new TipusIndefinit("indef"), false);
 		}
 	}
 
 	/**
 	 * Mètode per a comprovar la informació d'una funció i afegir-la al bloc actual de la taula de símbols.
+	 *
 	 * @param data Conté la informació de la funció
 	 */
 	public String checkFuncio(Data data) {
@@ -187,7 +202,7 @@ public class SemanticAnalyzer {
 			if (taulaSimbols.obtenirBloc(0).existeixProcediment(funcio.getNom()))
 				error.insertError(TypeError.ERR_SEM_3, funcio.getNom());
 			else
-				error.insertError(TypeError.ERR_SEM_26, funcio.getNom());
+				error.insertError(TypeError.ERR_SEM_21, funcio.getNom());
 
 			funcio.setNom("!" + funcio.getNom());
 			taulaSimbols.obtenirBloc(0).inserirProcediment(funcio);
@@ -743,6 +758,11 @@ public class SemanticAnalyzer {
 				error.insertError(TypeError.ERR_SEM_11, lexema);
 			} else {
 				error.insertError(TypeError.ERR_SEM_9, lexema);
+				taulaSimbols.obtenirBloc(blocActual).inserirVariable(
+						new Variable(
+								lexema,
+								new TipusIndefinit("indef"),
+								0));
 			}
 			data.setBlock("variable_aux.h", new Variable(lexema, new TipusIndefinit("indef"), 0),
 					new TipusIndefinit("indef"), false);
@@ -835,6 +855,11 @@ public class SemanticAnalyzer {
 
 		} else {
 			error.insertError(TypeError.ERR_SEM_9, lexema);
+			taulaSimbols.obtenirBloc(blocActual).inserirVariable(
+					new Variable(
+							lexema,
+							new TipusIndefinit("indef"),
+							0));
 			data.setValue("llegir.id", lexema);
 			data.setBlock("variable_aux.h", new Variable(lexema, new TipusIndefinit("indef"), 0),
 					new TipusIndefinit("indef"), false);
@@ -880,7 +905,7 @@ public class SemanticAnalyzer {
 	 * @param ret Booleà indicador de si hi ha un RETORNAR
 	 */
 	public void checkCamiReturn(boolean ret) {
-		if (!ret) error.insertError(TypeError.ERR_SEM_25);
+		if (!ret) error.insertError(TypeError.ERR_SEM_24);
 	}
 
 	/**
@@ -895,17 +920,19 @@ public class SemanticAnalyzer {
 		} else {
 			ITipus type = (ITipus) data.getValue("exp.ts");
 
-			if (!type.getNom().equals(((Funcio) taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio)).getTipus().getNom()))
+			if (!type.getNom().equals(
+					((Funcio) taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio)).getTipus().getNom()))
 
 				if (taulaSimbols.obtenirBloc(0).existeixProcediment(idFuncio))
 
-					error.insertError(TypeError.ERR_SEM_18, idFuncio, ((Funcio) taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio)).getTipus().getNom(),
+					error.insertError(TypeError.ERR_SEM_18, idFuncio,
+							((Funcio) taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio)).getTipus().getNom(),
 							type.getNom());
 
 		}
 	}
 
-	public void checkCodiReturn(boolean ret){
+	public void checkCodiReturn(boolean ret) {
 		if (ret)
 			error.insertError(TypeError.WAR_OPC_3);
 	}

@@ -387,7 +387,10 @@ public class SyntacticClean {
 				break;
 
 			case CADENA:
-				data.setBlock("terme.s", lookahead.getLexema(), new TipusCadena("CADENA", lookahead.getLexema().length(), lookahead.getLexema().length()), true);
+				data.setBlock("terme.s",
+						lookahead.getLexema().substring(1, lookahead.getLexema().length()-1),
+						new TipusCadena("CADENA", lookahead.getLexema().length(), lookahead.getLexema().length()),
+						true);
 				accept(Type.CADENA);
 				break;
 

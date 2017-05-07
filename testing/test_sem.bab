@@ -22,10 +22,9 @@ funcio suma(perval asdf : sencer, perref qwer : sencer, perval a : sencer): senc
         sino
             si fals llavors
                 retornar 4;
-            fisi
+            fisi;
             retornar 1;
         fisi;
-
 	fifunc;
 
 prog

@@ -261,7 +261,7 @@ public class Error {
 					bwErr.write("[" + error +"] "+ numLine + ", Accés al VECTOR <" + string +
 							"> fora dels límits.\n");
 					break;
-				case ERR_SEM_26:
+				case ERR_SEM_21:
 					bwErr.write("[" + error +"] "+ numLine + ", Identificador <" + string +
 							"> prèviament definit.\n");
 					break;
@@ -306,7 +306,7 @@ public class Error {
 				case WAR_OPC_1:
 					bwErr.write("[" + error +"] "+ numLine + ", Divisió per 0.\n");
 					break;
-				case ERR_SEM_25:
+				case ERR_SEM_24:
 					bwErr.write("[" + error +"] "+ numLine + ", Existeix un camí on no es retorna cap valor.\n");
 					break;
 				case WAR_OPC_3:

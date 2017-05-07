@@ -1,0 +1,82 @@
+//////////////////////////////////
+//	F2P1.bab	//
+//////////////////////////////////
+const CTE1 = "F2P1.bab" ;
+CONST CTE2 = ((3 - 1) * 4) / 2;
+var v4:logic ;
+const MIN = -50;
+const MAX = 50;
+CoNsT CTE4 = cert AND cert;
+var  v1:sencer ;
+
+VaR v5: vector [MIN .. MAX] de sencer;
+
+///////////////
+// Funciones //
+///////////////
+fUNcIO S0(): sencer;
+	var i: sencer;
+func
+	escriure("Starting ", CTE1);
+	i = min;
+	j = (x+2) - 3;
+	mentre cert fer
+		si i == MAX llavors
+		  x=0;
+		sino
+			v5[i] = i + j;
+	//		i = si(j>10)? 2: m+n;
+		fisi;	
+	fimentre;
+fifunc;
+
+funcio S(perval a1: sencer, perval b:sencer ): logic;
+func
+	//Newb style
+	SI b == 0 llavors
+		escriure("Bad news!");
+		retornar true or X;  //Really a bad thinking
+	fiSi; //ugly...
+	sI b == a1 LLAVORS escriure("Wow!, jackpod!"); fisi;
+	si (b > 0) AND (b <> a1) LLavors
+		escriure("The variable value is ", b);
+	fisi;
+fifunc;
+
+funcio F(perval val1:sencer, perval val2 : sencer, perref ref1 : logic): sencer;
+	const N = MAX - 1;
+	var i:sencer;
+var j:sencer;
+func
+	ref1 = CeRt OR Fals;
+	retornar s0();
+	cicle
+		escriure("Enter a number (-1 exits)",v6 );
+		llegir(val1);
+		si val1 <= -1 llavors
+			ref1 = FaLs;
+		
+		sino
+			eScrIuRe( "You wrote ", val1);
+			i = 0;
+			percada k en x  Fer
+				i = i / 1;
+				j = -1 * i;
+			fiPer;
+			retornar s(val1, i);
+		fisi;
+	fins cert;
+	si (ref1 == not FAls) OR (ref1 <> CErt) llavors 
+		retornar 0; 
+	sino
+		si esta(j, v5) llavors
+			escriure("Bingo!");
+		sino
+			F = 10;
+		fisi;
+	fisi;
+fifunc;
+
+prog
+	v1 = F(v2, v3, v4);
+fiprog
