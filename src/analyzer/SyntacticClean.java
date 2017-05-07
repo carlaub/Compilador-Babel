@@ -124,7 +124,7 @@ public class SyntacticClean {
 				accept(Type.FUNCIO);
 				Data data = new Data();
 				String id = lookahead.getLexema();
-				data.setValue("name", id);
+				data.setValue("func.name", id);
 
 				accept(Type.ID);
 
@@ -174,14 +174,14 @@ public class SyntacticClean {
 	private void llista_param_aux(String idFuncio) {
 
 		Data data = new Data();
-		data.setValue("idFunction", idFuncio);
-		data.setValue("typeParam", lookahead.getLexema());
+		data.setValue("func.name", idFuncio);
+		data.setValue("param.typeParam", lookahead.getLexema());
 		accept(Type.TIPUS_PARAM);
-		data.setValue("name", lookahead.getLexema());
+		data.setValue("param.name", lookahead.getLexema());
 		accept(Type.ID);
 		accept(Type.COLON);
 		ITipus type = tipus();
-		data.setValue("type", type);
+		data.setValue("param.type", type);
 
 		semantic.addParameter(data);
 		param_aux(idFuncio);
@@ -489,6 +489,7 @@ public class SyntacticClean {
 				data.move("factor_aux.vs", "llista_exp.vs");
 				data.setValue("factor_aux.ts", funcio.getTipus());
 				data.setValue("factor_aux.es", false);
+				data.setValue("op", true);
 
 				accept(Type.CPARENT);
 				break;

@@ -167,6 +167,7 @@ public class SemanticAnalyzer {
 		} else if (taulaSimbols.obtenirBloc(0).existeixProcediment(id)) {
 			Funcio funcio = (Funcio) taulaSimbols.obtenirBloc(0).obtenirProcediment(id);
 			data.setBlock("terme.s", funcio, funcio.getTipus(), false);
+
 		} else {
 			error.insertError(TypeError.ERR_SEM_9, id);
 			data.setBlock("terme.s", id, new TipusIndefinit("indef"), false);
@@ -175,19 +176,26 @@ public class SemanticAnalyzer {
 
 	/**
 	 * Mètode per a comprovar la informació d'una funció i afegir-la al bloc actual de la taula de símbols.
-	 *
 	 * @param data Conté la informació de la funció
 	 */
 	public String checkFuncio(Data data) {
 		Funcio funcio = new Funcio();
-		funcio.setNom((String) data.getValue("name"));
-		if (!taulaSimbols.obtenirBloc(0).existeixProcediment(funcio.getNom())) {
-			taulaSimbols.obtenirBloc(0).inserirProcediment(funcio);
-		} else {
-			error.insertError(TypeError.ERR_SEM_3, funcio.getNom());
+		funcio.setNom((String) data.getValue("func.name"));
+
+		if (taulaSimbols.obtenirBloc(0).existeixID(funcio.getNom())) {
+
+			if (taulaSimbols.obtenirBloc(0).existeixProcediment(funcio.getNom()))
+				error.insertError(TypeError.ERR_SEM_3, funcio.getNom());
+			else
+				error.insertError(TypeError.ERR_SEM_26, funcio.getNom());
+
 			funcio.setNom("!" + funcio.getNom());
 			taulaSimbols.obtenirBloc(0).inserirProcediment(funcio);
+
+		} else {
+			taulaSimbols.obtenirBloc(0).inserirProcediment(funcio);
 		}
+
 		idFuncio = funcio.getNom();
 		return idFuncio;
 	}
@@ -200,14 +208,14 @@ public class SemanticAnalyzer {
 	public void addParameter(Data data) {
 
 		Parametre parametre = new Parametre(
-				(String) data.getValue("name"),
-				(ITipus) data.getValue("type"),
+				(String) data.getValue("param.name"),
+				(ITipus) data.getValue("param.type"),
 				0,
-				new TipusPasParametre((String) data.getValue("typeParam"))
+				new TipusPasParametre((String) data.getValue("param.typeParam"))
 		);
 		if (taulaSimbols.obtenirBloc(1).obtenirVariable(parametre.getNom()) == null) {
 			taulaSimbols.obtenirBloc(0)
-					.obtenirProcediment((String) data.getValue("idFunction"))
+					.obtenirProcediment((String) data.getValue("func.name"))
 					.inserirParametre(parametre);
 			taulaSimbols.obtenirBloc(1).inserirVariable(parametre);
 		} else {
@@ -273,7 +281,7 @@ public class SemanticAnalyzer {
 							data.setValue("terme.vs", op1 / op2);
 							data.setValue("terme.es", true);
 						} else {
-							error.insertError(TypeError.ERR_SEM_21);
+							error.insertError(TypeError.WAR_OPC_1);
 							data.setValue("terme.vs", 0);
 							data.setValue("terme.es", true);
 						}
@@ -694,7 +702,7 @@ public class SemanticAnalyzer {
 					if ((boolean) info.getValue("exp.es") && (
 							(int) ((TipusArray) type).obtenirDimensio(0).getLimitInferior() > index ||
 									(int) ((TipusArray) type).obtenirDimensio(0).getLimitSuperior() < index)) {
-						error.insertError(TypeError.ERR_SEM_24, getNomId(id));
+						error.insertError(TypeError.WAR_OPC_2, getNomId(id));
 					}
 				}
 			}
@@ -891,7 +899,7 @@ public class SemanticAnalyzer {
 
 				if (taulaSimbols.obtenirBloc(0).existeixProcediment(idFuncio))
 
-					error.insertError(TypeError.ERR_SEM_26, idFuncio, ((Funcio) taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio)).getTipus().getNom(),
+					error.insertError(TypeError.ERR_SEM_18, idFuncio, ((Funcio) taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio)).getTipus().getNom(),
 							type.getNom());
 
 		}

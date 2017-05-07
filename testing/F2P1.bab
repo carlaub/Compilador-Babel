@@ -37,7 +37,7 @@ func
 	retornar 2;
 fifunc;
 
-funcio S(perval a1: sencer, perval b:sencer ): logic;
+funcio p(perval a1: sencer, perval b:sencer ): logic;
 	var x : logic;
 func
 	//Newb style
@@ -68,6 +68,7 @@ func
 	cicle
 		escriure("Enter a number (-1 exits)",v6 );
 		llegir(v5[3]);
+		llegir(i, j);
 		si val1 <= -1 llavors
 			ref1 = FaLs;
 		
@@ -85,10 +86,10 @@ func
 	si (ref1 and FAls) OR (12 <> 13) llavors
 		retornar 0; 
 	sino
-		si esta(j, v7, cert) llavors
+		si esta(s0(), v7, cert) llavors
 			escriure("Bingo!");
 		sino
-			j = 10;
+			j = MIN;
 		fisi;
 	fisi;
 fifunc;

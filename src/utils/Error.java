@@ -9,7 +9,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.SimpleTimeZone;
 import java.util.regex.Pattern;
 
 /**
@@ -258,10 +257,15 @@ public class Error {
 					bwErr.write("[" + error +"] "+ numLine + ", L'identificador <" + string +
 							"> no és de tipus VECTOR.\n");
 					break;
-				case ERR_SEM_24:
+				case WAR_OPC_2:
 					bwErr.write("[" + error +"] "+ numLine + ", Accés al VECTOR <" + string +
 							"> fora dels límits.\n");
 					break;
+				case ERR_SEM_26:
+					bwErr.write("[" + error +"] "+ numLine + ", Identificador <" + string +
+							"> prèviament definit.\n");
+					break;
+
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -299,7 +303,7 @@ public class Error {
 				case ERR_SEM_20:
 					bwErr.write("[" + error +"] "+ numLine + ", L'expressió no és estàtica.\n");
 					break;
-				case ERR_SEM_21:
+				case WAR_OPC_1:
 					bwErr.write("[" + error +"] "+ numLine + ", Divisió per 0.\n");
 					break;
 				case ERR_SEM_25:
@@ -347,7 +351,7 @@ public class Error {
 							"> i l'expressió de assignació tenen tipus diferents.\n\tEl tipus de la variable és <"+tipus1+
 							"> i el de l'expressió <"+tipus2+">.\n");
 					break;
-				case ERR_SEM_26:
+				case ERR_SEM_18:
 					if (string.charAt(0) == '!') string = string.substring(1);
 					bwErr.write("[" + error +"] "+ numLine + ", El tipus de la funció <"+string+
 							"> i el tipus de retorn són diferents.\n\tEl tipus de retorn de la funció és <"+tipus1+
