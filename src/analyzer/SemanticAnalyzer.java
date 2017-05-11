@@ -18,6 +18,7 @@ public class SemanticAnalyzer {
 	private String idFuncio;
 	private Error error;
 	private static final int INDEF = -1;
+	private int des = 0;
 
 	/**
 	 * Constructor de l'analitzador semàntic.
@@ -134,8 +135,11 @@ public class SemanticAnalyzer {
 		Variable variable = new Variable(
 				var_name,
 				type,
-				0
+				des
 		);
+
+		des += variable.getTipus().getTamany();
+
 		taulaSimbols.obtenirBloc(blocActual).inserirVariable(variable);
 	}
 

@@ -35,7 +35,7 @@ public class TipusSimple extends ITipus {
 	private void setLimits(String nom) {
 		minim = nom.equals("SENCER")? Integer.MIN_VALUE:0;
 		maxim = nom.equals("SENCER")? Integer.MAX_VALUE:1;
-		tamany = nom.equals("SENCER")? 4:1;
+		tamany = 4;
 	}
 
 	/**
