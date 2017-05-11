@@ -1,5 +1,6 @@
 package analyzer;
 
+import com.sun.org.apache.bcel.internal.classfile.Code;
 import taulaDeSimbols.*;
 import utils.Error;
 import utils.TypeError;
@@ -18,17 +19,18 @@ public class SemanticAnalyzer {
 	private String idFuncio;
 	private Error error;
 	private static final int INDEF = -1;
-	private int des = 0;
+	private CodeGenerator generator;
 
 	/**
 	 * Constructor de l'analitzador semàntic.
 	 */
-	public SemanticAnalyzer() {
+	public SemanticAnalyzer(String filename) {
 		blocActual = 0;
 		taulaSimbols = new TaulaSimbols();
 		taulaSimbols.inserirBloc(new Bloc());
 		taulaSimbols.setBlocActual(blocActual);
 		idFuncio = "";
+		generator = new CodeGenerator(filename);
 
 		error = Error.getInstance();
 	}
@@ -135,10 +137,9 @@ public class SemanticAnalyzer {
 		Variable variable = new Variable(
 				var_name,
 				type,
-				des
+				generator.getDes(type)
 		);
 
-		des += variable.getTipus().getTamany();
 
 		taulaSimbols.obtenirBloc(blocActual).inserirVariable(variable);
 	}
@@ -939,5 +940,9 @@ public class SemanticAnalyzer {
 	public void checkCodiReturn(boolean ret) {
 		if (ret)
 			error.insertError(TypeError.WAR_OPC_3);
+	}
+
+	public void close() {
+		generator.closeBuffer();
 	}
 }

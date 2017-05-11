@@ -1,0 +1,14 @@
+const CTE1 = "F2P1.bab" ;
+CONST CTE2 = ((3 - 1) * 4) / 2;
+var v4:logic ;
+const MIN = -50;
+const MAX = 50;
+CoNsT CTE4 = cert AND cert;
+var  v1:sencer ;
+
+VaR v5: vector [MIN .. MAX] de sencer;
+var v7:logic ;
+
+prog
+	llegir(v4);
+fiprog

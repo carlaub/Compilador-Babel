@@ -37,7 +37,7 @@ public class SyntacticClean {
 	 */
 	private SyntacticClean(String fileName) throws IOException {
 		lexic = LexicographicAnalyzer.getInstance(fileName);
-		semantic = new SemanticAnalyzer();
+		semantic = new SemanticAnalyzer(fileName);
 	}
 
 	/**
@@ -71,6 +71,7 @@ public class SyntacticClean {
 		System.out.println(semantic);
 
 		lexic.close();
+		semantic.close();
 	}
 
 	private void decl() {
