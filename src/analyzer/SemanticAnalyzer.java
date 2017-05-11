@@ -162,6 +162,7 @@ public class SemanticAnalyzer {
 
 			Variable variable = taulaSimbols.obtenirBloc(blocActual).obtenirVariable(id);
 			data.setBlock("terme.s", variable, variable.getTipus(), false);
+			data.setValue("regs", generator.loadWord(variable));
 
 		} else if (taulaSimbols.obtenirBloc(0).existeixConstant(id)) {
 
@@ -177,6 +178,7 @@ public class SemanticAnalyzer {
 							((TipusArray) variable.getTipus()).getTipusElements() :
 							variable.getTipus(),
 					false);
+			data.setValue("regs", generator.loadWord(variable));
 
 		} else if (taulaSimbols.obtenirBloc(0).existeixProcediment(id)) {
 			Funcio funcio = (Funcio) taulaSimbols.obtenirBloc(0).obtenirProcediment(id);
@@ -640,10 +642,12 @@ public class SemanticAnalyzer {
 	 *
 	 * @param data Informació de l'identificador
 	 */
-	public void checkErrSem22(Data data) {
-
-		if (data.getValue("variable_aux.vh") instanceof Funcio) {
+	public void checkVariableAux(Data data) {
+		Object value = data.getValue("variable_aux.vh");
+		if (value instanceof Funcio) {
 			error.insertError(TypeError.ERR_SEM_22, ((Funcio) data.getValue("variable_aux.vh")).getNom());
+		} else if (value instanceof Variable){
+			data.setValue("dirs", generator.getDirs((Variable) value));
 		}
 	}
 
@@ -806,6 +810,7 @@ public class SemanticAnalyzer {
 								"VECTOR DE " + ((TipusArray) exp_ts).getTipusElements().getNom()
 								:
 								exp_ts.getNom());
+				return;
 			}
 
 		} else if (igual_aux_th instanceof TipusArray) {
@@ -813,7 +818,9 @@ public class SemanticAnalyzer {
 			error.insertError(TypeError.ERR_SEM_12, ((Variable) data.getValue("igual_aux.vh")).getNom(),
 					"VECTOR DE " + ((TipusArray) igual_aux_th).getTipusElements().getNom(),
 					exp_ts.getNom());
+			return;
 		}
+		generator.assignate(data, info);
 	}
 
 	/**

@@ -560,7 +560,7 @@ public class SyntacticClean {
 				break;
 
 			default:
-				semantic.checkErrSem22(data);
+				semantic.checkVariableAux(data);
 				data.moveBlock("variable_aux.s", "variable_aux.h");
 				return;
 		}

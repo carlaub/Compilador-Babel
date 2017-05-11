@@ -10,5 +10,7 @@ VaR v5: vector [MIN .. MAX] de sencer;
 var v7:logic ;
 
 prog
+	v1 = 5+3*2;
+	v7 = v4;
 	llegir(v4);
 fiprog
