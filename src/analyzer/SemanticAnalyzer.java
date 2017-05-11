@@ -151,6 +151,7 @@ public class SemanticAnalyzer {
 	 */
 	public void checkID(Data data) {
 		String id = (String) data.getValue("id.name");
+		System.out.println("ID: "+id);
 		data.removeAttribute("id.name");
 
 		if (taulaSimbols.obtenirBloc(blocActual).existeixConstant(id)) {
@@ -162,8 +163,15 @@ public class SemanticAnalyzer {
 
 			Variable variable = taulaSimbols.obtenirBloc(blocActual).obtenirVariable(id);
 			data.setBlock("terme.s", variable, variable.getTipus(), false);
-			data.setValue("regs", generator.loadWord(variable));
-
+			System.out.println("REGISTERS: "+generator);
+			System.out.println(data);
+			if (data.getValue("regs") != null){
+				data.move("regs1", "regs");
+				data.setValue("regs2", generator.loadWord(variable));
+			} else {
+				data.setValue("regs", generator.loadWord(variable));
+			}
+			System.out.println("data -> "+data);
 		} else if (taulaSimbols.obtenirBloc(0).existeixConstant(id)) {
 
 			Constant constant = taulaSimbols.obtenirBloc(0).obtenirConstant(id);
@@ -178,8 +186,14 @@ public class SemanticAnalyzer {
 							((TipusArray) variable.getTipus()).getTipusElements() :
 							variable.getTipus(),
 					false);
-			data.setValue("regs", generator.loadWord(variable));
+			if (data.getValue("regs") != null){
+				data.move("regs1", "regs");
+				data.setValue("regs2", generator.loadWord(variable));
+			} else{
+				data.setValue("regs", generator.loadWord(variable));
+			}
 
+			System.out.println("data -> "+data);
 		} else if (taulaSimbols.obtenirBloc(0).existeixProcediment(id)) {
 			Funcio funcio = (Funcio) taulaSimbols.obtenirBloc(0).obtenirProcediment(id);
 			data.setBlock("terme.s", funcio, funcio.getTipus(), false);
@@ -255,6 +269,7 @@ public class SemanticAnalyzer {
 
 		ITipus terme_th = (ITipus) data.getValue("terme.th");
 
+		System.out.println("MUL: "+data);
 		if (data.getValue("MUL") != null) {
 
 			if (!(terme_th instanceof TipusIndefinit) && terme_th.getNom().equals("SENCER") &&
@@ -270,7 +285,7 @@ public class SemanticAnalyzer {
 						data.setValue("terme.es", true);
 
 					} else {
-
+						generator.mul(data);
 						data.setValue("terme.ts", new TipusSimple("SENCER", INDEF));
 						data.setValue("terme.vs", 0);
 						data.setValue("op", true);
@@ -308,6 +323,7 @@ public class SemanticAnalyzer {
 							data.setValue("terme.es", true);
 						}
 					} else {
+						generator.div(data);
 						data.setValue("terme.es", false);
 						data.setValue("terme.vs", 0);
 						data.setValue("op", true);
@@ -377,6 +393,7 @@ public class SemanticAnalyzer {
 				if (data_terme_simple_th.getTamany() != INDEF && info_terme_ts.getTamany() != INDEF) {
 
 					if (!((boolean) data.getValue("terme_simple.eh") && (boolean) info.getValue("terme.es"))) {
+						generator.suma(data, info);
 						info.setBlock("terme.s", 0, new TipusSimple("SENCER"), false);
 						data.setValue("op", true);
 					} else {
@@ -405,7 +422,7 @@ public class SemanticAnalyzer {
 				if (data_terme_simple_th.getTamany() != INDEF && info_terme_ts.getTamany() != INDEF) {
 
 					if (!((boolean) data.getValue("terme_simple.eh") && (boolean) info.getValue("terme.es"))) {
-
+						generator.resta(data, info);
 						info.setBlock("terme.s", 0, new TipusSimple("SENCER"), false);
 						data.setValue("op", true);
 					} else {
@@ -467,9 +484,10 @@ public class SemanticAnalyzer {
 		if (op_unari == TypeVar.RESTA) {
 
 			if (terme_ts.getNom().equals("SENCER")) {
-
+				System.out.println("asdfasdf");
+				System.out.println(data);
 				data.setValue("terme.vs", -(int) data.getValue("terme.vs"));
-
+				System.out.println(data);
 			} else {
 				error.insertError(TypeError.ERR_SEM_6);
 				data.setValue("terme.vs", 0);

@@ -407,9 +407,12 @@ public class SyntacticClean {
 				break;
 
 			case ID:
+				//TODO: S'ha de cridar a operador unari!
 				data.setValue("id.name", lookahead.getLexema());
 				semantic.checkID(data);
 				accept(Type.ID);
+//				semantic.checkOp_unari(data);
+				semantic.checkOp_binari(data);
 				data.moveBlock("factor_aux.h", "terme.s");
 				factor_aux(data);
 				data.moveBlock("terme.s", "factor_aux.s");
