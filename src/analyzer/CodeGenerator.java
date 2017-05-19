@@ -82,14 +82,22 @@ public class CodeGenerator {
 //		String reg_info = "$t5";
 
 		if ((boolean) info.getValue("exp.es")) {
+			//Demanem registre (la intrucció li es entre un li y un reg, no una @)
+			String regValueEs = registers.getRegister();
+
 			if (((ITipus) info.getValue("exp.ts")).getNom().equals("LOGIC")) {
-				//Ara ho he escrit així, però està obert a canvis, segurament al final sigui algo com "set"
-				gc("sw\t" + (((boolean) info.getValue("exp.vs")) ? "0xFFFFFFFF" : "0x000000000") + ",\t" + reg_data);
+				//Guardem el valor estic al registre auxiliar
+				gc("li\t" + regValueEs+ ",\t" + (((boolean) info.getValue("exp.vs")) ? "0x1" : "0x0"));
+
 			} else {
 				//En hex
 //			gc("sw 0x" + Integer.toHexString((int) info.getValue("exp.vs")) + ", " + reg_data);
-				gc("sw\t" + info.getValue("exp.vs") + ",\t" + reg_data);
+				gc("li\t" + regValueEs + ",\t" + info.getValue("exp.vs"));
 			}
+			//Pasem el valor del registre auxiliar a l'adreça de la variable en questio
+			gc("sw\t" + regValueEs + ",\t" + reg_data);
+			//Alliberem el registre demanat
+			registers.freeRegister(regValueEs);
 		} else {
 			gc("sw\t" + reg_info + ",\t" + reg_data);
 			System.out.println("reg_info: " +reg_info);
@@ -97,6 +105,7 @@ public class CodeGenerator {
 		}
 
 	}
+
 
 	public String getDirs(Variable value) {
 		return "-" + value.getDesplacament() + "($gp)";
@@ -187,16 +196,16 @@ public class CodeGenerator {
 
 				// Movem el valor a un registre
 				String reg2 = registers.getRegister();
-				gc("li\t"+reg2+"\t"+data.getValue("terme.vs"));
+				gc("li\t"+reg2+",\t"+data.getValue("terme.vs"));
 				//El resultat ho guardem a reg1
-				gc("div\t"+reg1 +"\t"+reg1+",\t"+reg2);
+				gc("div\t"+reg1 +",\t"+reg1+",\t"+reg2);
 				registers.freeRegister(reg2);
 
 			} else {
 				String reg1 = (String) data.getValue("regs1");
 				String reg2 = (String) data.getValue("regs2");
 				//El resultat ho guardem a reg1
-				gc("div\t"+reg1+"\t"+reg1+",\t"+reg2);
+				gc("div\t"+reg1+",\t"+reg1+",\t"+reg2);
 				data.move("regs", "regs1");
 				registers.freeRegister(reg2);
 			}

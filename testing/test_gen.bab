@@ -12,7 +12,8 @@ VaR v5: vector [MIN .. MAX] de sencer;
 var v7:logic ;
 
 prog
+    integer = 8;
 	result = integer+v1;
-	result = integer/2;
+    result = integer/2;
 	v7 = v4;
 fiprog
