@@ -183,14 +183,19 @@ public class CodeGenerator {
 		if (!(boolean) data.getValue("terme.eh")) {
 			if ((boolean) data.getValue("terme.es")) {
 				String reg1 = (String) data.getValue("regs");
-				System.out.println(reg1);
-				gc("div\t"+reg1+",\t"+data.getValue("terme.vs"));
-				//TODO: Move from lo to reg1
-				gc("");
+				System.out.println("Reg 1: " + reg1);
+
+				// Movem el valor a un registre
+				String reg2 = registers.getRegister();
+				gc("li\t"+reg2+"\t"+data.getValue("terme.vs"));
+				//El resultat ho guardem a reg1
+				gc("div\t"+reg1 +"\t"+reg1+",\t"+reg2);
+				registers.freeRegister(reg2);
 			} else {
 				String reg1 = (String) data.getValue("regs1");
 				String reg2 = (String) data.getValue("regs2");
-				gc("div\t"+reg1+",\t"+reg2);
+				//El resultat ho guardem a reg1
+				gc("div\t"+reg1+"\t"+reg1+",\t"+reg2);
 				data.move("regs", "regs1");
 				registers.freeRegister(reg2);
 			}
