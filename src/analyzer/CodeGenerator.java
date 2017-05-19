@@ -191,6 +191,7 @@ public class CodeGenerator {
 				//El resultat ho guardem a reg1
 				gc("div\t"+reg1 +"\t"+reg1+",\t"+reg2);
 				registers.freeRegister(reg2);
+
 			} else {
 				String reg1 = (String) data.getValue("regs1");
 				String reg2 = (String) data.getValue("regs2");
