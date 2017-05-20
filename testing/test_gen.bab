@@ -6,14 +6,20 @@ const MAX = 50;
 CoNsT CTE4 = cert AND cert;
 var  v1:sencer ;
 var integer : sencer;
+var var_logic : logic;
 var result : sencer;
+var result_logic : logic;
 
 
 
 prog
-    integer = 8;
-	result = 4 * (integer + 4) + (integer - 5) + 2;
+    integer = 10;
+	result = -integer + 2;
     escriure(result);
 
-	v7 = v4;
+    var_logic = cert;
+    result_logic = NOT var_logic;
+    escriure(result_logic);
+
+
 fiprog

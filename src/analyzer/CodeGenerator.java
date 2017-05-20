@@ -143,7 +143,6 @@ public class CodeGenerator {
 			} else {
 				String reg2 = (String) info.getValue("regs");
 				gc("add\t"+reg1+",\t"+reg1+",\t"+reg2);
-				System.out.println("reg2: "+reg2);
 				registers.freeRegister(reg2);
 			}
 			data.setValue("regs", reg1);
@@ -152,7 +151,6 @@ public class CodeGenerator {
 		} else {
 			if (!(boolean) info.getValue("terme.es")) {
 				String reg2 = (String) info.getValue("regs");
-				System.out.println(reg2);
 				gc("add\t"+reg2+",\t"+reg2+",\t"+data.getValue("terme_simple.vh"));
 				data.setValue("regs", reg2);
 
@@ -245,6 +243,27 @@ public class CodeGenerator {
 		}
 	}
 
+    /**
+     * Generacio de codi per la negacio d'una variable
+     * @param data
+     */
+    public void opUnariResta(Data data) {
+	    gc("#Negacio");
+	    gc("neg\t" + data.getValue("regs") + ",\t" + data.getValue("regs"));
+    }
+
+    /**
+     * Generacio de codi per la not de les variables de tipus LOGIC
+     * Caldrà aplicar una mascara, ja que la representaicó dels logics escollida es (0x0000000F)
+     * 0x00000001 -> true
+     * 0x00000000 -> false
+     * @param data
+     */
+    public void opUnariNot(Data data) {
+        gc("#NOT");
+        gc("not\t" + data.getValue("regs") + ",\t" + data.getValue("regs"));
+        gc("andi\t" + data.getValue("regs") + ",\t" + data.getValue("regs") + ",\t 0x00000001");
+    }
 	/**
 	 * Funcio encarregada de mostrar per pantalla.
 	 * @param data

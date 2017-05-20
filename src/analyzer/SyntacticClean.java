@@ -299,7 +299,7 @@ public class SyntacticClean {
 
 				terme_simple(data);
 
-				System.out.println("TEMRE SIMPLE "+data);
+
 				break;
 
 			case RESTA:
@@ -403,7 +403,6 @@ public class SyntacticClean {
 				Data exp = exp();
 
 				data.setBlock("terme.s", exp.getValue("exp.vs"), exp.getValue("exp.ts"), exp.getValue("exp.es"));
-				System.out.println("MY EXPPPP: " + exp);
 
 				// TODO: solució a la excepció de donava dissabte a la tarda relacionada amb l'atribut regs
 				if(!(boolean)data.getValue("terme.es")) data.setValue("regs", exp.getValue("regs"));
@@ -414,15 +413,19 @@ public class SyntacticClean {
 				break;
 
 			case ID:
-				//TODO: S'ha de cridar a operador unari!
 				data.setValue("id.name", lookahead.getLexema());
 				semantic.checkID(data);
 				accept(Type.ID);
-//				semantic.checkOp_unari(data);
+
+				//TODO: S'ha de cridar a operador unari!
+				semantic.checkOp_unari(data);
+
 				semantic.checkOp_binari(data);
 				data.moveBlock("factor_aux.h", "terme.s");
 				factor_aux(data);
 				data.moveBlock("terme.s", "factor_aux.s");
+
+
 				break;
 			default:
 				System.out.println("ERROR - terme()");

@@ -481,13 +481,17 @@ public class SemanticAnalyzer {
 		Object op_unari = data.getValue("op_unari.vs");
 		ITipus terme_ts = (ITipus) data.getValue("terme.ts");
 
+		System.out.println("OPERADOR UNARI " + data);
 		if (op_unari == TypeVar.RESTA) {
 
 			if (terme_ts.getNom().equals("SENCER")) {
-				System.out.println("asdfasdf");
-				System.out.println(data);
-				data.setValue("terme.vs", -(int) data.getValue("terme.vs"));
-				System.out.println(data);
+				if((boolean) data.getValue("terme.es")) {
+					System.out.println(data);
+					data.setValue("terme.vs", -(int) data.getValue("terme.vs"));
+					System.out.println(data);
+				} else {
+					generator.opUnariResta(data);
+				}
 			} else {
 				error.insertError(TypeError.ERR_SEM_6);
 				data.setValue("terme.vs", 0);
@@ -506,9 +510,11 @@ public class SemanticAnalyzer {
 		} else if (op_unari == TypeVar.NOT) {
 
 			if (terme_ts.getNom().equals("LOGIC")) {
-
-				data.setValue("terme.vs", !(boolean) data.getValue("terme.vs"));
-
+				if((boolean) data.getValue("terme.es")) {
+					data.setValue("terme.vs", !(boolean) data.getValue("terme.vs"));
+				} else {
+					generator.opUnariNot(data);
+				}
 			} else {
 				error.insertError(TypeError.ERR_SEM_7);
 				data.setValue("terme.vs", 0);
