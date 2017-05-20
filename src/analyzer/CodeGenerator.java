@@ -1,7 +1,9 @@
 package analyzer;
 
+import com.sun.media.sound.SimpleSoundbank;
 import com.sun.org.apache.bcel.internal.classfile.Code;
 import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
+import com.sun.tools.doclets.formats.html.SourceToHTMLConverter;
 import taulaDeSimbols.ITipus;
 import taulaDeSimbols.Variable;
 
@@ -9,28 +11,45 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.SortedMap;
 import java.util.regex.Pattern;
 
-/**
- * Created by alexj on 11/5/2017.
- */
 public class CodeGenerator {
 	private Registers registers;
+	private Labels labels;
 	private BufferedWriter bwGC;
 	private int des;
 
 	public CodeGenerator(String filename) {
 		registers = new Registers();
+		labels = new Labels();
+
 		des = 0;
 		File err = new File(filename.split(Pattern.quote("."))[0] + ".s");
 
 		try {
 			bwGC = new BufferedWriter(new FileWriter(err));
+			writeDefaultData();
 			bwGC.write("\t.text\n");
 			bwGC.write("main:\n");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Escriptura de les cadenes predefinides per defecte. Per exemple, els
+	 * error en temps d'execucio
+	 */
+	public void writeDefaultData(){
+		gc(".data");
+		gc("ecert: .asciiz \"cert\"");
+		gc("efals: .asciiz \"fals\"");
+		//TODO: Segurament hi ha una forma millor de fer el salt de linia als "escriure"
+		gc("ejump: .asciiz \"\\n\"");
+
+		// error out of bounds
+		gc("err_out_of_bounds: .asciiz \"Accés invàlid al vector\"");
 	}
 
 	@Override
@@ -60,6 +79,8 @@ public class CodeGenerator {
 	}
 
 	public void closeBuffer() {
+		// Escriure la finalitzacio del programa
+		gc("jr $ra");
 		System.out.println(registers);
 		try {
 			bwGC.close();
@@ -217,5 +238,52 @@ public class CodeGenerator {
 				data.setValue("regs", reg2);
 			}
 		}
+	}
+
+	/**
+	 * Funcio encarregada de mostrar per pantalla.
+	 * @param data
+	 */
+	public void write(Data data) {
+		ITipus tipus = (ITipus) data.getValue("exp.ts");
+		//Comentari per aclarir el codi en assembler
+		gc("#Escriure");
+
+		//TODO: Cas escriure vector
+
+		if (tipus.getNom().equals("SENCER")) {
+			// Cas variable sencera
+
+			// Configuracio print_int
+			gc("li\t$v0,\t1");
+			gc("move\t$a0,\t" + data.getValue("regs"));
+			gc("syscall");
+		} else {
+			// Cas variable logica
+
+			//Generam codi per escriure
+			String eti1 = labels.getLabel();
+			String eti2 = labels.getLabel();
+
+			gc("beqz\t" + data.getValue("regs") + ",\t" + eti1);
+
+			// Cert
+			gc("li\t$v0,\t4");
+			gc("la\t$a0,\tecert");
+			gc("b\t" + eti2);
+
+			//Fals
+			gc(eti1 + ":");
+			gc("li\t$v0,\t4");
+			gc("la\t$a0,\tefals");
+
+			gc(eti2 + ":");
+			gc("syscall");
+		}
+
+		// Generem codi pel salt de linia
+		gc("li\t$v0,\t11");
+		gc("la\t$a0,\tejump");
+		gc("syscall");
 	}
 }

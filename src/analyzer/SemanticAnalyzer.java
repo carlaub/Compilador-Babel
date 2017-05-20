@@ -852,6 +852,9 @@ public class SemanticAnalyzer {
 
 		if (!(tipus instanceof TipusSimple || tipus instanceof TipusCadena)) {
 			error.insertError(TypeError.ERR_SEM_14);
+		} else {
+			// Generació del codi necessari per mostrar per pantalla
+			generator.write(data);
 		}
 	}
 
