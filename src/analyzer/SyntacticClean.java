@@ -230,8 +230,10 @@ public class SyntacticClean {
 		Data data = exp_simple();
 
 		data.moveBlock("exp_aux.h", "exp_simple.s");
+
 		exp_aux(data);
 		data.moveBlock("exp.s", "exp_aux.s");
+
 		return data;
 	}
 
@@ -297,6 +299,7 @@ public class SyntacticClean {
 
 				terme_simple(data);
 
+				System.out.println("TEMRE SIMPLE "+data);
 				break;
 
 			case RESTA:
@@ -400,6 +403,10 @@ public class SyntacticClean {
 				Data exp = exp();
 
 				data.setBlock("terme.s", exp.getValue("exp.vs"), exp.getValue("exp.ts"), exp.getValue("exp.es"));
+				System.out.println("MY EXPPPP: " + exp);
+
+				// TODO: solució a la excepció de donava dissabte a la tarda relacionada amb l'atribut regs
+				if(!(boolean)data.getValue("terme.es")) data.setValue("regs", exp.getValue("regs"));
 
 				accept(Type.CPARENT);
 				semantic.checkOp_unari(data);
@@ -422,8 +429,8 @@ public class SyntacticClean {
 		}
 
 		data.moveBlock("terme_aux.h", "terme.s");
-		terme_aux(data);
 
+		terme_aux(data);
 		data.moveBlock("terme.s", "terme_aux.s");
 	}
 
@@ -435,6 +442,8 @@ public class SyntacticClean {
 				data.moveBlock("terme.h", "terme_aux.h");
 
 				data.setValue("MUL", true);
+
+
 				terme(data);
 
 				data.moveBlock("terme_aux.s", "terme.s");

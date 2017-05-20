@@ -7,21 +7,13 @@ CoNsT CTE4 = cert AND cert;
 var  v1:sencer ;
 var integer : sencer;
 var result : sencer;
-var sortir : logic;
 
-VaR v5: vector [MIN .. MAX] de sencer;
-var v7:logic ;
+
 
 prog
     integer = 8;
-	result = integer+v1;
-    result = integer/2;
+	result = 4 * (integer + 4) + (integer - 5) + 2;
     escriure(result);
-    result = 9
-    escriure(result);
-    sortir = cert;
-    escriure (sortir);
-    sortir = fals;
-    escriure(sortir);
+
 	v7 = v4;
 fiprog

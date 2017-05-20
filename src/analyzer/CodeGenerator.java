@@ -136,23 +136,27 @@ public class CodeGenerator {
 		System.out.println("DATA: " +data);
 		System.out.println("INFO: "+info);
 		if (!(boolean) data.getValue("terme_simple.eh")) {
+			String reg1 = (String) data.getValue("regs");
 			if ((boolean) info.getValue("terme.es")) {
-				String reg1 = (String) data.getValue("regs");
 				System.out.println(reg1);
 				gc("add\t"+reg1+",\t"+reg1+",\t"+info.getValue("terme.vs"));
 			} else {
-				String reg1 = (String) data.getValue("regs");
 				String reg2 = (String) info.getValue("regs");
 				gc("add\t"+reg1+",\t"+reg1+",\t"+reg2);
 				System.out.println("reg2: "+reg2);
 				registers.freeRegister(reg2);
 			}
+			data.setValue("regs", reg1);
+
+			//TODO: Hem de lliberar registres!! (Aqui no)
 		} else {
 			if (!(boolean) info.getValue("terme.es")) {
 				String reg2 = (String) info.getValue("regs");
 				System.out.println(reg2);
 				gc("add\t"+reg2+",\t"+reg2+",\t"+data.getValue("terme_simple.vh"));
 				data.setValue("regs", reg2);
+
+
 			}
 		}
 
@@ -203,6 +207,7 @@ public class CodeGenerator {
 				String reg2 = (String) data.getValue("regs");
 				System.out.println(reg2);
 				gc("mul\t"+reg2+",\t"+reg2+",\t"+data.getValue("terme.vh"));
+				System.out.println("**************************DATA " + data);
 				data.setValue("regs", reg2);
 			}
 		}
