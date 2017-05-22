@@ -162,6 +162,8 @@ public class SemanticAnalyzer {
 		} else if (taulaSimbols.obtenirBloc(blocActual).existeixVariable(id)) {
 
 			Variable variable = taulaSimbols.obtenirBloc(blocActual).obtenirVariable(id);
+
+			System.out.println("VARIABLEEEEEEEEE " + variable);
 			data.setBlock("terme.s", variable, variable.getTipus(), false);
 			System.out.println("REGISTERS: "+generator);
 			System.out.println(data);
@@ -356,6 +358,8 @@ public class SemanticAnalyzer {
 						data.setValue("terme.vs", op1 && op2);
 						data.setValue("terme.es", true);
 					} else {
+						// Generació codi AND
+						generator.and(data);
 						data.setValue("terme.es", false);
 						data.setValue("terme.vs", 0);
 						data.setValue("op", true);
@@ -449,7 +453,8 @@ public class SemanticAnalyzer {
 				if (data_terme_simple_th.getTamany() != INDEF && info_terme_ts.getTamany() != INDEF) {
 
 					if (!((boolean) data.getValue("terme_simple.eh") && (boolean) info.getValue("terme.es"))) {
-
+						// Generacio codi OR
+						generator.or(data, info);
 						info.setBlock("terme.s", 0, new TipusSimple("LOGIC"), false);
 						data.setValue("op", true);
 					} else {

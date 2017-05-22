@@ -149,14 +149,11 @@ public class CodeGenerator {
 			}
 			data.setValue("regs", reg1);
 
-			//TODO: Hem de lliberar registres!! (Aqui no)
 		} else {
 			if (!(boolean) info.getValue("terme.es")) {
 				String reg2 = (String) info.getValue("regs");
 				gc("add\t"+reg2+",\t"+reg2+",\t"+data.getValue("terme_simple.vh"));
 				data.setValue("regs", reg2);
-
-
 			}
 		}
 
@@ -214,7 +211,6 @@ public class CodeGenerator {
 	}
 	public void div(Data data) {
 
-		System.out.println("DATA -------------------------: " +data);
 		if (!(boolean) data.getValue("terme.eh")) {
 			if ((boolean) data.getValue("terme.es")) {
 				String reg1 = (String) data.getValue("regs");
@@ -245,6 +241,86 @@ public class CodeGenerator {
 		}
 	}
 
+	/**
+	 * Generació de codi per l'operació AND
+	 * @param data
+	 */
+	public void and(Data data) {
+
+		if (!(boolean) data.getValue("terme.eh")) {
+			if ((boolean) data.getValue("terme.es")) {
+				String reg1 = (String) data.getValue("regs");
+				System.out.println("Reg 1: " + reg1);
+
+				if ((boolean)data.getValue("terme.vs")) {
+					// Cas valor estatic CERT 0x1
+					gc("andi\t"+reg1 +",\t"+reg1+",\t0x1");
+				} else {
+					// Cas valor estatic FALS 0x0
+					gc("andi\t"+reg1 +",\t"+reg1+",\t0x0");
+				}
+			} else {
+				// Tots dos termes no son estatics
+				String reg1 = (String) data.getValue("regs1");
+				String reg2 = (String) data.getValue("regs2");
+				//El resultat ho guardem a reg1
+				gc("and\t"+reg1+",\t"+reg1+",\t"+reg2);
+				data.move("regs", "regs1");
+				registers.freeRegister(reg2);
+			}
+
+		} else {
+			if (!(boolean) data.getValue("terme.es")) {
+				String reg2 = (String) data.getValue("regs");
+
+				if ((boolean)data.getValue("terme.vh")) {
+					gc("andi\t"+reg2 +",\t"+reg2+",\t0x1");
+				} else {
+					gc("andi\t"+reg2 +",\t"+reg2+",\t0x0");
+				}
+				data.setValue("regs", reg2);
+			}
+		}
+	}
+
+	/**
+	 * Generació codi OR
+	 * @param data
+	 */
+	public void or (Data data, Data info) {
+		if (!(boolean) data.getValue("terme_simple.eh")) {
+			String reg1 = (String) data.getValue("regs");
+			if ((boolean) info.getValue("terme.es")) {
+
+				if((boolean)info.getValue("terme.vs")) {
+					// Terme estatic cert
+					gc("ori\t"+reg1+",\t"+reg1+",\t0x1");
+				} else {
+					// Terme estatic fdals
+					gc("ori\t"+reg1+",\t"+reg1+",\t0x0");
+				}
+			} else {
+				String reg2 = (String) info.getValue("regs");
+				gc("or\t"+reg1+",\t"+reg1+",\t"+reg2);
+				registers.freeRegister(reg2);
+			}
+			data.setValue("regs", reg1);
+
+		} else {
+			if (!(boolean) info.getValue("terme.es")) {
+				String reg2 = (String) info.getValue("regs");
+				if((boolean)data.getValue("terme_simple.vh")) {
+					// Terme estatic cert
+					gc("ori\t"+reg2+",\t"+reg2+",\t0x1");
+				} else {
+					// Terme estatic fdals
+					gc("ori\t"+reg2+",\t"+reg2+",\t0x0");
+				}
+				data.setValue("regs", reg2);
+			}
+		}
+	}
+
     /**
      * Generacio de codi per la negacio d'una variable
      * @param data
@@ -266,6 +342,7 @@ public class CodeGenerator {
         gc("not\t" + data.getValue("regs") + ",\t" + data.getValue("regs"));
         gc("andi\t" + data.getValue("regs") + ",\t" + data.getValue("regs") + ",\t 0x00000001");
     }
+
 	/**
 	 * Funcio encarregada de mostrar per pantalla.
 	 * @param data
@@ -316,7 +393,6 @@ public class CodeGenerator {
             //Introduim la cadena a l'apartat de .data
             // Cal una nova etiqueda per la cadena
             String eti = labels.getLabel();
-            System.out.println("HOLAAA CADENAAAAAAA" + data);
             gc(".data");
             gc(eti + ": .asciiz \"" + data.getValue("exp.vs") + "\"");
             gc(".text");

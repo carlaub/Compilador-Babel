@@ -5,22 +5,25 @@ const MIN = -50;
 const MAX = 50;
 CoNsT CTE4 = cert AND cert;
 var  v1:sencer ;
-var integer : sencer;
-var var_logic : logic;
+var integer1 : sencer;
+var integer2 : sencer;
+var var_logic1 : logic;
+var var_logic2 : logic;
 var result : sencer;
 var result_logic : logic;
 
 
 
 prog
-    integer = 10;
-	result = -integer + 2;
-    escriure(result);
+    integer1 = 2;
+    integer2 = 3;
+    result = integer1 + integer2;
+    escriure("hola ", result);
 
-    var_logic = cert;
-    result_logic = NOT var_logic;
-    escriure(result_logic);
-    escriure("hola", result);
+    var_logic1 = fals;
+    var_logic2 = FALS;
 
+    result_logic =  var_logic2 OR var_logic1 OR cert;
+    escriure("result logic: ", result_logic);
 
 fiprog

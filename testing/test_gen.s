@@ -5,14 +5,22 @@
 	err_out_of_bounds: .asciiz "Accés invàlid al vector"
 	.text
 main:
-	li	$t0,	10
+	li	$t0,	2
 	sw	$t0,	-8($gp)
+	li	$t0,	3
+	sw	$t0,	-12($gp)
 	lw	$t0,	-8($gp)
-	#Negacio
-	neg	$t0,	$t0
-	add	$t0,	$t0,	2
-	sw	$t0,	-16($gp)
-	lw	$t0,	-16($gp)
+	lw	$t1,	-12($gp)
+	add	$t0,	$t0,	$t1
+	sw	$t0,	-24($gp)
+	#Escriure
+	.data
+	eti0: .asciiz "hola "
+	.text
+	li	$v0,	4
+	la	$a0,	eti0
+	syscall
+	lw	$t0,	-24($gp)
 	#Escriure
 	li	$v0,	1
 	move	$a0,	$t0
@@ -20,38 +28,32 @@ main:
 	li	$v0,	11
 	la	$a0,	ejump
 	syscall
-	li	$t1,	0x1
-	sw	$t1,	-12($gp)
-	lw	$t1,	-12($gp)
-	#NOT
-	not	$t1,	$t1
-	andi	$t1,	$t1,	 0x00000001
+	li	$t1,	0x0
+	sw	$t1,	-16($gp)
+	li	$t1,	0x0
 	sw	$t1,	-20($gp)
 	lw	$t1,	-20($gp)
-	#Escriure
-	beqz	$t1,	eti0
-	li	$v0,	4
-	la	$a0,	ecert
-	b	eti1
-	eti0:
-	li	$v0,	4
-	la	$a0,	efals
-	eti1:
-	syscall
-	li	$v0,	11
-	la	$a0,	ejump
-	syscall
+	lw	$s0,	-16($gp)
+	or	$t1,	$t1,	$s0
+	ori	$t1,	$t1,	0x1
+	sw	$t1,	-28($gp)
 	#Escriure
 	.data
-	eti2: .asciiz "hola"
+	eti1: .asciiz "result logic: "
 	.text
 	li	$v0,	4
-	la	$a0,	eti2
+	la	$a0,	eti1
 	syscall
-	lw	$s0,	-16($gp)
+	lw	$t1,	-28($gp)
 	#Escriure
-	li	$v0,	1
-	move	$a0,	$s0
+	beqz	$t1,	eti2
+	li	$v0,	4
+	la	$a0,	ecert
+	b	eti3
+	eti2:
+	li	$v0,	4
+	la	$a0,	efals
+	eti3:
 	syscall
 	li	$v0,	11
 	la	$a0,	ejump

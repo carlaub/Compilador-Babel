@@ -417,7 +417,6 @@ public class SyntacticClean {
 				semantic.checkID(data);
 				accept(Type.ID);
 
-				//TODO: S'ha de cridar a operador unari!
 				semantic.checkOp_unari(data);
 
 				semantic.checkOp_binari(data);
