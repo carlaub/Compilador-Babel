@@ -5,6 +5,8 @@ import com.sun.org.apache.bcel.internal.classfile.Code;
 import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import com.sun.tools.doclets.formats.html.SourceToHTMLConverter;
 import taulaDeSimbols.ITipus;
+import taulaDeSimbols.TipusCadena;
+import taulaDeSimbols.TipusSimple;
 import taulaDeSimbols.Variable;
 
 import java.io.BufferedWriter;
@@ -273,41 +275,57 @@ public class CodeGenerator {
 		//Comentari per aclarir el codi en assembler
 		gc("#Escriure");
 
-		//TODO: Cas escriure vector
 
-		if (tipus.getNom().equals("SENCER")) {
-			// Cas variable sencera
+        if (tipus instanceof TipusSimple) {
+            if (tipus.getNom().equals("SENCER")) {
+                // Cas variable sencera
 
-			// Configuracio print_int
-			gc("li\t$v0,\t1");
-			gc("move\t$a0,\t" + data.getValue("regs"));
-			gc("syscall");
-		} else {
-			// Cas variable logica
+                // Configuracio print_int
+                gc("li\t$v0,\t1");
+                gc("move\t$a0,\t" + data.getValue("regs"));
+                gc("syscall");
+            } else {
+                // Cas variable logica
 
-			//Generam codi per escriure
-			String eti1 = labels.getLabel();
-			String eti2 = labels.getLabel();
+                //Generam codi per escriure
+                String eti1 = labels.getLabel();
+                String eti2 = labels.getLabel();
 
-			gc("beqz\t" + data.getValue("regs") + ",\t" + eti1);
+                gc("beqz\t" + data.getValue("regs") + ",\t" + eti1);
 
-			// Cert
-			gc("li\t$v0,\t4");
-			gc("la\t$a0,\tecert");
-			gc("b\t" + eti2);
+                // Cert
+                gc("li\t$v0,\t4");
+                gc("la\t$a0,\tecert");
+                gc("b\t" + eti2);
 
-			//Fals
-			gc(eti1 + ":");
-			gc("li\t$v0,\t4");
-			gc("la\t$a0,\tefals");
+                //Fals
+                gc(eti1 + ":");
+                gc("li\t$v0,\t4");
+                gc("la\t$a0,\tefals");
 
-			gc(eti2 + ":");
-			gc("syscall");
-		}
+                gc(eti2 + ":");
+                gc("syscall");
+            }
 
-		// Generem codi pel salt de linia
-		gc("li\t$v0,\t11");
-		gc("la\t$a0,\tejump");
-		gc("syscall");
+            // Generem codi pel salt de linia
+            gc("li\t$v0,\t11");
+            gc("la\t$a0,\tejump");
+            gc("syscall");
+
+        } else if (tipus instanceof TipusCadena) {
+            //Introduim la cadena a l'apartat de .data
+            // Cal una nova etiqueda per la cadena
+            String eti = labels.getLabel();
+            System.out.println("HOLAAA CADENAAAAAAA" + data);
+            gc(".data");
+            gc(eti + ": .asciiz \"" + data.getValue("exp.vs") + "\"");
+            gc(".text");
+            //Generem el codi per mostrar la cadena
+            gc("li\t$v0,\t4");
+            gc("la\t$a0,\t" + eti);
+            gc("syscall");
+
+        }
+
 	}
 }

@@ -20,6 +20,7 @@ prog
     var_logic = cert;
     result_logic = NOT var_logic;
     escriure(result_logic);
+    escriure("hola", result);
 
 
 fiprog

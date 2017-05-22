@@ -41,4 +41,19 @@ main:
 	li	$v0,	11
 	la	$a0,	ejump
 	syscall
+	#Escriure
+	.data
+	eti2: .asciiz "hola"
+	.text
+	li	$v0,	4
+	la	$a0,	eti2
+	syscall
+	lw	$s0,	-16($gp)
+	#Escriure
+	li	$v0,	1
+	move	$a0,	$s0
+	syscall
+	li	$v0,	11
+	la	$a0,	ejump
+	syscall
 	jr $ra
