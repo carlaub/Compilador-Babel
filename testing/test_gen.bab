@@ -15,7 +15,7 @@ var result_logic : logic;
 
 
 prog
-    integer1 = 2;
+    integer1 = 4;
     integer2 = 3;
     result = integer1 + integer2;
     escriure("hola ", result);
@@ -23,7 +23,7 @@ prog
     var_logic1 = fals;
     var_logic2 = FALS;
 
-    result_logic =  var_logic2 OR var_logic1 OR cert;
+    result_logic =  integer2 == integer1;
     escriure("result logic: ", result_logic);
 
 fiprog

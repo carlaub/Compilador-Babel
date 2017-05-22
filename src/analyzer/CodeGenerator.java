@@ -344,6 +344,45 @@ public class CodeGenerator {
     }
 
 	/**
+	 * Gestió de la generació de codi dels operadors relacionas ==, <, <=, >, >=, <>
+	 * @param data
+	 * @param info
+	 */
+	public void opRelacionals(Data data, Data info) {
+
+		switch ((String) data.getValue("op_relacional.vs")) {
+			case "==" : opRelacionalEqual(data, info);
+		}
+	}
+
+	public void opRelacionalEqual(Data data, Data info) {
+		System.out.println("DATAAAAAAAAAAAAAAAAAAAAAAA "+ data);
+		System.out.println("INFO "+ info);
+
+		if (!(boolean) data.getValue("exp_aux.eh")) {
+			String reg1 = (String) data.getValue("regs");
+			if ((boolean) info.getValue("exp_simple.es")) {
+
+				gc("seq\t"+reg1+",\t"+reg1+",\t" + info.getValue("exp_simple.vs"));
+
+			} else {
+				String reg2 = (String) info.getValue("regs");
+				gc("seq\t"+reg1+",\t"+reg1+",\t"+reg2);
+				registers.freeRegister(reg2);
+			}
+			data.setValue("regs", reg1);
+
+		} else {
+			if (!(boolean) info.getValue("exp_simple.es")) {
+				String reg2 = (String) info.getValue("regs");
+				gc("seq\t"+reg2+",\t"+reg2+",\t" + data.getValue("exp_aux.vh"));
+				data.setValue("regs", reg2);
+			}
+		}
+
+	}
+
+	/**
 	 * Funcio encarregada de mostrar per pantalla.
 	 * @param data
 	 */

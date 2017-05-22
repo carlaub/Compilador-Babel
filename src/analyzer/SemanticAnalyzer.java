@@ -163,7 +163,6 @@ public class SemanticAnalyzer {
 
 			Variable variable = taulaSimbols.obtenirBloc(blocActual).obtenirVariable(id);
 
-			System.out.println("VARIABLEEEEEEEEE " + variable);
 			data.setBlock("terme.s", variable, variable.getTipus(), false);
 			System.out.println("REGISTERS: "+generator);
 			System.out.println(data);
@@ -552,11 +551,13 @@ public class SemanticAnalyzer {
 
 		} else if (!(boolean) data.getValue("exp_aux.eh")
 				|| !(boolean) info.getValue("exp_simple.es")) {
-
+			// Generem codi per la operacio amb operadors relacions. A dins de la funció es realitzara la
+			// classificacions segons "op_relacional.vs"
+			generator.opRelacionals(data, info);
 			data.setBlock("exp_aux.s", false, new TipusSimple("LOGIC"), false);
 
 		} else {
-
+			// TODO: Per simplificar opRelacionals(data, info) y podriem cridar-ho desde cada case, passant l'operador i ens estalviem un segon switch
 			int exp1 = (int) data.getValue("exp_aux.vh");
 			int exp2 = (int) info.getValue("exp_simple.vs");
 

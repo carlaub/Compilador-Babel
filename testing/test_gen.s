@@ -5,7 +5,7 @@
 	err_out_of_bounds: .asciiz "Accés invàlid al vector"
 	.text
 main:
-	li	$t0,	2
+	li	$t0,	4
 	sw	$t0,	-8($gp)
 	li	$t0,	3
 	sw	$t0,	-12($gp)
@@ -32,10 +32,9 @@ main:
 	sw	$t1,	-16($gp)
 	li	$t1,	0x0
 	sw	$t1,	-20($gp)
-	lw	$t1,	-20($gp)
-	lw	$s0,	-16($gp)
-	or	$t1,	$t1,	$s0
-	ori	$t1,	$t1,	0x1
+	lw	$t1,	-12($gp)
+	lw	$s0,	-8($gp)
+	seq	$t1,	$t1,	$s0
 	sw	$t1,	-28($gp)
 	#Escriure
 	.data
