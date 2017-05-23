@@ -1,9 +1,5 @@
 package analyzer;
 
-import com.sun.media.sound.SimpleSoundbank;
-import com.sun.org.apache.bcel.internal.classfile.Code;
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
-import com.sun.tools.doclets.formats.html.SourceToHTMLConverter;
 import taulaDeSimbols.ITipus;
 import taulaDeSimbols.TipusCadena;
 import taulaDeSimbols.TipusSimple;
@@ -32,7 +28,7 @@ public class CodeGenerator {
 		try {
 			bwGC = new BufferedWriter(new FileWriter(err));
 			writeDefaultData();
-			bwGC.write("\t.text\n");
+			bwGC.write("\n.text\n");
 			bwGC.write("main:\n");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -44,7 +40,7 @@ public class CodeGenerator {
 	 * error en temps d'execucio
 	 */
 	public void writeDefaultData(){
-		gc(".data");
+		gc("\n.data");
 		gc("ecert: .asciiz \"cert\"");
 		gc("efals: .asciiz \"fals\"");
 		//TODO: Segurament hi ha una forma millor de fer el salt de linia als "escriure"
@@ -82,7 +78,7 @@ public class CodeGenerator {
 
 	public void closeBuffer() {
 		// Escriure la finalitzacio del programa
-		gc("jr $ra");
+		gc("jr\t$ra");
 		System.out.println(registers);
 		try {
 			bwGC.close();
@@ -478,11 +474,11 @@ public class CodeGenerator {
                 gc("b\t" + eti2);
 
                 //Fals
-                gc(eti1 + ":");
+                gc("\n"+eti1 + ":");
                 gc("li\t$v0,\t4");
                 gc("la\t$a0,\tefals");
 
-                gc(eti2 + ":");
+                gc("\n"+eti2 + ":");
                 gc("syscall");
             }
 
@@ -495,9 +491,9 @@ public class CodeGenerator {
             //Introduim la cadena a l'apartat de .data
             // Cal una nova etiqueda per la cadena
             String eti = labels.getLabel();
-            gc(".data");
+            gc("\n"+".data");
             gc(eti + ": .asciiz \"" + data.getValue("exp.vs") + "\"");
-            gc(".text");
+            gc("\n"+".text");
             //Generem el codi per mostrar la cadena
             gc("li\t$v0,\t4");
             gc("la\t$a0,\t" + eti);

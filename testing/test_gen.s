@@ -1,9 +1,11 @@
-	.data
+	
+.data
 	ecert: .asciiz "cert"
 	efals: .asciiz "fals"
 	ejump: .asciiz "\n"
 	err_out_of_bounds: .asciiz "Accés invàlid al vector"
-	.text
+
+.text
 main:
 	li	$t0,	4
 	sw	$t0,	-8($gp)
@@ -14,9 +16,11 @@ main:
 	add	$t0,	$t0,	$t1
 	sw	$t0,	-24($gp)
 	#Escriure
-	.data
+	
+.data
 	eti0: .asciiz "hola "
-	.text
+	
+.text
 	li	$v0,	4
 	la	$a0,	eti0
 	syscall
@@ -36,9 +40,11 @@ main:
 	sgt	$t1,	$t1,	3
 	sw	$t1,	-28($gp)
 	#Escriure
-	.data
+	
+.data
 	eti1: .asciiz "result logic: "
-	.text
+	
+.text
 	li	$v0,	4
 	la	$a0,	eti1
 	syscall
@@ -48,12 +54,14 @@ main:
 	li	$v0,	4
 	la	$a0,	ecert
 	b	eti3
-	eti2:
+	
+eti2:
 	li	$v0,	4
 	la	$a0,	efals
-	eti3:
+	
+eti3:
 	syscall
 	li	$v0,	11
 	la	$a0,	ejump
 	syscall
-	jr $ra
+	jr	$ra
