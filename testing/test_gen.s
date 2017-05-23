@@ -32,9 +32,8 @@ main:
 	sw	$t1,	-16($gp)
 	li	$t1,	0x0
 	sw	$t1,	-20($gp)
-	lw	$t1,	-12($gp)
-	lw	$s0,	-8($gp)
-	seq	$t1,	$t1,	$s0
+	lw	$t1,	-8($gp)
+	sgt	$t1,	$t1,	3
 	sw	$t1,	-28($gp)
 	#Escriure
 	.data

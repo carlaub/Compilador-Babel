@@ -352,13 +352,18 @@ public class CodeGenerator {
 
 		switch ((String) data.getValue("op_relacional.vs")) {
 			case "==" : opRelacionalEqual(data, info);
+			case ">=" : opRelacionalGreaterThanEqual(data, info);
+			case ">" : opRelacionalGreaterThan(data, info);
 		}
 	}
 
-	public void opRelacionalEqual(Data data, Data info) {
-		System.out.println("DATAAAAAAAAAAAAAAAAAAAAAAA "+ data);
-		System.out.println("INFO "+ info);
+	/**
+	 * Implementació operador relacional ==
+	 * @param data
+	 * @param info
+	 */
 
+	public void opRelacionalEqual(Data data, Data info) {
 		if (!(boolean) data.getValue("exp_aux.eh")) {
 			String reg1 = (String) data.getValue("regs");
 			if ((boolean) info.getValue("exp_simple.es")) {
@@ -376,6 +381,64 @@ public class CodeGenerator {
 			if (!(boolean) info.getValue("exp_simple.es")) {
 				String reg2 = (String) info.getValue("regs");
 				gc("seq\t"+reg2+",\t"+reg2+",\t" + data.getValue("exp_aux.vh"));
+				data.setValue("regs", reg2);
+			}
+		}
+
+	}
+
+	/**
+	 * Implementació operador relacional >=
+	 * @param data
+	 * @param info
+	 */
+	public void opRelacionalGreaterThanEqual(Data data, Data info) {
+		if (!(boolean) data.getValue("exp_aux.eh")) {
+			String reg1 = (String) data.getValue("regs");
+			if ((boolean) info.getValue("exp_simple.es")) {
+
+				gc("sge\t"+reg1+",\t"+reg1+",\t" + info.getValue("exp_simple.vs"));
+
+			} else {
+				String reg2 = (String) info.getValue("regs");
+				gc("seg\t"+reg1+",\t"+reg1+",\t"+reg2);
+				registers.freeRegister(reg2);
+			}
+			data.setValue("regs", reg1);
+
+		} else {
+			if (!(boolean) info.getValue("exp_simple.es")) {
+				String reg2 = (String) info.getValue("regs");
+				gc("seg\t"+reg2+",\t"+reg2+",\t" + data.getValue("exp_aux.vh"));
+				data.setValue("regs", reg2);
+			}
+		}
+
+	}
+
+	/**
+	 * Implementació operador relacional >
+	 * @param data
+	 * @param info
+	 */
+	public void opRelacionalGreaterThan(Data data, Data info) {
+		if (!(boolean) data.getValue("exp_aux.eh")) {
+			String reg1 = (String) data.getValue("regs");
+			if ((boolean) info.getValue("exp_simple.es")) {
+
+				gc("sgt\t"+reg1+",\t"+reg1+",\t" + info.getValue("exp_simple.vs"));
+
+			} else {
+				String reg2 = (String) info.getValue("regs");
+				gc("sgt\t"+reg1+",\t"+reg1+",\t"+reg2);
+				registers.freeRegister(reg2);
+			}
+			data.setValue("regs", reg1);
+
+		} else {
+			if (!(boolean) info.getValue("exp_simple.es")) {
+				String reg2 = (String) info.getValue("regs");
+				gc("sgt\t"+reg2+",\t"+reg2+",\t" + data.getValue("exp_aux.vh"));
 				data.setValue("regs", reg2);
 			}
 		}
