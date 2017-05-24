@@ -37,7 +37,8 @@ main:
 	li	$t1,	0x0
 	sw	$t1,	-20($gp)
 	lw	$t1,	-8($gp)
-	sgt	$t1,	$t1,	3
+	OP_REL >=
+	sge	$t1,	$t1,	3
 	sw	$t1,	-28($gp)
 	#Escriure
 	

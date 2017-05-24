@@ -23,7 +23,7 @@ prog
     var_logic1 = fals;
     var_logic2 = FALS;
 
-    result_logic =  integer1 > 3;
+    result_logic =  integer1 >= 3;
     escriure("result logic: ", result_logic);
 
 fiprog
