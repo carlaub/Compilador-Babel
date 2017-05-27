@@ -12,7 +12,10 @@ var var_logic2 : logic;
 var result : sencer;
 var result_logic : logic;
 
-
+funcio neg(perval boolean : logic): logic;
+func
+	retornar not boolean;
+fifunc;
 
 prog
     integer1 = 4;
@@ -22,8 +25,8 @@ prog
 
     var_logic1 = fals;
     var_logic2 = FALS;
-
-    result_logic =  integer1 >= 3;
+	var_logic1 = neg(var_logic1);
+    result_logic =  integer1 == 3;
     escriure("result logic: ", result_logic);
 
 fiprog

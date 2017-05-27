@@ -170,6 +170,8 @@ public class SemanticAnalyzer {
 				data.move("regs1", "regs");
 				data.setValue("regs2", generator.loadWord(variable));
 			} else {
+				LexicographicAnalyzer lexic = LexicographicAnalyzer.getInstance();
+				System.out.println(lexic.getActualLine() + " - VAR: "+variable);
 				data.setValue("regs", generator.loadWord(variable));
 			}
 			System.out.println("data -> "+data);
@@ -606,6 +608,7 @@ public class SemanticAnalyzer {
 		}
 		data.setValue("param.index", 0);
 		data.setValue("param.num", funcio.getNumeroParametres());
+		generator.initFunction();
 	}
 
 	/**
