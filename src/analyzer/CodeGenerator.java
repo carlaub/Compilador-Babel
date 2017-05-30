@@ -58,14 +58,6 @@ public class CodeGenerator {
 		return registers.toString();
 	}
 
-	public String getReg() {
-		return registers.getRegister();
-	}
-
-	public void saveWord(Variable var) {
-
-	}
-
 	public int getDes(ITipus type) {
 		int desp = des;
 		des += type.getTamany();
@@ -93,7 +85,7 @@ public class CodeGenerator {
 
 	public String loadWord(Variable variable, boolean isGlobal) {
 		String reg = registers.getRegister();
-		gc("lw\t" + reg + ",\t-" + variable.getDesplacament() + (isGlobal ? "($gp)" : "($sp)"));
+		//gc("lw\t" + reg + ",\t-" + variable.getDesplacament() + (isGlobal ? "($gp)" : "($sp)"));
 
 		return reg;
 	}
@@ -102,7 +94,6 @@ public class CodeGenerator {
 		String reg_data = (String) data.getValue("dirs");
 		String reg_info = (String) info.getValue("regs");
 		if (reg_info == null) reg_info = (String) info.getValue("regs1");
-//		String reg_info = "$t5";
 
 		if ((boolean) info.getValue("exp.es")) {
 			//Demanem registre (la intrucció li es entre un li y un reg, no una @)
@@ -110,7 +101,7 @@ public class CodeGenerator {
 
 			if (((ITipus) info.getValue("exp.ts")).getNom().equals("LOGIC")) {
 				//Guardem el valor estic al registre auxiliar
-				gc("li\t" + regValueEs + ",\t" + (((boolean) info.getValue("exp.vs")) ? "0x1" : "0x0"));
+				gc("li\t" + regValueEs + ",\t" + (((boolean) info.getValue("exp.vs")) ? "0x01" : "0x00"));
 
 			} else {
 				//En hex
@@ -128,6 +119,15 @@ public class CodeGenerator {
 			if (reg_info != null)
 				registers.freeRegister(reg_info);
 			else System.out.println("NULL REGISTER AT " + lexic.getActualLine());
+			System.out.println("LIBERAMEEE------------------");
+			System.out.println("|"+reg_data+"|");
+			System.out.println(registers);
+			if (reg_data.charAt(0) == '0'){
+				System.out.println("LIBERAO------------------");
+				registers.freeRegister(reg_data.substring(2, 5));
+				System.out.println("|"+reg_data.substring(2, 5)+"|");
+				System.out.println(registers);
+			}
 		}
 
 	}
@@ -239,8 +239,8 @@ public class CodeGenerator {
 			if (!(boolean) data.getValue("terme.es")) {
 				String reg2 = (String) data.getValue("regs");
 				System.out.println(reg2);
+				//TODO: Arreglar instrucció de divisió
 				gc("div\t" + data.getValue("terme.vh") + ",\t" + reg2);
-				data.setValue("regs", reg2);
 			}
 		}
 	}
@@ -302,7 +302,7 @@ public class CodeGenerator {
 					// Terme estatic cert
 					gc("ori\t" + reg1 + ",\t" + reg1 + ",\t0x1");
 				} else {
-					// Terme estatic fdals
+					// Terme estatic fals
 					gc("ori\t" + reg1 + ",\t" + reg1 + ",\t0x0");
 				}
 			} else {
@@ -434,21 +434,23 @@ public class CodeGenerator {
 
 				// Cert
 				gc("li\t$v0,\t4");
-				gc("la\t$a0,\tecert");
+				gc("la\t$a0,\t_ecert");
 				gc("b\t" + eti2);
 
 				//Fals
 				gc("\n" + eti1 + ":");
 				gc("li\t$v0,\t4");
-				gc("la\t$a0,\tefals");
+				gc("la\t$a0,\t_efals");
 
 				gc("\n" + eti2 + ":");
 				gc("syscall");
 			}
-
+			registers.freeRegister((String)data.getValue("regs"));
+			System.out.println("WRITE ---------------");
+			System.out.println(registers);
 			// Generem codi pel salt de linia
 			gc("li\t$v0,\t11");
-			gc("la\t$a0,\tejump");
+			gc("la\t$a0,\t_ejump");
 			gc("syscall");
 
 		} else if (tipus instanceof TipusCadena) {
@@ -478,6 +480,7 @@ public class CodeGenerator {
 		} else {
 			gc("sw\t" + reg + ",\t" + -desp + "($sp)");
 		}
+		registers.freeRegister(reg);
 	}
 
 	public void initFunction() {
@@ -487,17 +490,18 @@ public class CodeGenerator {
 		gc("addi\t$sp,\t$sp,\t-12");
 	}
 
-	public String initVector(int desp, Object limitInferior, boolean isGlobal) {
+	public String initVector(int desp, Object limitInferior, int value, boolean isGlobal) {
 		String reg = registers.getRegister();
 		String r1 = registers.getRegister();
 		String r2 = registers.getRegister();
 		gc("#Init vector");
 		gc("la\t" + reg + ",\t-" + desp + (isGlobal ? "($gp)" : "($fp)"));
 		gc("li\t"+r1+",\t"+limitInferior);
+		gc("li\t"+r2+",\t"+value);
 		gc("sub\t"+r2+",\t"+r1+",\t"+r2);
 		gc("li\t"+r1+",\t4");
 		gc("mul\t"+r2+",\t"+r2+",\t"+r1);
-		gc("sub\t"+reg+",\t"+reg+",\t"+r2);
+		gc("add\t"+reg+",\t"+reg+",\t"+r2);
 		registers.freeRegister(r1);
 		registers.freeRegister(r2);
 		return reg;
@@ -505,5 +509,20 @@ public class CodeGenerator {
 
 	public void printRegs() {
 		System.out.println(registers);
+	}
+
+	public String moveToReg(String dirs) {
+		String reg = registers.getRegister();
+		System.out.println("MOVE TO REG: "+registers);
+		gc("lw\t"+reg+",\t"+dirs);
+		//Guarradilla
+		if (dirs.charAt(0) == '0'){
+			registers.freeRegister(dirs.substring(2, 5));
+		}
+		return reg;
+	}
+
+	public void free(String regs) {
+		registers.freeRegister(regs);
 	}
 }

@@ -1,9 +1,9 @@
 const CTE1 = "F2P1.bab";
-CONST CTE2 = ((3 - 1) * 4) / 2;
+//CONST CTE2 = ((3 - 1) * 4) / 2;
 var v4:logic ;
-const MIN = -50;
-const MAX = 50;
-CoNsT CTE4 = cert AND cert;
+//const MIN = -50;
+//const MAX = 50;
+//CoNsT CTE4 = cert AND cert;
 var  v1:sencer ;
 var integer1 : sencer;
 var integer2 : sencer;
@@ -14,14 +14,6 @@ var result : sencer;
 var result_logic : logic;
 var v: vector [0 .. 100] de sencer;
 
-funcio neg(perval boolean : logic): logic;
-	var integer3 : sencer;
-func
-    escriure("Escriu: ");
-    llegir(integer3);
-    escriure("Esto es hola = ", integer3);
-	retornar not boolean;
-fifunc;
 
 prog
     //integer1 = 4;
@@ -35,7 +27,11 @@ prog
     //result_logic =  integer1 == 3;
     //escriure("result logic: ", result_logic);
     integer1 = 4;
-    v[5] = integer1-1;
+    v[6] = integer1;
+    v[5] = v[6];
+    escriure("Num1: ", integer1);
+    escriure("Num2: ", v[6]);
+    //escriure("Num3: ", v[5]);
     escriure("Escriu: ");
     llegir(hola);
     escriure("Esto es hola = ", hola);

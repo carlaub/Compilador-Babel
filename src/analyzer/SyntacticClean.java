@@ -392,7 +392,7 @@ public class SyntacticClean {
 
 			case CADENA:
 				data.setBlock("terme.s",
-						lookahead.getLexema().substring(1, lookahead.getLexema().length()-1),
+						lookahead.getLexema().substring(1, lookahead.getLexema().length() - 1),
 						new TipusCadena("CADENA", lookahead.getLexema().length(), lookahead.getLexema().length()),
 						true);
 				accept(Type.CADENA);
@@ -405,7 +405,8 @@ public class SyntacticClean {
 				data.setBlock("terme.s", exp.getValue("exp.vs"), exp.getValue("exp.ts"), exp.getValue("exp.es"));
 
 				// TODO: solució a la excepció de donava dissabte a la tarda relacionada amb l'atribut regs
-				if(!(boolean)data.getValue("terme.es")) data.setValue("regs", exp.getValue("regs"));
+				if (!(boolean) data.getValue("terme.es"))
+					data.setValue("regs", exp.getValue("regs"));
 
 				accept(Type.CPARENT);
 				semantic.checkOp_unari(data);
@@ -513,6 +514,12 @@ public class SyntacticClean {
 				break;
 
 			case OCLAU:
+				data.moveBlock("variable_aux.h", "factor_aux.h");
+				variable_aux(data);
+				semantic.moveToReg(data);
+				data.moveBlock("factor_aux.s", "variable_aux.s");
+				break;
+
 			default:
 				data.moveBlock("variable_aux.h", "factor_aux.h");
 				variable_aux(data);
@@ -637,7 +644,7 @@ public class SyntacticClean {
 				accept(Type.IGUAL);
 				data.moveBlock("igual_aux.h", "variable_aux.s");
 				igual_aux(data);
-				System.out.println("IGUAL DATA -> "+ data);
+				System.out.println("IGUAL DATA -> " + data);
 				return false;
 
 			case ESCRIURE:
@@ -675,6 +682,7 @@ public class SyntacticClean {
 				accept(Type.SI);
 				Data exp_si = exp();
 				semantic.checkLogic(exp_si);
+
 				accept(Type.LLAVORS);
 				boolean ret_si = llista_inst();
 				ret_si = ret_si & fi_aux();
@@ -730,6 +738,7 @@ public class SyntacticClean {
 				System.out.println("REGISTERS ASSIG " + lexic.getActualLine());
 				semantic.printRegs();
 				semantic.checkAssignation(data, info);
+
 				break;
 
 			default:
@@ -741,6 +750,7 @@ public class SyntacticClean {
 	private void param_escriure() {
 
 		Data data = exp();
+
 		semantic.checkEscriure(data);
 
 		switch (lookahead.getToken()) {
