@@ -753,9 +753,9 @@ public class SemanticAnalyzer {
 
 				if (info.getValue("exp.vs") instanceof Integer) {
 
+					String register = generator.initVector(((Variable) id).getDesplacament(), ((TipusArray) type).obtenirDimensio(0).getLimitInferior(), blocActual == 0);
+					data.setValue("dirs", "0("+register+")");
 					int index = (int) info.getValue("exp.vs");
-
-					//TODO: CAL QUE SIGUI ERROR SEMÀNTIC???
 					if ((boolean) info.getValue("exp.es") && (
 							(int) ((TipusArray) type).obtenirDimensio(0).getLimitInferior() > index ||
 									(int) ((TipusArray) type).obtenirDimensio(0).getLimitSuperior() < index)) {
@@ -829,7 +829,6 @@ public class SemanticAnalyzer {
 	 * @param info Informació de l'expressió a assignar
 	 */
 	public void checkAssignation(Data data, Data info) {
-
 		ITipus igual_aux_th = (ITipus) data.getValue("igual_aux.th");
 		ITipus exp_ts = (ITipus) info.getValue("exp.ts");
 
@@ -991,5 +990,9 @@ public class SemanticAnalyzer {
 
 	public void close() {
 		generator.closeBuffer();
+	}
+
+	public void printRegs(){
+		generator.printRegs();
 	}
 }

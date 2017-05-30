@@ -44,13 +44,13 @@ public class CodeGenerator {
 	 */
 	public void writeDefaultData() {
 		gc("\n.data");
-		gc("ecert: .asciiz \"cert\"");
-		gc("efals: .asciiz \"fals\"");
+		gc("_ecert: .asciiz \"cert\"");
+		gc("_efals: .asciiz \"fals\"");
 		//TODO: Segurament hi ha una forma millor de fer el salt de linia als "escriure"
-		gc("ejump: .asciiz \"\\n\"");
+		gc("_ejump: .asciiz \"\\n\"");
 
 		// error out of bounds
-		gc("err_out_of_bounds: .asciiz \"Accés invàlid al vector\"");
+		gc("_err_out_of_bounds: .asciiz \"Accés invàlid al vector\"");
 	}
 
 	@Override
@@ -93,7 +93,7 @@ public class CodeGenerator {
 
 	public String loadWord(Variable variable, boolean isGlobal) {
 		String reg = registers.getRegister();
-		gc("lw\t" + reg + ",\t-" + variable.getDesplacament() + (isGlobal?"($gp)":"($sp)"));
+		gc("lw\t" + reg + ",\t-" + variable.getDesplacament() + (isGlobal ? "($gp)" : "($sp)"));
 
 		return reg;
 	}
@@ -467,23 +467,43 @@ public class CodeGenerator {
 
 	}
 
-	public void read (int desp, boolean isGlobal) {
-	    gc("#read");
-	    gc("li\t$v0,\t5");
-	    gc("syscall");
-	    String reg = registers.getRegister();
-	    gc("move\t"+ reg + ",\t$v0");
-	    if (isGlobal) {
-            gc("sw\t" + reg + ",\t" + -desp +"($gp)");
-        } else {
-            gc("sw\t" + reg + ",\t" + -desp +"($sp)");
-        }
-    }
+	public void read(int desp, boolean isGlobal) {
+		gc("#read");
+		gc("li\t$v0,\t5");
+		gc("syscall");
+		String reg = registers.getRegister();
+		gc("move\t" + reg + ",\t$v0");
+		if (isGlobal) {
+			gc("sw\t" + reg + ",\t" + -desp + "($gp)");
+		} else {
+			gc("sw\t" + reg + ",\t" + -desp + "($sp)");
+		}
+	}
 
 	public void initFunction() {
 		gc("#Init funció");
 		gc("addi\t$sp,\t$sp,\t" + -REGISTERS_SIZE);
 		gc("sw\t$fp,\t0($sp)");
 		gc("addi\t$sp,\t$sp,\t-12");
+	}
+
+	public String initVector(int desp, Object limitInferior, boolean isGlobal) {
+		String reg = registers.getRegister();
+		String r1 = registers.getRegister();
+		String r2 = registers.getRegister();
+		gc("#Init vector");
+		gc("la\t" + reg + ",\t-" + desp + (isGlobal ? "($gp)" : "($fp)"));
+		gc("li\t"+r1+",\t"+limitInferior);
+		gc("sub\t"+r2+",\t"+r1+",\t"+r2);
+		gc("li\t"+r1+",\t4");
+		gc("mul\t"+r2+",\t"+r2+",\t"+r1);
+		gc("sub\t"+reg+",\t"+reg+",\t"+r2);
+		registers.freeRegister(r1);
+		registers.freeRegister(r2);
+		return reg;
+	}
+
+	public void printRegs() {
+		System.out.println(registers);
 	}
 }

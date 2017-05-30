@@ -12,6 +12,7 @@ var var_logic1 : logic;
 var var_logic2 : logic;
 var result : sencer;
 var result_logic : logic;
+var v: vector [0 .. 100] de sencer;
 
 funcio neg(perval boolean : logic): logic;
 	var integer3 : sencer;
@@ -33,6 +34,8 @@ prog
 	//var_logic1 = neg(var_logic1);
     //result_logic =  integer1 == 3;
     //escriure("result logic: ", result_logic);
+    integer1 = 4;
+    v[5] = integer1-1;
     escriure("Escriu: ");
     llegir(hola);
     escriure("Esto es hola = ", hola);

@@ -637,6 +637,7 @@ public class SyntacticClean {
 				accept(Type.IGUAL);
 				data.moveBlock("igual_aux.h", "variable_aux.s");
 				igual_aux(data);
+				System.out.println("IGUAL DATA -> "+ data);
 				return false;
 
 			case ESCRIURE:
@@ -726,6 +727,8 @@ public class SyntacticClean {
 			case ID:
 			case OPARENT:
 				Data info = exp();
+				System.out.println("REGISTERS ASSIG " + lexic.getActualLine());
+				semantic.printRegs();
 				semantic.checkAssignation(data, info);
 				break;
 
