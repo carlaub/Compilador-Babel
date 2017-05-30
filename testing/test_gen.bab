@@ -7,6 +7,7 @@ CoNsT CTE4 = cert AND cert;
 var  v1:sencer ;
 var integer1 : sencer;
 var integer2 : sencer;
+var hola : sencer;
 var var_logic1 : logic;
 var var_logic2 : logic;
 var result : sencer;
@@ -28,5 +29,7 @@ prog
 	var_logic1 = neg(var_logic1);
     result_logic =  integer1 == 3;
     escriure("result logic: ", result_logic);
+    llegir(hola);
+    escriure("Esto es hola = ", hola);
 
 fiprog

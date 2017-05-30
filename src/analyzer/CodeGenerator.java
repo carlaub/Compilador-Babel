@@ -467,6 +467,19 @@ public class CodeGenerator {
 
 	}
 
+	public void read (int desp, boolean isGlobal) {
+	    gc("#read");
+	    gc("li\t$v0,\t5");
+	    gc("syscall");
+	    String reg = registers.getRegister();
+	    gc("move\t"+ reg + ",\t$v0");
+	    if (isGlobal) {
+            gc("sw\t" + reg + ",\t" + -desp +"($gp)");
+        } else {
+            gc("sw\t" + reg + ",\t" + -desp +"($sp)");
+        }
+    }
+
 	public void initFunction() {
 		gc("#Init funció");
 		gc("addi\t$sp,\t$sp,\t" + -REGISTERS_SIZE);

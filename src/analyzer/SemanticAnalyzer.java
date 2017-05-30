@@ -887,11 +887,14 @@ public class SemanticAnalyzer {
 
 			Variable variable = taulaSimbols.obtenirBloc(blocActual).obtenirVariable(lexema);
 			data.setBlock("variable_aux.h", variable, variable.getTipus(), false);
+			if (variable.getTipus().getNom().equals("SENCER")) generator.read(variable.getDesplacament(), false);
 
 		} else if (taulaSimbols.obtenirBloc(0).existeixVariable(lexema)) {
 
 			Variable variable = taulaSimbols.obtenirBloc(0).obtenirVariable(lexema);
 			data.setBlock("variable_aux.h", variable, variable.getTipus(), false);
+			if (variable.getTipus().getNom().equals("SENCER")) generator.read(variable.getDesplacament(), true);
+
 
 		} else if (taulaSimbols.obtenirBloc(blocActual).existeixID(lexema) ||
 				taulaSimbols.obtenirBloc(0).existeixID(lexema)) {
