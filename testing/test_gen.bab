@@ -19,16 +19,17 @@ func
 fifunc;
 
 prog
-    integer1 = 4;
-    integer2 = 3;
-    result = integer1 + integer2;
-    escriure("hola ", result);
+    //integer1 = 4;
+    //integer2 = 3;
+    //result = integer1 + integer2;
+    //escriure("hola ", result);
 
-    var_logic1 = fals;
-    var_logic2 = FALS;
-	var_logic1 = neg(var_logic1);
-    result_logic =  integer1 == 3;
-    escriure("result logic: ", result_logic);
+    //var_logic1 = fals;
+    //var_logic2 = FALS;
+	//var_logic1 = neg(var_logic1);
+    //result_logic =  integer1 == 3;
+    //escriure("result logic: ", result_logic);
+    escriure("Escriu: ");
     llegir(hola);
     escriure("Esto es hola = ", hola);
 
