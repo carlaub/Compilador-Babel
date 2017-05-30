@@ -91,9 +91,9 @@ public class CodeGenerator {
 		}
 	}
 
-	public String loadWord(Variable variable) {
+	public String loadWord(Variable variable, boolean isGlobal) {
 		String reg = registers.getRegister();
-		gc("lw\t" + reg + ",\t-" + variable.getDesplacament() + "($gp)");
+		gc("lw\t" + reg + ",\t-" + variable.getDesplacament() + (isGlobal?"($gp)":"($sp)"));
 
 		return reg;
 	}

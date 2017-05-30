@@ -168,11 +168,11 @@ public class SemanticAnalyzer {
 			System.out.println(data);
 			if (data.getValue("regs") != null){
 				data.move("regs1", "regs");
-				data.setValue("regs2", generator.loadWord(variable));
+				data.setValue("regs2", generator.loadWord(variable, blocActual == 0));
 			} else {
 				LexicographicAnalyzer lexic = LexicographicAnalyzer.getInstance();
 				System.out.println(lexic.getActualLine() + " - VAR: "+variable);
-				data.setValue("regs", generator.loadWord(variable));
+				data.setValue("regs", generator.loadWord(variable, blocActual == 0));
 			}
 			System.out.println("data -> "+data);
 		} else if (taulaSimbols.obtenirBloc(0).existeixConstant(id)) {
@@ -191,9 +191,9 @@ public class SemanticAnalyzer {
 					false);
 			if (data.getValue("regs") != null){
 				data.move("regs1", "regs");
-				data.setValue("regs2", generator.loadWord(variable));
+				data.setValue("regs2", generator.loadWord(variable, false));
 			} else{
-				data.setValue("regs", generator.loadWord(variable));
+				data.setValue("regs", generator.loadWord(variable, false));
 			}
 
 			System.out.println("data -> "+data);
@@ -887,6 +887,7 @@ public class SemanticAnalyzer {
 
 			Variable variable = taulaSimbols.obtenirBloc(blocActual).obtenirVariable(lexema);
 			data.setBlock("variable_aux.h", variable, variable.getTipus(), false);
+			System.out.println("LLEGIR VARIABLE -> "+variable);
 			if (variable.getTipus().getNom().equals("SENCER")) generator.read(variable.getDesplacament(), blocActual == 0);
 
 		} else if (taulaSimbols.obtenirBloc(0).existeixVariable(lexema)) {

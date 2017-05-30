@@ -14,7 +14,11 @@ var result : sencer;
 var result_logic : logic;
 
 funcio neg(perval boolean : logic): logic;
+	var integer3 : sencer;
 func
+    escriure("Escriu: ");
+    llegir(integer3);
+    escriure("Esto es hola = ", integer3);
 	retornar not boolean;
 fifunc;
 
