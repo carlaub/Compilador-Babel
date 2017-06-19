@@ -46,7 +46,6 @@ public class CodeGenerator {
 		gc("\n.data");
 		gc("_ecert: .asciiz \"cert\"");
 		gc("_efals: .asciiz \"fals\"");
-		//TODO: Segurament hi ha una forma millor de fer el salt de linia als "escriure"
 		gc("_ejump: .asciiz \"\\n\"");
 
 		// error out of bounds
@@ -85,8 +84,7 @@ public class CodeGenerator {
 
 	public String loadWord(Variable variable, boolean isGlobal) {
 		String reg = registers.getRegister();
-		//gc("lw\t" + reg + ",\t-" + variable.getDesplacament() + (isGlobal ? "($gp)" : "($sp)"));
-
+		gc("lw\t" + reg + ",\t-" + variable.getDesplacament() + (isGlobal ? "($gp)" : "($sp)"));
 		return reg;
 	}
 
@@ -514,6 +512,7 @@ public class CodeGenerator {
 	public String moveToReg(String dirs) {
 		String reg = registers.getRegister();
 		System.out.println("MOVE TO REG: "+registers);
+		gc("#ACCÉS VECTOR");
 		gc("lw\t"+reg+",\t"+dirs);
 		//Guarradilla
 		if (dirs.charAt(0) == '0'){

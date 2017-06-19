@@ -16,22 +16,12 @@ var v: vector [0 .. 100] de sencer;
 
 
 prog
-    //integer1 = 4;
-    //integer2 = 3;
-    //result = integer1 + integer2;
-    //escriure("hola ", result);
-
-    //var_logic1 = fals;
-    //var_logic2 = FALS;
-	//var_logic1 = neg(var_logic1);
-    //result_logic =  integer1 == 3;
-    //escriure("result logic: ", result_logic);
     integer1 = 4;
-    v[6] = integer1;
-    v[5] = v[6];
+    result = 2;
+    v[6] = result;
+    //v[5] = v[6];
     escriure("Num1: ", integer1);
     escriure("Num2: ", v[6]);
-    //escriure("Num3: ", v[5]);
     escriure("Escriu: ");
     llegir(hola);
     escriure("Esto es hola = ", hola);

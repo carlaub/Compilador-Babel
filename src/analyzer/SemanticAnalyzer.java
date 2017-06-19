@@ -559,7 +559,6 @@ public class SemanticAnalyzer {
 			data.setBlock("exp_aux.s", false, new TipusSimple("LOGIC"), false);
 
 		} else {
-			// TODO: Per simplificar opRelacionals(data, info) y podriem cridar-ho desde cada case, passant l'operador i ens estalviem un segon switch
 			int exp1 = (int) data.getValue("exp_aux.vh");
 			int exp2 = (int) info.getValue("exp_simple.vs");
 
