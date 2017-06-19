@@ -74,6 +74,11 @@ public class SyntacticClean {
 		semantic.close();
 	}
 
+	public void end(){
+		lexic.close();
+		semantic.close();
+	}
+
 	private void decl() {
 		decl_cte_var();
 		decl_func();

@@ -17,13 +17,11 @@ var v: vector [0 .. 100] de sencer;
 
 prog
     integer1 = 4;
-    result = 2;
-    v[6] = result;
-    //v[5] = v[6];
-    escriure("Num1: ", integer1);
-    escriure("Num2: ", v[6]);
+    result = integer1+2*3;
+    //escriure("Num2: ", v[integer1+3]);
     escriure("Escriu: ");
     llegir(hola);
-    escriure("Esto es hola = ", hola);
+    v[hola] = result;
+    escriure("Esto es hola = ", v[hola]);
 
 fiprog

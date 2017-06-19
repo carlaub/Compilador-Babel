@@ -30,9 +30,6 @@ public class CodeGenerator {
 		try {
 			bwGC = new BufferedWriter(new FileWriter(err));
 			writeDefaultData();
-			bwGC.write("\n.text\n");
-			bwGC.write("main:\n");
-			gc("move\t$fp,\t$sp");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -50,6 +47,22 @@ public class CodeGenerator {
 
 		// error out of bounds
 		gc("_err_out_of_bounds: .asciiz \"Accés invàlid al vector\"");
+
+		gc("\n.text\n");
+		gc_eti("_errorAccess:");
+		gc("li\t$v0,\t4");
+		gc("la\t$a0,\t_err_out_of_bounds");
+		gc("syscall");
+		gc("li\t$v0,\t4");
+		gc("la\t$a0,\t_ejump");
+		gc("syscall");
+		gc("b\t_end\n");
+		gc_eti("main:");
+		gc("move\t$fp,\t$sp");
+	}
+
+	public void debug(String code) {
+		gc("#DEBUG -> " + code);
 	}
 
 	@Override
@@ -71,11 +84,20 @@ public class CodeGenerator {
 		}
 	}
 
+	private void gc_eti(String code) {
+		try {
+			bwGC.write(code + "\n");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void closeBuffer() {
 		// Escriure la finalitzacio del programa
-		gc("jr\t$ra");
 		System.out.println(registers);
 		try {
+			bwGC.write("\n_end:\n");
+			bwGC.write("\tjr\t$ra");
 			bwGC.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -102,8 +124,6 @@ public class CodeGenerator {
 				gc("li\t" + regValueEs + ",\t" + (((boolean) info.getValue("exp.vs")) ? "0x01" : "0x00"));
 
 			} else {
-				//En hex
-//			gc("sw 0x" + Integer.toHexString((int) info.getValue("exp.vs")) + ", " + reg_data);
 				gc("li\t" + regValueEs + ",\t" + info.getValue("exp.vs"));
 			}
 			//Pasem el valor del registre auxiliar a l'adreça de la variable en questio
@@ -118,12 +138,12 @@ public class CodeGenerator {
 				registers.freeRegister(reg_info);
 			else System.out.println("NULL REGISTER AT " + lexic.getActualLine());
 			System.out.println("LIBERAMEEE------------------");
-			System.out.println("|"+reg_data+"|");
+			System.out.println("|" + reg_data + "|");
 			System.out.println(registers);
-			if (reg_data.charAt(0) == '0'){
+			if (reg_data.charAt(0) == '0') {
 				System.out.println("LIBERAO------------------");
 				registers.freeRegister(reg_data.substring(2, 5));
-				System.out.println("|"+reg_data.substring(2, 5)+"|");
+				System.out.println("|" + reg_data.substring(2, 5) + "|");
 				System.out.println(registers);
 			}
 		}
@@ -443,7 +463,7 @@ public class CodeGenerator {
 				gc("\n" + eti2 + ":");
 				gc("syscall");
 			}
-			registers.freeRegister((String)data.getValue("regs"));
+			registers.freeRegister((String) data.getValue("regs"));
 			System.out.println("WRITE ---------------");
 			System.out.println(registers);
 			// Generem codi pel salt de linia
@@ -488,20 +508,51 @@ public class CodeGenerator {
 		gc("addi\t$sp,\t$sp,\t-12");
 	}
 
-	public String initVector(int desp, Object limitInferior, int value, boolean isGlobal) {
+	public String initVector(int desp, int limitInferior, int limitSuperior, int value, boolean isGlobal) {
 		String reg = registers.getRegister();
 		String r1 = registers.getRegister();
 		String r2 = registers.getRegister();
+		String r3 = registers.getRegister();
 		gc("#Init vector");
 		gc("la\t" + reg + ",\t-" + desp + (isGlobal ? "($gp)" : "($fp)"));
-		gc("li\t"+r1+",\t"+limitInferior);
-		gc("li\t"+r2+",\t"+value);
-		gc("sub\t"+r2+",\t"+r1+",\t"+r2);
-		gc("li\t"+r1+",\t4");
-		gc("mul\t"+r2+",\t"+r2+",\t"+r1);
-		gc("add\t"+reg+",\t"+reg+",\t"+r2);
+		gc("li\t" + r1 + ",\t" + limitInferior);
+		gc("li\t" + r3 + ",\t" + limitSuperior);
+		gc("li\t" + r2 + ",\t" + value);
+
+		gc("bgt\t"+r2+",\t"+r3+",\t_errorAccess");
+		gc("blt\t"+r2+",\t"+r1+",\t_errorAccess");
+
+		gc("sub\t" + r2 + ",\t" + r1 + ",\t" + r2);
+		gc("li\t" + r1 + ",\t4");
+		gc("mul\t" + r2 + ",\t" + r2 + ",\t" + r1);
+		gc("add\t" + reg + ",\t" + reg + ",\t" + r2);
 		registers.freeRegister(r1);
 		registers.freeRegister(r2);
+		registers.freeRegister(r3);
+		return reg;
+	}
+
+	public String initVectorVar(int desp, int limitInferior, int limitSuperior, String access, boolean isGlobal) {
+		String reg = registers.getRegister();
+		String r1 = registers.getRegister();
+		String r2 = registers.getRegister();
+		String r3 = registers.getRegister();
+		gc("#Init vector");
+		gc("la\t" + reg + ",\t-" + desp + (isGlobal ? "($gp)" : "($fp)"));
+		gc("li\t" + r1 + ",\t" + limitInferior);
+		gc("li\t" + r3 + ",\t" + limitSuperior);
+		gc("move\t" + r2 + ",\t" + access);
+
+		gc("bgt\t"+r2+",\t"+r3+",\t_errorAccess");
+		gc("blt\t"+r2+",\t"+r1+",\t_errorAccess");
+
+		gc("sub\t" + r2 + ",\t" + r1 + ",\t" + r2);
+		gc("li\t" + r1 + ",\t4");
+		gc("mul\t" + r2 + ",\t" + r2 + ",\t" + r1);
+		gc("add\t" + reg + ",\t" + reg + ",\t" + r2);
+		registers.freeRegister(r1);
+		registers.freeRegister(r2);
+		registers.freeRegister(r3);
 		return reg;
 	}
 
@@ -511,11 +562,11 @@ public class CodeGenerator {
 
 	public String moveToReg(String dirs) {
 		String reg = registers.getRegister();
-		System.out.println("MOVE TO REG: "+registers);
+		System.out.println("MOVE TO REG: " + registers);
 		gc("#ACCÉS VECTOR");
-		gc("lw\t"+reg+",\t"+dirs);
+		gc("lw\t" + reg + ",\t" + dirs);
 		//Guarradilla
-		if (dirs.charAt(0) == '0'){
+		if (dirs.charAt(0) == '0') {
 			registers.freeRegister(dirs.substring(2, 5));
 		}
 		return reg;

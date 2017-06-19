@@ -749,13 +749,14 @@ public class SemanticAnalyzer {
 				error.insertError(TypeError.ERR_SEM_13, getNomId(id));
 
 			} else {
+				int li = (int) ((TipusArray) type).obtenirDimensio(0).getLimitInferior();
+				int ls = (int) ((TipusArray) type).obtenirDimensio(0).getLimitSuperior();
 
 				if (info.getValue("exp.vs") instanceof Integer) {
 					System.out.println("VECTOR ACCESS: " + info);
-					//TODO: Fer per valor dinàmics -> ELIMINAR la següent línia
-					if (data.getValue("regs") != null) generator.free((String)data.getValue("regs"));
+//					if (data.getValue("regs") != null) generator.free((String)data.getValue("regs"));
 
-					String register = generator.initVector(((Variable) id).getDesplacament(), ((TipusArray) type).obtenirDimensio(0).getLimitInferior(), (int) info.getValue("exp.vs"), blocActual == 0);
+					String register = generator.initVector(((Variable) id).getDesplacament(), li, ls, (int) info.getValue("exp.vs"), blocActual == 0);
 					data.setValue("dirs", "0(" + register + ")");
 					int index = (int) info.getValue("exp.vs");
 					if ((boolean) info.getValue("exp.es") && (
@@ -763,6 +764,13 @@ public class SemanticAnalyzer {
 									(int) ((TipusArray) type).obtenirDimensio(0).getLimitSuperior() < index)) {
 						error.insertError(TypeError.WAR_OPC_2, getNomId(id));
 					}
+				} else if (info.getValue("exp.vs") instanceof Variable) {
+					generator.debug(info.toString());
+					System.out.println("VECTOR ACCESS: " + info);
+
+					String register = generator.initVectorVar(((Variable) id).getDesplacament(), li, ls, (String) info.getValue("regs"), blocActual == 0);
+					data.setValue("dirs", "0(" + register + ")");
+
 				}
 			}
 		}

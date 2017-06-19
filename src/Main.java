@@ -21,7 +21,12 @@ public class Main {
         try {
 //            SyntacticAnalyzer syntactic = SyntacticAnalyzer.getInstance(filename);
             SyntacticClean syntactic = SyntacticClean.getInstance(filename);
-            syntactic.programa();
+            try {
+            	syntactic.programa();
+			} catch (Exception e){
+            	e.printStackTrace();
+            	syntactic.end();
+			}
 
         } catch (IOException e) {
             System.out.println("No s'ha pogut obrir l'arxiu.");
