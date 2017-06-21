@@ -74,7 +74,7 @@ public class SyntacticClean {
 		semantic.close();
 	}
 
-	public void end(){
+	public void end() {
 		lexic.close();
 		semantic.close();
 	}
@@ -169,7 +169,7 @@ public class SyntacticClean {
 
 		switch (lookahead.getToken()) {
 			case TIPUS_PARAM:
-				llista_param_aux(idFuncio);
+				llista_param_aux(idFuncio, 12);
 				break;
 
 			default:
@@ -177,7 +177,7 @@ public class SyntacticClean {
 		}
 	}
 
-	private void llista_param_aux(String idFuncio) {
+	private void llista_param_aux(String idFuncio, int desp) {
 
 		Data data = new Data();
 		data.setValue("func.name", idFuncio);
@@ -188,16 +188,18 @@ public class SyntacticClean {
 		accept(Type.COLON);
 		ITipus type = tipus();
 		data.setValue("param.type", type);
+		data.setValue("param.desp", desp);
 
 		semantic.addParameter(data);
-		param_aux(idFuncio);
+
+		param_aux(idFuncio, (int) data.getValue("param.desp"));
 	}
 
-	private void param_aux(String idFuncio) {
+	private void param_aux(String idFuncio, int desp) {
 		switch (lookahead.getToken()) {
 			case COMA:
 				accept(Type.COMA);
-				llista_param_aux(idFuncio);
+				llista_param_aux(idFuncio, desp);
 				break;
 			default:
 				return;
@@ -553,7 +555,7 @@ public class SyntacticClean {
 				data.move("llista_exp.vs", "llista_exp_aux.vs");
 				break;
 			default:
-//				data.setValue("llista_exp.vs", false);
+
 				data.move("llista_exp.vs", "llista_exp.vh");
 				return;
 		}

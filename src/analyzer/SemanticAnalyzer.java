@@ -245,13 +245,16 @@ public class SemanticAnalyzer {
 	 * @param data Informació del paràmetre i la funció
 	 */
 	public void addParameter(Data data) {
-
+		ITipus type = (ITipus) data.getValue("param.type");
 		Parametre parametre = new Parametre(
 				(String) data.getValue("param.name"),
-				(ITipus) data.getValue("param.type"),
-				0,
+				type,
+				(int) data.getValue("param.desp"),
 				new TipusPasParametre((String) data.getValue("param.typeParam"))
 		);
+
+		data.setValue("param.desp", type.getTamany() + parametre.getDesplacament());
+
 		if (taulaSimbols.obtenirBloc(1).obtenirVariable(parametre.getNom()) == null) {
 			taulaSimbols.obtenirBloc(0)
 					.obtenirProcediment((String) data.getValue("func.name"))
@@ -607,7 +610,8 @@ public class SemanticAnalyzer {
 		}
 		data.setValue("param.index", 0);
 		data.setValue("param.num", funcio.getNumeroParametres());
-		generator.initFunction();
+		System.out.println("FUNCIÓ --> "+ funcio);
+		generator.initFunction(funcio);
 	}
 
 	/**

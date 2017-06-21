@@ -1,9 +1,6 @@
 package analyzer;
 
-import taulaDeSimbols.ITipus;
-import taulaDeSimbols.TipusCadena;
-import taulaDeSimbols.TipusSimple;
-import taulaDeSimbols.Variable;
+import taulaDeSimbols.*;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -501,11 +498,12 @@ public class CodeGenerator {
 		registers.freeRegister(reg);
 	}
 
-	public void initFunction() {
+	public void initFunction(Funcio funcio) {
 		gc("#Init funció");
 		gc("addi\t$sp,\t$sp,\t" + -REGISTERS_SIZE);
 		gc("sw\t$fp,\t0($sp)");
 		gc("addi\t$sp,\t$sp,\t-12");
+
 	}
 
 	public String initVector(int desp, int limitInferior, int limitSuperior, int value, boolean isGlobal) {
