@@ -512,6 +512,8 @@ public class SyntacticClean {
 
 				Funcio funcio = (Funcio) data.getValue("llista_exp.vs");
 
+				semantic.updatePointers(funcio);
+
 				data.move("factor_aux.vs", "llista_exp.vs");
 				data.setValue("factor_aux.ts", funcio.getTipus());
 				data.setValue("factor_aux.es", false);

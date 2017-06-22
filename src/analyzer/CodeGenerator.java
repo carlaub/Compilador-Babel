@@ -498,13 +498,47 @@ public class CodeGenerator {
 		registers.freeRegister(reg);
 	}
 
-	public void initFunction(Funcio funcio) {
+	public void initFunction() {
 		gc("#Init funció");
 		gc("addi\t$sp,\t$sp,\t" + -REGISTERS_SIZE);
 		gc("sw\t$fp,\t0($sp)");
-		gc("addi\t$sp,\t$sp,\t-12");
-
+		//gc("addi\t$sp,\t$sp,\t-12");
 	}
+
+	public void addParamFunction(Data data, Data info) {
+
+		int numParam = (int)data.getValue("param.index");
+		Parametre parametre = ((Funcio)data.getValue("llista_exp.vh")).obtenirParametre(numParam - 1);
+
+		// Mirem estàtic
+		if((boolean)info.getValue("exp.es")) {
+			String reg = registers.getRegister();
+			gc("#PARAM FUNC");
+			gc("li\t" + reg + ",\t" + info.getValue("exp.vs"));
+			gc("sw\t" + reg + ",\t-" + parametre.getDesplacament() + "($sp)");
+
+			registers.freeRegister(reg);
+		} else {
+			System.out.println("INFOOO" + info);
+			System.out.println("DATAAA" + data);
+
+			if(parametre.getTipusPasParametre().toString().equals("PERVAL")) {
+				gc("#PARAM FUNC");
+				gc("sw\t" + info.getValue("regs") + ",\t-" + parametre.getDesplacament() + "($sp)");
+			} else {
+				//TODO: perref
+			}
+		}
+	}
+
+	public void movePointer(String reg, int desp) {
+		gc("addi\t" + reg + ",\t" + reg + ",\t" + desp);
+	}
+
+	public void movePointers() {
+		gc("move\t$sp,\t$fp");
+	}
+
 
 	public String initVector(int desp, int limitInferior, int limitSuperior, int value, boolean isGlobal) {
 		String reg = registers.getRegister();

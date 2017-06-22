@@ -14,14 +14,14 @@ var result : sencer;
 var result_logic : logic;
 var v: vector [0 .. 100] de sencer;
 
-funcio random(perval a: sencer, perval b: vector [0 .. 100] de sencer): sencer;
+funcio random(perval a: sencer, perval b: sencer): sencer;
 	var x : logic;
 func
 	retornar 2;
 fifunc;
 
 prog
-	integer1 = random(1, v);
+	integer1 = random(1, result);
     integer1 = 4;
     result = integer1+2*3;
     //escriure("Num2: ", v[integer1+3]);

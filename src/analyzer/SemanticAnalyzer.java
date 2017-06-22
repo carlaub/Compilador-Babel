@@ -611,7 +611,7 @@ public class SemanticAnalyzer {
 		data.setValue("param.index", 0);
 		data.setValue("param.num", funcio.getNumeroParametres());
 		System.out.println("FUNCIÓ --> "+ funcio);
-		generator.initFunction(funcio);
+		generator.initFunction();
 	}
 
 	/**
@@ -627,6 +627,7 @@ public class SemanticAnalyzer {
 		int param_index = (int) data.getValue("param.index") + 1;
 		data.setValue("param.index", param_index);
 
+
 		if (param_index <= (int) data.getValue("param.num")) {
 			Parametre parametre = funcio.obtenirParametre(param_index - 1);
 
@@ -636,13 +637,13 @@ public class SemanticAnalyzer {
 			}
 
 			if (!(info.getValue("exp.ts") instanceof TipusIndefinit)
-					&& !exp_ts.getNom().equals(parametre.getTipus().getNom())) {
+					&& exp_ts.getNom().equals(parametre.getTipus().getNom())) {
+
 
 				Object vs = info.getValue("exp.vs");
 
-				if (!(vs instanceof Variable && ((Variable) vs).getTipus() instanceof TipusArray &&
+				if ((vs instanceof Variable && ((Variable) vs).getTipus() instanceof TipusArray &&
 						((Variable) vs).getTipus().getNom().equals(parametre.getTipus().getNom()))) {
-
 					if (parametre.getTipus() instanceof TipusArray) {
 
 						DimensioArray dimensioArray = ((TipusArray) parametre.getTipus()).obtenirDimensio(0);
@@ -653,6 +654,9 @@ public class SemanticAnalyzer {
 					} else {
 						error.insertError(TypeError.ERR_SEM_16, param_index, parametre.getTipus().getNom());
 					}
+				} else {
+
+					generator.addParamFunction(data, info);
 				}
 			}
 		}
@@ -1016,5 +1020,11 @@ public class SemanticAnalyzer {
 	public void moveToReg(Data data) {
 		String reg = generator.moveToReg((String) data.getValue("dirs"));
 		data.setValue("regs", reg);
+	}
+
+	public void updatePointers(Funcio funcio) {
+		generator.movePointers();
+		Parametre parametre = funcio.obtenirParametre(funcio.getNumeroParametres() - 1);
+		generator.movePointer("$sp",  - (parametre.getDesplacament() + parametre.getTipus().getTamany()));
 	}
 }
