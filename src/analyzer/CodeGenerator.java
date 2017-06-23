@@ -16,12 +16,16 @@ public class CodeGenerator {
 	private Labels labels;
 	private BufferedWriter bwGC;
 	private int des;
+	private int des_func;
+	private boolean isFunction;
 
 	public CodeGenerator(String filename) {
 		registers = new Registers();
 		labels = new Labels();
 
 		des = 0;
+		des_func = 12;
+		isFunction = false;
 		File err = new File(filename.split(Pattern.quote("."))[0] + ".s");
 
 		try {
@@ -53,9 +57,8 @@ public class CodeGenerator {
 		gc("li\t$v0,\t4");
 		gc("la\t$a0,\t_ejump");
 		gc("syscall");
-		gc("b\t_end\n");
-		gc_eti("main:");
-		gc("move\t$fp,\t$sp");
+		gc("b\t_end");
+		gc("move\t$fp,\t$sp\n");
 	}
 
 	public void debug(String code) {
@@ -69,7 +72,11 @@ public class CodeGenerator {
 
 	public int getDes(ITipus type) {
 		int desp = des;
-		des += type.getTamany();
+		if (isFunction) {
+			desp = des_func;
+			des_func += type.getTamany();
+		} else
+			des += type.getTamany();
 		return desp;
 	}
 
@@ -507,11 +514,11 @@ public class CodeGenerator {
 
 	public void addParamFunction(Data data, Data info) {
 
-		int numParam = (int)data.getValue("param.index");
-		Parametre parametre = ((Funcio)data.getValue("llista_exp.vh")).obtenirParametre(numParam - 1);
+		int numParam = (int) data.getValue("param.index");
+		Parametre parametre = ((Funcio) data.getValue("llista_exp.vh")).obtenirParametre(numParam - 1);
 
 		// Mirem estàtic
-		if((boolean)info.getValue("exp.es")) {
+		if ((boolean) info.getValue("exp.es")) {
 			String reg = registers.getRegister();
 			gc("#PARAM FUNC");
 			gc("li\t" + reg + ",\t" + info.getValue("exp.vs"));
@@ -522,7 +529,7 @@ public class CodeGenerator {
 			System.out.println("INFOOO" + info);
 			System.out.println("DATAAA" + data);
 
-			if(parametre.getTipusPasParametre().toString().equals("PERVAL")) {
+			if (parametre.getTipusPasParametre().toString().equals("PERVAL")) {
 				gc("#PARAM FUNC");
 				gc("sw\t" + info.getValue("regs") + ",\t-" + parametre.getDesplacament() + "($sp)");
 			} else {
@@ -531,12 +538,14 @@ public class CodeGenerator {
 		}
 	}
 
-	public void movePointer(String reg, int desp) {
-		gc("addi\t" + reg + ",\t" + reg + ",\t" + desp);
-	}
-
-	public void movePointers() {
+	public void movePointers(Parametre parametre, String etiqueta) {
 		gc("move\t$sp,\t$fp");
+		gc("addi\t$sp,\t$sp,\t-" + (parametre.getDesplacament() + parametre.getTipus().getTamany()));
+		gc("jal\t" + etiqueta);
+		gc("sw\t$ra,\t-4($fp)");
+		for (int i = 0; i < 18; i++) {
+			gc("sw\t$" + (i + 8) + ",\t" + (4 + 4 * i) + "($fp)");
+		}
 	}
 
 
@@ -551,8 +560,8 @@ public class CodeGenerator {
 		gc("li\t" + r3 + ",\t" + limitSuperior);
 		gc("li\t" + r2 + ",\t" + value);
 
-		gc("bgt\t"+r2+",\t"+r3+",\t_errorAccess");
-		gc("blt\t"+r2+",\t"+r1+",\t_errorAccess");
+		gc("bgt\t" + r2 + ",\t" + r3 + ",\t_errorAccess");
+		gc("blt\t" + r2 + ",\t" + r1 + ",\t_errorAccess");
 
 		gc("sub\t" + r2 + ",\t" + r1 + ",\t" + r2);
 		gc("li\t" + r1 + ",\t4");
@@ -575,8 +584,8 @@ public class CodeGenerator {
 		gc("li\t" + r3 + ",\t" + limitSuperior);
 		gc("move\t" + r2 + ",\t" + access);
 
-		gc("bgt\t"+r2+",\t"+r3+",\t_errorAccess");
-		gc("blt\t"+r2+",\t"+r1+",\t_errorAccess");
+		gc("bgt\t" + r2 + ",\t" + r3 + ",\t_errorAccess");
+		gc("blt\t" + r2 + ",\t" + r1 + ",\t_errorAccess");
 
 		gc("sub\t" + r2 + ",\t" + r1 + ",\t" + r2);
 		gc("li\t" + r1 + ",\t4");
@@ -606,5 +615,26 @@ public class CodeGenerator {
 
 	public void free(String regs) {
 		registers.freeRegister(regs);
+	}
+
+	public void declaracioFuncio(Funcio funcio) {
+		gc_eti(funcio.getEtiqueta() + ":");
+		isFunction = true;
+	}
+
+	public void initProgram() {
+		gc_eti("\nmain:");
+	}
+
+	public void endFunction() {
+		isFunction = false;
+	}
+
+	public void initFunctionVars(Bloc bloc) {
+		int n = bloc.getNumParams();
+		if (n > 0){
+			Parametre parametre = bloc.getLastParametre();
+			des_func = parametre.getDesplacament() + parametre.getTipus().getTamany();
+		} else des_func = 12;
 	}
 }

@@ -220,6 +220,8 @@ public class SemanticAnalyzer {
 	public String checkFuncio(Data data) {
 		Funcio funcio = new Funcio();
 		funcio.setNom((String) data.getValue("func.name"));
+		funcio.setEtiqueta("_" + funcio.getNom() + "_");
+		generator.declaracioFuncio(funcio);
 
 		if (taulaSimbols.obtenirBloc(0).existeixID(funcio.getNom())) {
 
@@ -610,7 +612,7 @@ public class SemanticAnalyzer {
 		}
 		data.setValue("param.index", 0);
 		data.setValue("param.num", funcio.getNumeroParametres());
-		System.out.println("FUNCIÓ --> "+ funcio);
+		System.out.println("FUNCIÓ --> " + funcio);
 		generator.initFunction();
 	}
 
@@ -978,6 +980,7 @@ public class SemanticAnalyzer {
 	 */
 	public void checkCamiReturn(boolean ret) {
 		if (!ret) error.insertError(TypeError.ERR_SEM_24);
+		generator.endFunction();
 	}
 
 	/**
@@ -1023,8 +1026,18 @@ public class SemanticAnalyzer {
 	}
 
 	public void updatePointers(Funcio funcio) {
-		generator.movePointers();
-		Parametre parametre = funcio.obtenirParametre(funcio.getNumeroParametres() - 1);
-		generator.movePointer("$sp",  - (parametre.getDesplacament() + parametre.getTipus().getTamany()));
+		generator.movePointers(funcio.obtenirParametre(funcio.getNumeroParametres() - 1), funcio.getEtiqueta());
+	}
+
+	public void initProgram() {
+		generator.initProgram();
+	}
+
+	public String showBloc() {
+		return taulaSimbols.obtenirBloc(blocActual).toString();
+	}
+
+	public void initFuncio() {
+		generator.initFunctionVars(taulaSimbols.obtenirBloc(blocActual));
 	}
 }

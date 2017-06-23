@@ -63,6 +63,7 @@ public class SyntacticClean {
 
 		decl();
 
+		semantic.initProgram();
 		accept(Type.PROG);
 		llista_inst();
 		accept(Type.FIPROG);
@@ -147,8 +148,11 @@ public class SyntacticClean {
 				semantic.setTipusFuncio(id, tipus);
 				accept(Type.TIPUS_SIMPLE);
 				accept(Type.SEMICOLON);
+				semantic.initFuncio();
 				decl_cte_var();
 				accept(Type.FUNC);
+
+				System.out.println("INFO FUNCIÓ --> "+semantic.showBloc());
 
 				boolean ret = llista_inst();
 				semantic.checkCamiReturn(ret);

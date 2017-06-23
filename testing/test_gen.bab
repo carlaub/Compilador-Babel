@@ -17,7 +17,15 @@ var v: vector [0 .. 100] de sencer;
 funcio random(perval a: sencer, perval b: sencer): sencer;
 	var x : logic;
 func
-	retornar 2;
+	a = 4;
+	retornar a+2;
+fifunc;
+
+funcio pardal(perval a: sencer, perval b: sencer): sencer;
+	var y : logic;
+func
+	a = 4;
+	retornar a+2;
 fifunc;
 
 prog
