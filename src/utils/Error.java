@@ -312,6 +312,14 @@ public class Error {
 				case WAR_OPC_3:
 					bwErr.write("[" + error +"] "+ numLine + ", Hi ha codi després d'un RETORNAR.\n");
 					break;
+				case WAR_OPC_4:
+					bwErr.write("[" + error +"] "+ numLine + ", Aquesta condició sempre avalua cert.\n" +
+							"\tSempre s'executarà el següent fragment de codi.");
+					break;
+				case WAR_OPC_5:
+					bwErr.write("[" + error +"] "+ numLine + ", Aquesta condició sempre avalua fals.\n" +
+							"\tMai s'executarà el següent fragment de codi");
+					break;
 
 			}
 		} catch (IOException e) {

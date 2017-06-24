@@ -968,6 +968,13 @@ public class SemanticAnalyzer {
 
 		if (!((ITipus) data.getValue("exp.ts")).getNom().equals("LOGIC")) {
 			error.insertError(TypeError.ERR_SEM_7);
+		} else {
+			if ((boolean)data.getValue("exp.es")){
+				if ((boolean)data.getValue("exp.vs"))
+					error.insertError(TypeError.WAR_OPC_4);
+				else
+					error.insertError(TypeError.WAR_OPC_5);
+			}
 		}
 
 		generator.free((String) data.getValue("regs"));

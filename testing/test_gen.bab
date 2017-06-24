@@ -37,5 +37,7 @@ prog
     llegir(hola);
     v[hola] = result;
     escriure("Esto es hola = ", v[hola]);
-
+	si cert llavors		//Si aquest condicional està més amunt, salta una excepció
+	 	integer1 = 3;
+	fisi;
 fiprog
