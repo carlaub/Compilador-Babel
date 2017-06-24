@@ -152,7 +152,7 @@ public class SyntacticClean {
 				decl_cte_var();
 				accept(Type.FUNC);
 
-				System.out.println("INFO FUNCIÓ --> "+semantic.showBloc());
+				System.out.println("INFO FUNCIÓ --> " + semantic.showBloc());
 
 				boolean ret = llista_inst();
 				semantic.checkCamiReturn(ret);
@@ -679,13 +679,13 @@ public class SyntacticClean {
 				boolean ret_cicle = llista_inst();
 				accept(Type.FINS);
 				Data info_cicle = exp();
-				semantic.checkLogic(info_cicle);
+				semantic.checkLogic(info_cicle, Type.CICLE);
 				return ret_cicle;
 
 			case MENTRE:
 				accept(Type.MENTRE);
 				Data info_mentre = exp();
-				semantic.checkLogic(info_mentre);
+				semantic.checkLogic(info_mentre, Type.MENTRE);
 				accept(Type.FER);
 				boolean ret_mentre = llista_inst();
 				accept(Type.FIMENTRE);
@@ -694,7 +694,7 @@ public class SyntacticClean {
 			case SI:
 				accept(Type.SI);
 				Data exp_si = exp();
-				semantic.checkLogic(exp_si);
+				semantic.checkLogic(exp_si, Type.SI);
 
 				accept(Type.LLAVORS);
 				boolean ret_si = llista_inst();

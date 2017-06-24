@@ -37,7 +37,11 @@ prog
     llegir(hola);
     v[hola] = result;
     escriure("Esto es hola = ", v[hola]);
-	si cert llavors		//Si aquest condicional està més amunt, salta una excepció
-	 	integer1 = 3;
-	fisi;
+    cicle
+		mentre cert fer
+			si var_logic1 llavors		//Si aquest condicional està més amunt, salta una excepció
+				integer1 = 3;	//També si la seva condició és una variable, però això crec que ve relacionat per la condició del mentre
+			fisi;				//He afegit un parche i un to-do per a revisar-lo
+		fimentre;
+	fins var_logic1;
 fiprog

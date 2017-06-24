@@ -964,20 +964,25 @@ public class SemanticAnalyzer {
 	 *
 	 * @param data Informació de l'expressió
 	 */
-	public void checkLogic(Data data) {
+	public void checkLogic(Data data, Type type) {
 
 		if (!((ITipus) data.getValue("exp.ts")).getNom().equals("LOGIC")) {
 			error.insertError(TypeError.ERR_SEM_7);
 		} else {
-			if ((boolean)data.getValue("exp.es")){
-				if ((boolean)data.getValue("exp.vs"))
-					error.insertError(TypeError.WAR_OPC_4);
-				else
-					error.insertError(TypeError.WAR_OPC_5);
+			if ((boolean) data.getValue("exp.es")) {
+				if ((boolean) data.getValue("exp.vs")) {
+					if (type.equals(Type.CICLE)) error.insertError(TypeError.WAR_OPC_7);
+					else error.insertError(TypeError.WAR_OPC_4);
+				} else {
+					if (type.equals(Type.CICLE)) error.insertError(TypeError.WAR_OPC_6);
+					else error.insertError(TypeError.WAR_OPC_5);
+				}
 			}
 		}
-
-		generator.free((String) data.getValue("regs"));
+		//TODO: Revisar aquest super-parche de la parra
+		if (data.getValue("regs") != null)
+			generator.free((String) data.getValue("regs"));
+		else System.out.println("NULL REGISTER AT " + type);
 	}
 
 	/**
