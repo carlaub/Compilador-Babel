@@ -1,0 +1,13 @@
+var integer1 : sencer;
+var integer2 : sencer;
+
+prog
+    integer1 = 1;
+    integer2 = 2;
+
+    si integer1==integer2 llavors
+        escriure("hola");
+    sino
+        escriure("adios");
+    fisi;
+fiprog

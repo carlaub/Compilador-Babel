@@ -697,9 +697,18 @@ public class SyntacticClean {
 				semantic.checkLogic(exp_si, Type.SI);
 
 				accept(Type.LLAVORS);
+				// Generació codi [3]
+				semantic.initConditional(exp_si);
+
 				boolean ret_si = llista_inst();
+				//Generació codi [4]
+				semantic.elseConditional(exp_si);
+
 				ret_si = ret_si & fi_aux();
 				accept(Type.FISI);
+				//Generació codi [5]
+				semantic.endConditional(exp_si);
+
 				return ret_si;
 
 			case RETORNAR:

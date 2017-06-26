@@ -1019,6 +1019,31 @@ public class SemanticAnalyzer {
 		}
 	}
 
+	/**
+	 * Condicional - inicialització
+	 * @param exp_si
+	 */
+
+	public void initConditional(Data exp_si) {
+		generator.initConditional(exp_si);
+	}
+
+	/**
+	 * Considional - else
+	 * @param exp_si
+	 */
+	public void elseConditional(Data exp_si) {
+		generator.elseConditional(exp_si);
+	}
+
+	/**
+	 * Condicional - end
+	 * @param exp_si
+	 */
+	public void endConditional(Data exp_si) {
+		generator.endConditional(exp_si);
+	}
+
 	public void checkCodiReturn(boolean ret) {
 		if (ret)
 			error.insertError(TypeError.WAR_OPC_3);
@@ -1052,4 +1077,5 @@ public class SemanticAnalyzer {
 	public void initFuncio() {
 		generator.initFunctionVars(taulaSimbols.obtenirBloc(blocActual));
 	}
+
 }

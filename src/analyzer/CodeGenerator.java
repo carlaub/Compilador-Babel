@@ -597,6 +597,26 @@ public class CodeGenerator {
 		return reg;
 	}
 
+	public void initConditional(Data exp_si) {
+	    String label_1 = labels.getLabel();
+	    String label_2 = labels.getLabel();
+
+        gc("#Condicional");
+		gc("beqz\t" + exp_si.getValue("regs") + ",\t" + label_1);
+
+		exp_si.setValue("label_1", label_1);
+		exp_si.setValue("label_2", label_2);
+    }
+
+    public void elseConditional(Data exp_si) {
+		gc("b\t" + exp_si.getValue("label_2"));
+		gc(exp_si.getValue("label_1")+":");
+	}
+
+    public void endConditional(Data exp_si) {
+		gc(exp_si.getValue("label_2") + ":");
+	}
+
 	public void printRegs() {
 		System.out.println(registers);
 	}
