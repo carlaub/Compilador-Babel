@@ -25,11 +25,11 @@ funcio pardal(perval a: sencer, perval b: sencer): sencer;
 	var y : logic;
 func
 	a = 4;
-	retornar a+2;
+	retornar 2;
 fifunc;
 
 prog
-	integer1 = random(1, result);
+	integer1 = random(1, result) + 3 / pardal(1, result);
     integer1 = 4;
     result = integer1+2*3;
     //escriure("Num2: ", v[integer1+3]);

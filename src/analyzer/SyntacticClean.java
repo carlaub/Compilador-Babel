@@ -429,13 +429,12 @@ public class SyntacticClean {
 				semantic.checkID(data);
 				accept(Type.ID);
 
-				semantic.checkOp_unari(data);
-
-				semantic.checkOp_binari(data);
 				data.moveBlock("factor_aux.h", "terme.s");
 				factor_aux(data);
 				data.moveBlock("terme.s", "factor_aux.s");
 
+				semantic.checkOp_unari(data);
+				semantic.checkOp_binari(data);
 
 				break;
 			default:
@@ -516,12 +515,15 @@ public class SyntacticClean {
 
 				Funcio funcio = (Funcio) data.getValue("llista_exp.vs");
 
-				semantic.updatePointers(funcio);
+				String reg = semantic.cridaInvocador(funcio);
 
 				data.move("factor_aux.vs", "llista_exp.vs");
 				data.setValue("factor_aux.ts", funcio.getTipus());
 				data.setValue("factor_aux.es", false);
 				data.setValue("op", true);
+				data.setValue("regs", reg);
+
+				System.out.println("DATAAAAAAAAAAAA---> " + data);
 
 				accept(Type.CPARENT);
 				break;

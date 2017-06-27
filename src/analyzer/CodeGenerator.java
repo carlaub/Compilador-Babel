@@ -58,7 +58,7 @@ public class CodeGenerator {
 		gc("la\t$a0,\t_ejump");
 		gc("syscall");
 		gc("b\t_end");
-		gc("move\t$fp,\t$sp\n");
+		gc("move\t$sp,\t$fp\n");
 	}
 
 	public void debug(String code) {
@@ -155,8 +155,8 @@ public class CodeGenerator {
 	}
 
 
-	public String getDirs(Variable value) {
-		return "-" + value.getDesplacament() + "($gp)";
+	public String getDirs(Variable value, boolean isGlobal) {
+	    return  "-" + value.getDesplacament() + (isGlobal ? "($gp)" : "($fp)");
 	}
 
 	public void suma(Data data, Data info) {
@@ -261,8 +261,12 @@ public class CodeGenerator {
 			if (!(boolean) data.getValue("terme.es")) {
 				String reg2 = (String) data.getValue("regs");
 				System.out.println(reg2);
-				//TODO: Arreglar instrucció de divisió
-				gc("div\t" + data.getValue("terme.vh") + ",\t" + reg2);
+
+				String reg = registers.getRegister();
+				gc("li\t" + reg + ",\t" + data.getValue("terme.vh"));
+				gc("div\t" + reg2 + ",\t" + reg + ",\t" + reg2);
+
+				registers.freeRegister(reg);
 			}
 		}
 	}
@@ -538,15 +542,18 @@ public class CodeGenerator {
 		}
 	}
 
-	public void movePointers(Parametre parametre, String etiqueta) {
-		gc("move\t$sp,\t$fp");
-		gc("addi\t$sp,\t$sp,\t-" + (parametre.getDesplacament() + parametre.getTipus().getTamany()));
+	public void saltInvocador(int desp, String etiqueta) {
+		gc("move\t$fp,\t$sp");
+		gc("addi\t$sp,\t$sp,\t-" + desp);
 		gc("jal\t" + etiqueta);
-		gc("sw\t$ra,\t-4($fp)");
-		for (int i = 0; i < 18; i++) {
-			gc("sw\t$" + (i + 8) + ",\t" + (4 + 4 * i) + "($fp)");
-		}
 	}
+
+	public String retornInvocador() {
+	    String reg = registers.getRegister();
+	    gc("lw\t" + reg + ",\t-8($sp)");
+	    gc("addi\t$sp,\t$sp,\t72");
+	    return reg;
+    }
 
 
 	public String initVector(int desp, int limitInferior, int limitSuperior, int value, boolean isGlobal) {
@@ -640,13 +647,22 @@ public class CodeGenerator {
 	public void declaracioFuncio(Funcio funcio) {
 		gc_eti(funcio.getEtiqueta() + ":");
 		isFunction = true;
+
+		// Guardem $ra a la pila d'execució
+        gc("sw\t$ra,\t-4($fp)");
+        // Guardem els registres
+        for (int i = 0; i < 18; i++) {
+            gc("sw\t$" + (i + 8) + ",\t" + (4 + 4 * i) + "($fp)");
+        }
+        // Reserva espai variables locals
+        gc("addi\t$sp,\t$sp,\t-" + des_func);
 	}
 
 	public void initProgram() {
 		gc_eti("\nmain:");
 	}
 
-	public void endFunction() {
+	public void endFunctionDeclaration() {
 		isFunction = false;
 	}
 
@@ -657,4 +673,30 @@ public class CodeGenerator {
 			des_func = parametre.getDesplacament() + parametre.getTipus().getTamany();
 		} else des_func = 12;
 	}
+
+	public void endFunction(Data data) {
+        System.out.println("END FUNCTION DATA: " + data);
+        String reg;
+        if((boolean)data.getValue("exp.es")) {
+            reg = registers.getRegister();
+            gc("li\t" + reg + ",\t" + data.getValue("exp.vs"));
+        } else {
+            reg = (String)data.getValue("regs");
+        }
+        gc("sw\t" + reg + ",\t-8($fp)");
+        registers.freeRegister(reg);
+
+        // Lliberar el frame
+        gc("move\t$sp,\t$fp");
+        gc("lw\t$fp,\t0($fp)");
+
+        // Restaurar registres
+        for (int i = 0; i < 18; i++) {
+            gc("lw\t$" + (i + 8) + ",\t" + (4 + 4 * i) + "($sp)");
+        }
+
+        // Saltar a l'invocador
+        gc("lw\t$ra,\t-4($sp)");
+        gc("jr $ra");
+    }
 }

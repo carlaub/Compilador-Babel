@@ -1,13 +1,19 @@
 var integer1 : sencer;
 var integer2 : sencer;
 
+funcio random(perval a: sencer, perval b: sencer): sencer;
+	var x : logic;
+func
+	a = 4;
+	retornar a+2;
+fifunc;
+
 prog
     integer1 = 1;
     integer2 = 2;
 
-    si integer1==integer2 llavors
-        escriure("hola");
-    sino
-        escriure("adios");
-    fisi;
+    integer1 = random(1, 2);
+
+    escriure("integer1: ", integer1);
+
 fiprog

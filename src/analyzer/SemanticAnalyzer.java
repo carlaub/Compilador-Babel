@@ -1,6 +1,5 @@
 package analyzer;
 
-import com.sun.org.apache.bcel.internal.classfile.Code;
 import taulaDeSimbols.*;
 import utils.Error;
 import utils.TypeError;
@@ -689,7 +688,7 @@ public class SemanticAnalyzer {
 		if (value instanceof Funcio) {
 			error.insertError(TypeError.ERR_SEM_22, ((Funcio) data.getValue("variable_aux.vh")).getNom());
 		} else if (value instanceof Variable) {
-			data.setValue("dirs", generator.getDirs((Variable) value));
+			data.setValue("dirs", generator.getDirs((Variable) value, blocActual == 0));
 		}
 	}
 
@@ -992,7 +991,7 @@ public class SemanticAnalyzer {
 	 */
 	public void checkCamiReturn(boolean ret) {
 		if (!ret) error.insertError(TypeError.ERR_SEM_24);
-		generator.endFunction();
+		generator.endFunctionDeclaration();
 	}
 
 	/**
@@ -1008,14 +1007,16 @@ public class SemanticAnalyzer {
 			ITipus type = (ITipus) data.getValue("exp.ts");
 
 			if (!type.getNom().equals(
-					((Funcio) taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio)).getTipus().getNom()))
+					((Funcio) taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio)).getTipus().getNom())) {
 
 				if (taulaSimbols.obtenirBloc(0).existeixProcediment(idFuncio))
 
 					error.insertError(TypeError.ERR_SEM_18, idFuncio,
 							((Funcio) taulaSimbols.obtenirBloc(0).obtenirProcediment(idFuncio)).getTipus().getNom(),
 							type.getNom());
-
+			} else {
+				generator.endFunction(data);
+			}
 		}
 	}
 
@@ -1062,8 +1063,15 @@ public class SemanticAnalyzer {
 		data.setValue("regs", reg);
 	}
 
-	public void updatePointers(Funcio funcio) {
-		generator.movePointers(funcio.obtenirParametre(funcio.getNumeroParametres() - 1), funcio.getEtiqueta());
+	public String cridaInvocador(Funcio funcio) {
+		if(funcio.getNumeroParametres() == 0) {
+			generator.saltInvocador(12, funcio.getEtiqueta());
+
+		} else {
+			Parametre parametre = funcio.obtenirParametre(funcio.getNumeroParametres() - 1);
+			generator.saltInvocador(parametre.getDesplacament() + parametre.getTipus().getTamany(), funcio.getEtiqueta());
+		}
+		return generator.retornInvocador();
 	}
 
 	public void initProgram() {
