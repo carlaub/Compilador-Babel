@@ -678,10 +678,13 @@ public class SyntacticClean {
 
 			case CICLE:
 				accept(Type.CICLE);
+				String label;
+				label = semantic.initCicle();
 				boolean ret_cicle = llista_inst();
 				accept(Type.FINS);
 				Data info_cicle = exp();
 				semantic.checkLogic(info_cicle, Type.CICLE);
+				semantic.endCicle(info_cicle, label);
 				return ret_cicle;
 
 			case MENTRE:

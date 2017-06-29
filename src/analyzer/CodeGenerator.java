@@ -384,8 +384,11 @@ public class CodeGenerator {
 	 * @param info
 	 */
 	public void opRelacionals(Data data, Data info) {
-		gc("#OP_REL " + data.getValue("op_relacional.vs"));
-		switch ((String) data.getValue("op_relacional.vs")) {
+        System.out.println("CI DATA " + data);
+        System.out.println("CI INFO " + info);
+
+        gc("#OP_REL " + data.getValue("op_relacional.vs"));
+        switch ((String) data.getValue("op_relacional.vs")) {
 			case "==":
 				opRelacional(data, info, "seq");
 				break;
@@ -617,12 +620,25 @@ public class CodeGenerator {
 
     public void elseConditional(Data exp_si) {
 		gc("b\t" + exp_si.getValue("label_2"));
-		gc(exp_si.getValue("label_1")+":");
+		gc_eti(exp_si.getValue("label_1")+":");
 	}
 
     public void endConditional(Data exp_si) {
-		gc(exp_si.getValue("label_2") + ":");
+		gc_eti(exp_si.getValue("label_2") + ":");
 	}
+
+	public String initCicle() {
+	    String label = labels.getLabel();
+	    gc("#Mentre");
+	    gc_eti(label + ":");
+
+	    return label;
+    }
+
+    public void endCicle(Data info_mentre, String label) {
+	    //TODO: cas condició sortida estàtica (bucle infinit si "true")
+	    gc("beqz\t" + info_mentre.getValue("regs") +",\t" + label);
+    }
 
 	public void printRegs() {
 		System.out.println(registers);

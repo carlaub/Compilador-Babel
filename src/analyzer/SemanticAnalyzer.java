@@ -1030,7 +1030,7 @@ public class SemanticAnalyzer {
 	}
 
 	/**
-	 * Considional - else
+	 * Condicional - else
 	 * @param exp_si
 	 */
 	public void elseConditional(Data exp_si) {
@@ -1043,6 +1043,17 @@ public class SemanticAnalyzer {
 	 */
 	public void endConditional(Data exp_si) {
 		generator.endConditional(exp_si);
+	}
+
+	/**
+	 * Mentre - inicialització
+	 */
+	public String initCicle() {
+		return generator.initCicle();
+	}
+
+	public void endCicle(Data info_mentre, String label) {
+		generator.endCicle(info_mentre, label);
 	}
 
 	public void checkCodiReturn(boolean ret) {

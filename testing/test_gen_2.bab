@@ -12,8 +12,14 @@ prog
     integer1 = 1;
     integer2 = 2;
 
-    integer1 = random(1, 2);
+    //integer1 = random(1, 2);
 
-    escriure("integer1: ", integer1);
+    //escriure("integer1: ", integer1);
+
+    cicle
+        escriure("volta: ", integer1);
+        integer1 = integer1 + 1;
+    fins integer1 > 4;
+
 
 fiprog
