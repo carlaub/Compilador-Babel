@@ -293,8 +293,10 @@ public class SemanticAnalyzer {
 
 					} else {
 						generator.mul(data);
+						//TODO: Tenir en compte si afecta en algo
 						data.setValue("terme.ts", new TipusSimple("SENCER", INDEF));
 						data.setValue("terme.vs", 0);
+						data.setValue("terme.es", false);
 						data.setValue("op", true);
 					}
 				} else {
@@ -1022,6 +1024,7 @@ public class SemanticAnalyzer {
 
 	/**
 	 * Condicional - inicialització
+	 *
 	 * @param exp_si
 	 */
 
@@ -1039,6 +1042,7 @@ public class SemanticAnalyzer {
 
 	/**
 	 * Condicional - end
+	 *
 	 * @param exp_si
 	 */
 	public void endConditional(Data exp_si) {

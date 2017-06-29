@@ -1,25 +1,30 @@
 var integer1 : sencer;
 var integer2 : sencer;
 
-funcio random(perval a: sencer, perval b: sencer): sencer;
-	var x : logic;
+funcio random(perval a: sencer): sencer;
+	var x : sencer;
 func
-	a = 4;
-	retornar a+2;
+	x = 4;
+	escriure(a);
+	si a == 0 llavors
+		retornar 1;
+	sino
+		retornar a * random(a-1);
+	fisi;
 fifunc;
 
 prog
-    integer1 = 1;
-    integer2 = 2;
+    //integer1 = 1;
+    //integer2 = 2;
 
-    //integer1 = random(1, 2);
+    integer1 = random(4);
 
     //escriure("integer1: ", integer1);
 
-    cicle
+    //cicle
         escriure("volta: ", integer1);
-        integer1 = integer1 + 1;
-    fins integer1 > 4;
+        //integer1 = integer1 + 1;
+    //fins integer1 > 4;
 
 
 fiprog

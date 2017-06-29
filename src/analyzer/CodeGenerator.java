@@ -58,7 +58,6 @@ public class CodeGenerator {
 		gc("la\t$a0,\t_ejump");
 		gc("syscall");
 		gc("b\t_end");
-		gc("move\t$sp,\t$fp\n");
 	}
 
 	public void debug(String code) {
@@ -101,6 +100,7 @@ public class CodeGenerator {
 		System.out.println(registers);
 		try {
 			bwGC.write("\n_end:\n");
+			bwGC.write("\tli\t$ra,\t0x00400018\n");
 			bwGC.write("\tjr\t$ra");
 			bwGC.close();
 		} catch (IOException e) {
@@ -110,7 +110,7 @@ public class CodeGenerator {
 
 	public String loadWord(Variable variable, boolean isGlobal) {
 		String reg = registers.getRegister();
-		gc("lw\t" + reg + ",\t-" + variable.getDesplacament() + (isGlobal ? "($gp)" : "($sp)"));
+		gc("lw\t" + reg + ",\t-" + variable.getDesplacament() + (isGlobal ? "($gp)" : "($fp)"));
 		return reg;
 	}
 
@@ -128,6 +128,8 @@ public class CodeGenerator {
 				gc("li\t" + regValueEs + ",\t" + (((boolean) info.getValue("exp.vs")) ? "0x01" : "0x00"));
 
 			} else {
+				System.out.println("LLEGA -> " + data);
+				System.out.println("LLEGA -> " + info);
 				gc("li\t" + regValueEs + ",\t" + info.getValue("exp.vs"));
 			}
 			//Pasem el valor del registre auxiliar a l'adreça de la variable en questio
@@ -676,6 +678,7 @@ public class CodeGenerator {
 
 	public void initProgram() {
 		gc_eti("\nmain:");
+		gc("move\t$fp,\t$sp\n");
 	}
 
 	public void endFunctionDeclaration() {

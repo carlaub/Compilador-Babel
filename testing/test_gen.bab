@@ -33,6 +33,7 @@ prog
     integer1 = 4;
     result = integer1+2*3;
     //escriure("Num2: ", v[integer1+3]);
+    escriure(random(1, result));
     escriure("Escriu: ");
     llegir(hola);
     v[hola] = result;
