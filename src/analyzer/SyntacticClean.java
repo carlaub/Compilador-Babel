@@ -521,7 +521,13 @@ public class SyntacticClean {
 				data.setValue("factor_aux.ts", funcio.getTipus());
 				data.setValue("factor_aux.es", false);
 				data.setValue("op", true);
-				data.setValue("regs", reg);
+
+				if (data.getValue("regs") != null) {
+					data.move("regs1", "regs");
+					data.setValue("regs2", reg);
+				} else {
+					data.setValue("regs", reg);
+				}
 
 				System.out.println("DATAAAAAAAAAAAA---> " + data);
 

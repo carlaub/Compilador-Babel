@@ -1,7 +1,7 @@
 var integer1 : sencer;
 var integer2 : sencer;
 
-funcio random(perval a: sencer): sencer;
+funcio factorial(perval a: sencer): sencer;
 	var x : sencer;
 func
 	x = 4;
@@ -9,7 +9,17 @@ func
 	si a == 0 llavors
 		retornar 1;
 	sino
-		retornar a * random(a-1);
+		retornar a*factorial(a-1)*factorial(a-1);
+	fisi;
+fifunc;
+
+funcio fibonacci(perval num:sencer): sencer;
+func
+	escriure(num);
+	si (num == 0) OR (num == 1) llavors
+		retornar num;
+	sino
+		retornar fibonacci(num-1)+fibonacci(num-2);
 	fisi;
 fifunc;
 
@@ -17,14 +27,9 @@ prog
     //integer1 = 1;
     //integer2 = 2;
 
-    integer1 = random(4);
-
-    //escriure("integer1: ", integer1);
-
-    //cicle
-        escriure("volta: ", integer1);
-        //integer1 = integer1 + 1;
-    //fins integer1 > 4;
-
+    //integer1 = factorial(4);
+	integer2 = fibonacci(30);
+    //escriure("factorial: ", integer1);
+	escriure("fibonacci: ", integer2);
 
 fiprog

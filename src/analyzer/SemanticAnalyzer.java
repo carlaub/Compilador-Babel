@@ -199,7 +199,6 @@ public class SemanticAnalyzer {
 		} else if (taulaSimbols.obtenirBloc(0).existeixProcediment(id)) {
 			Funcio funcio = (Funcio) taulaSimbols.obtenirBloc(0).obtenirProcediment(id);
 			data.setBlock("terme.s", funcio, funcio.getTipus(), false);
-
 		} else {
 			error.insertError(TypeError.ERR_SEM_9, id);
 			taulaSimbols.obtenirBloc(blocActual).inserirVariable(
