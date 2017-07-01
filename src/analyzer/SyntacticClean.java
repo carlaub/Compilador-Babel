@@ -695,11 +695,20 @@ public class SyntacticClean {
 
 			case MENTRE:
 				accept(Type.MENTRE);
+				Data info_eti = new Data();
+				// Inicialització mentre
+				semantic.initWhile(info_eti);
+
 				Data info_mentre = exp();
 				semantic.checkLogic(info_mentre, Type.MENTRE);
 				accept(Type.FER);
+				// Check condició iteració mentre
+				semantic.iterationConditionWhile(info_eti, info_mentre);
+
 				boolean ret_mentre = llista_inst();
 				accept(Type.FIMENTRE);
+				// End mentre
+				semantic.endWhile(info_eti);
 				return ret_mentre;
 
 			case SI:

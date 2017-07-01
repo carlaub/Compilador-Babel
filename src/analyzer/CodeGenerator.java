@@ -648,7 +648,7 @@ public class CodeGenerator {
 
 	public String initCicle() {
 		String label = labels.getLabel();
-		gc("#Mentre");
+		gc("#Cicle");
 		gc_eti(label + ":");
 
 		return label;
@@ -657,6 +657,26 @@ public class CodeGenerator {
 	public void endCicle(Data info_mentre, String label) {
 		//TODO: cas condició sortida estàtica (bucle infinit si "true")
 		gc("beqz\t" + info_mentre.getValue("regs") + ",\t" + label);
+	}
+
+	public void initWhile(Data info_eti) {
+		String eti1 = labels.getLabel();
+		String eti2 = labels.getLabel();
+
+		gc("#While");
+		gc_eti(eti2 + ":");
+
+		info_eti.setValue("eti1", eti1);
+		info_eti.setValue("eti2", eti2);
+	}
+
+	public void iterationConditionWhile(Data info_eti, Data info_mentre) {
+		gc("beqz\t" + info_mentre.getValue("regs") + ",\t" + info_eti.getValue("eti1"));
+	}
+
+	public void endWhile(Data info_eti) {
+		gc("b\t" + info_eti.getValue("eti2"));
+		gc_eti((String)info_eti.getValue("eti1") + ":");
 	}
 
 	public void printRegs() {

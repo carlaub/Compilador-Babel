@@ -43,7 +43,11 @@ prog
 		i = i+1;
 	fins i > 100;
 
-	integer1 = fvector(v);
-	escriure(integer1);
+	// integer1 = fvector(v);
 
+	integer1 = 0;
+	mentre integer1 <> 6 fer
+	    escriure(integer1);
+	    integer1 = integer1 + 1;
+    fimentre;
 fiprog

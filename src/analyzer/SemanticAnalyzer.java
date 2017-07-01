@@ -1047,15 +1047,34 @@ public class SemanticAnalyzer {
 	}
 
 	/**
-	 * Mentre - inicialització
+	 * Cicle - inicialització
 	 */
 	public String initCicle() {
 		return generator.initCicle();
 	}
 
+	/**
+	 * Cicle - end
+	 * @param info_mentre
+	 * @param label
+	 */
 	public void endCicle(Data info_mentre, String label) {
 		generator.endCicle(info_mentre, label);
 	}
+
+	/**
+	 * While - inicialització
+	 * @param info_eti
+	 */
+	public void initWhile(Data info_eti) { generator.initWhile(info_eti); }
+
+	/**
+	 * While - comprobació de la condició d'iteració en cada volta [beqz reg, E]
+	 * @param info_eti
+	 */
+	public void iterationConditionWhile(Data info_eti, Data info_mentre) { generator.iterationConditionWhile(info_eti, info_mentre); }
+
+	public void endWhile(Data info_eti) { generator.endWhile(info_eti);}
 
 	public void checkCodiReturn(boolean ret) {
 		if (ret)
