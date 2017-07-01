@@ -656,12 +656,10 @@ public class SemanticAnalyzer {
 					} else {
 						error.insertError(TypeError.ERR_SEM_16, param_index, parametre.getTipus().getNom());
 					}
-				} else {
-
-					generator.addParamFunction(data, info);
 				}
 			}
 		}
+		generator.addParamFunction(data, info, blocActual == 0);
 	}
 
 	/**
@@ -728,7 +726,7 @@ public class SemanticAnalyzer {
 
 		TipusSimple tipusSimple = new TipusSimple(tipus);
 		TipusArray tipusArray = new TipusArray("V_" + lower_limit + "_" + upper_limit + "_" + tipusSimple.getNom(),
-				(upper_limit - lower_limit) * tipusSimple.getTamany(), tipusSimple);
+				(upper_limit - lower_limit + 1) * tipusSimple.getTamany(), tipusSimple);
 		DimensioArray dimensioArray = new DimensioArray(new TipusSimple("SENCER"), lower_limit, upper_limit);
 		tipusArray.inserirDimensio(dimensioArray);
 

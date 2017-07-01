@@ -158,7 +158,7 @@ public class CodeGenerator {
 
 
 	public String getDirs(Variable value, boolean isGlobal) {
-	    return  "-" + value.getDesplacament() + (isGlobal ? "($gp)" : "($fp)");
+		return "-" + value.getDesplacament() + (isGlobal ? "($gp)" : "($fp)");
 	}
 
 	public void suma(Data data, Data info) {
@@ -386,11 +386,11 @@ public class CodeGenerator {
 	 * @param info
 	 */
 	public void opRelacionals(Data data, Data info) {
-        System.out.println("CI DATA " + data);
-        System.out.println("CI INFO " + info);
+		System.out.println("CI DATA " + data);
+		System.out.println("CI INFO " + info);
 
-        gc("#OP_REL " + data.getValue("op_relacional.vs"));
-        switch ((String) data.getValue("op_relacional.vs")) {
+		gc("#OP_REL " + data.getValue("op_relacional.vs"));
+		switch ((String) data.getValue("op_relacional.vs")) {
 			case "==":
 				opRelacional(data, info, "seq");
 				break;
@@ -521,7 +521,7 @@ public class CodeGenerator {
 		//gc("addi\t$sp,\t$sp,\t-12");
 	}
 
-	public void addParamFunction(Data data, Data info) {
+	public void addParamFunction(Data data, Data info, boolean isGlobal) {
 
 		int numParam = (int) data.getValue("param.index");
 		Parametre parametre = ((Funcio) data.getValue("llista_exp.vh")).obtenirParametre(numParam - 1);
@@ -535,15 +535,32 @@ public class CodeGenerator {
 
 			registers.freeRegister(reg);
 		} else {
-			System.out.println("INFOOO" + info);
-			System.out.println("DATAAA" + data);
-
+			System.out.println("INFOOO PARAM" + info);
+			System.out.println("DATAAA PARAM" + data);
 			if (parametre.getTipusPasParametre().toString().equals("PERVAL")) {
 				gc("#PARAM FUNC");
-				gc("sw\t" + info.getValue("regs") + ",\t-" + parametre.getDesplacament() + "($sp)");
+				ITipus type = (ITipus) info.getValue("exp.ts");
+				if (type instanceof TipusArray) {
+					int li = (int) ((TipusArray) type).obtenirDimensio(0).getLimitInferior();
+					int ls = (int) ((TipusArray) type).obtenirDimensio(0).getLimitSuperior();
+					String reg = (String) info.getValue("regs");
+					int desp = ((Variable) info.getValue("exp.vs")).getDesplacament();
+					int desp_param = parametre.getDesplacament();
+					for (int i = 1; i <= ls - li + 1; i++) {
+						gc("lw\t" + reg + ",\t-" + desp + (isGlobal ? "($gp)" : "($fp)"));
+						gc("sw\t" + reg + ",\t-" + desp_param + "($sp)");
+						desp += ((TipusArray) type).getTipusElements().getTamany();
+						desp_param += ((TipusArray) type).getTipusElements().getTamany();
+					}
+
+				} else {
+					gc("sw\t" + info.getValue("regs") + ",\t-" + parametre.getDesplacament() + "($sp)");
+
+				}
 			} else {
 				//TODO: perref
 			}
+
 		}
 	}
 
@@ -554,11 +571,11 @@ public class CodeGenerator {
 	}
 
 	public String retornInvocador() {
-	    String reg = registers.getRegister();
-	    gc("lw\t" + reg + ",\t-8($sp)");
-	    gc("addi\t$sp,\t$sp,\t72");
-	    return reg;
-    }
+		String reg = registers.getRegister();
+		gc("lw\t" + reg + ",\t-8($sp)");
+		gc("addi\t$sp,\t$sp,\t72");
+		return reg;
+	}
 
 
 	public String initVector(int desp, int limitInferior, int limitSuperior, int value, boolean isGlobal) {
@@ -610,37 +627,37 @@ public class CodeGenerator {
 	}
 
 	public void initConditional(Data exp_si) {
-	    String label_1 = labels.getLabel();
-	    String label_2 = labels.getLabel();
+		String label_1 = labels.getLabel();
+		String label_2 = labels.getLabel();
 
-        gc("#Condicional");
+		gc("#Condicional");
 		gc("beqz\t" + exp_si.getValue("regs") + ",\t" + label_1);
 
 		exp_si.setValue("label_1", label_1);
 		exp_si.setValue("label_2", label_2);
-    }
-
-    public void elseConditional(Data exp_si) {
-		gc("b\t" + exp_si.getValue("label_2"));
-		gc_eti(exp_si.getValue("label_1")+":");
 	}
 
-    public void endConditional(Data exp_si) {
+	public void elseConditional(Data exp_si) {
+		gc("b\t" + exp_si.getValue("label_2"));
+		gc_eti(exp_si.getValue("label_1") + ":");
+	}
+
+	public void endConditional(Data exp_si) {
 		gc_eti(exp_si.getValue("label_2") + ":");
 	}
 
 	public String initCicle() {
-	    String label = labels.getLabel();
-	    gc("#Mentre");
-	    gc_eti(label + ":");
+		String label = labels.getLabel();
+		gc("#Mentre");
+		gc_eti(label + ":");
 
-	    return label;
-    }
+		return label;
+	}
 
-    public void endCicle(Data info_mentre, String label) {
-	    //TODO: cas condició sortida estàtica (bucle infinit si "true")
-	    gc("beqz\t" + info_mentre.getValue("regs") +",\t" + label);
-    }
+	public void endCicle(Data info_mentre, String label) {
+		//TODO: cas condició sortida estàtica (bucle infinit si "true")
+		gc("beqz\t" + info_mentre.getValue("regs") + ",\t" + label);
+	}
 
 	public void printRegs() {
 		System.out.println(registers);
@@ -667,13 +684,13 @@ public class CodeGenerator {
 		isFunction = true;
 
 		// Guardem $ra a la pila d'execució
-        gc("sw\t$ra,\t-4($fp)");
-        // Guardem els registres
-        for (int i = 0; i < 18; i++) {
-            gc("sw\t$" + (i + 8) + ",\t" + (4 + 4 * i) + "($fp)");
-        }
-        // Reserva espai variables locals
-        gc("addi\t$sp,\t$sp,\t-" + des_func);
+		gc("sw\t$ra,\t-4($fp)");
+		// Guardem els registres
+		for (int i = 0; i < 18; i++) {
+			gc("sw\t$" + (i + 8) + ",\t" + (4 + 4 * i) + "($fp)");
+		}
+		// Reserva espai variables locals
+		gc("addi\t$sp,\t$sp,\t-" + des_func);
 	}
 
 	public void initProgram() {
@@ -687,35 +704,35 @@ public class CodeGenerator {
 
 	public void initFunctionVars(Bloc bloc) {
 		int n = bloc.getNumParams();
-		if (n > 0){
+		if (n > 0) {
 			Parametre parametre = bloc.getLastParametre();
 			des_func = parametre.getDesplacament() + parametre.getTipus().getTamany();
 		} else des_func = 12;
 	}
 
 	public void endFunction(Data data) {
-        System.out.println("END FUNCTION DATA: " + data);
-        String reg;
-        if((boolean)data.getValue("exp.es")) {
-            reg = registers.getRegister();
-            gc("li\t" + reg + ",\t" + data.getValue("exp.vs"));
-        } else {
-            reg = (String)data.getValue("regs");
-        }
-        gc("sw\t" + reg + ",\t-8($fp)");
-        registers.freeRegister(reg);
+		System.out.println("END FUNCTION DATA: " + data);
+		String reg;
+		if ((boolean) data.getValue("exp.es")) {
+			reg = registers.getRegister();
+			gc("li\t" + reg + ",\t" + data.getValue("exp.vs"));
+		} else {
+			reg = (String) data.getValue("regs");
+		}
+		gc("sw\t" + reg + ",\t-8($fp)");
+		registers.freeRegister(reg);
 
-        // Lliberar el frame
-        gc("move\t$sp,\t$fp");
-        gc("lw\t$fp,\t0($fp)");
+		// Lliberar el frame
+		gc("move\t$sp,\t$fp");
+		gc("lw\t$fp,\t0($fp)");
 
-        // Restaurar registres
-        for (int i = 0; i < 18; i++) {
-            gc("lw\t$" + (i + 8) + ",\t" + (4 + 4 * i) + "($sp)");
-        }
+		// Restaurar registres
+		for (int i = 0; i < 18; i++) {
+			gc("lw\t$" + (i + 8) + ",\t" + (4 + 4 * i) + "($sp)");
+		}
 
-        // Saltar a l'invocador
-        gc("lw\t$ra,\t-4($sp)");
-        gc("jr $ra");
-    }
+		// Saltar a l'invocador
+		gc("lw\t$ra,\t-4($sp)");
+		gc("jr $ra");
+	}
 }

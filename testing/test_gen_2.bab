@@ -1,5 +1,7 @@
 var integer1 : sencer;
 var integer2 : sencer;
+var v: vector [0 .. 100] de sencer;
+var i : sencer;
 
 funcio factorial(perval a: sencer): sencer;
 	var x : sencer;
@@ -9,7 +11,7 @@ func
 	si a == 0 llavors
 		retornar 1;
 	sino
-		retornar a*factorial(a-1)*factorial(a-1);
+		retornar a;//*factorial(a-1);
 	fisi;
 fifunc;
 
@@ -19,17 +21,29 @@ func
 	si (num == 0) OR (num == 1) llavors
 		retornar num;
 	sino
-		retornar fibonacci(num-1)+fibonacci(num-2);
+		retornar 1;//fibonacci(num-1)+fibonacci(num-2);
 	fisi;
 fifunc;
 
-prog
-    //integer1 = 1;
-    //integer2 = 2;
+funcio fvector(perval v:vector [0 .. 100] de sencer): sencer;
+	var i : sencer;
+func
+	i = 0;
+	cicle
+		escriure(i,": ", v[i]);
+		i = i+1;
+	fins i > 100;
+	retornar i;
+fifunc;
 
-    //integer1 = factorial(4);
-	integer2 = fibonacci(30);
-    //escriure("factorial: ", integer1);
-	escriure("fibonacci: ", integer2);
+prog
+	i = 0;
+	cicle
+		v[i] = i;
+		i = i+1;
+	fins i > 100;
+
+	integer1 = fvector(v);
+	escriure(integer1);
 
 fiprog
