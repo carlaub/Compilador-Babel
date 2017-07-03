@@ -4,6 +4,8 @@ import taulaDeSimbols.*;
 import utils.Error;
 import utils.TypeError;
 
+import java.util.ArrayList;
+
 /**
  * Analitzador semàntic.
  * S'encarrega de comprovar que la informació llegida del codi font és correcta pel que fa al significat (semàntica).
@@ -119,7 +121,8 @@ public class SemanticAnalyzer {
 			Variable variable = new Variable(
 					var_name,
 					new TipusIndefinit("indef"),
-					0);
+					0,
+					blocActual == 0);
 			taulaSimbols.obtenirBloc(blocActual).inserirVariable(variable);
 			return;
 		}
@@ -136,7 +139,8 @@ public class SemanticAnalyzer {
 		Variable variable = new Variable(
 				var_name,
 				type,
-				generator.getDes(type)
+				generator.getDes(type),
+				blocActual == 0
 		);
 
 
@@ -167,11 +171,11 @@ public class SemanticAnalyzer {
 			System.out.println(data);
 			if (data.getValue("regs") != null) {
 				data.move("regs1", "regs");
-				data.setValue("regs2", generator.loadWord(variable, blocActual == 0));
+				data.setValue("regs2", generator.loadWord(variable));
 			} else {
 				LexicographicAnalyzer lexic = LexicographicAnalyzer.getInstance();
 				System.out.println(lexic.getActualLine() + " - VAR: " + variable);
-				data.setValue("regs", generator.loadWord(variable, blocActual == 0));
+				data.setValue("regs", generator.loadWord(variable));
 			}
 			System.out.println("data -> " + data);
 		} else if (taulaSimbols.obtenirBloc(0).existeixConstant(id)) {
@@ -190,9 +194,9 @@ public class SemanticAnalyzer {
 					false);
 			if (data.getValue("regs") != null) {
 				data.move("regs1", "regs");
-				data.setValue("regs2", generator.loadWord(variable, false));
+				data.setValue("regs2", generator.loadWord(variable));
 			} else {
-				data.setValue("regs", generator.loadWord(variable, false));
+				data.setValue("regs", generator.loadWord(variable));
 			}
 
 			System.out.println("data -> " + data);
@@ -205,7 +209,8 @@ public class SemanticAnalyzer {
 					new Variable(
 							id,
 							new TipusIndefinit("indef"),
-							0));
+							0,
+							blocActual == 0));
 			data.setBlock("terme.s", id, new TipusIndefinit("indef"), false);
 		}
 	}
@@ -659,7 +664,13 @@ public class SemanticAnalyzer {
 				}
 			}
 		}
-		generator.addParamFunction(data, info, blocActual == 0);
+		System.out.println("CHECK PARAM DATA -> " + data);
+		System.out.println("CHECK PARAM INFO -> " + info);
+		if (info.getValue("exp.vs") instanceof Variable)
+			generator.addParamFunction(data, info, ((Variable) info.getValue("exp.vs")).getIsGlobal());
+		else
+			generator.addParamFunction(data, info, blocActual == 0);	//isGlobal és indiferent, només serveix pels vectors
+
 	}
 
 	/**
@@ -687,7 +698,7 @@ public class SemanticAnalyzer {
 		if (value instanceof Funcio) {
 			error.insertError(TypeError.ERR_SEM_22, ((Funcio) data.getValue("variable_aux.vh")).getNom());
 		} else if (value instanceof Variable) {
-			data.setValue("dirs", generator.getDirs((Variable) value, blocActual == 0));
+			data.setValue("dirs", generator.getDirs((Variable) value));
 		}
 	}
 
@@ -757,14 +768,19 @@ public class SemanticAnalyzer {
 				error.insertError(TypeError.ERR_SEM_13, getNomId(id));
 
 			} else {
+
+				System.out.println("VECTOR REGS -> " + data);
+
+				//Parchecillo
+				if (data.getValue("regs") != null)
+					generator.free((String) data.getValue("regs"));
+
 				int li = (int) ((TipusArray) type).obtenirDimensio(0).getLimitInferior();
 				int ls = (int) ((TipusArray) type).obtenirDimensio(0).getLimitSuperior();
 
 				if (info.getValue("exp.vs") instanceof Integer) {
 					System.out.println("VECTOR ACCESS: " + info);
-//					if (data.getValue("regs") != null) generator.free((String)data.getValue("regs"));
-
-					String register = generator.initVector(((Variable) id).getDesplacament(), li, ls, (int) info.getValue("exp.vs"), blocActual == 0);
+					String register = generator.initVector(((Variable) id).getDesplacament(), li, ls, (int) info.getValue("exp.vs"), ((Variable) id).getIsGlobal());
 					data.setValue("dirs", "0(" + register + ")");
 					int index = (int) info.getValue("exp.vs");
 					if ((boolean) info.getValue("exp.es") && (
@@ -776,7 +792,7 @@ public class SemanticAnalyzer {
 					generator.debug(info.toString());
 					System.out.println("VECTOR ACCESS: " + info);
 
-					String register = generator.initVectorVar(((Variable) id).getDesplacament(), li, ls, (String) info.getValue("regs"), blocActual == 0);
+					String register = generator.initVectorVar(((Variable) id).getDesplacament(), li, ls, (String) info.getValue("regs"), ((Variable) id).getIsGlobal());
 					data.setValue("dirs", "0(" + register + ")");
 
 				}
@@ -822,9 +838,14 @@ public class SemanticAnalyzer {
 						new Variable(
 								lexema,
 								new TipusIndefinit("indef"),
-								0));
+								0,
+								blocActual == 0));
 			}
-			data.setBlock("variable_aux.h", new Variable(lexema, new TipusIndefinit("indef"), 0),
+			data.setBlock("variable_aux.h",
+					new Variable(lexema,
+							new TipusIndefinit("indef"),
+							0,
+							blocActual == 0),
 					new TipusIndefinit("indef"), false);
 		}
 		return data;
@@ -906,7 +927,7 @@ public class SemanticAnalyzer {
 			data.setBlock("variable_aux.h", variable, variable.getTipus(), false);
 			System.out.println("LLEGIR VARIABLE -> " + variable);
 			if (variable.getTipus().getNom().equals("SENCER"))
-				generator.read(variable.getDesplacament(), blocActual == 0);
+				generator.read(variable.getDesplacament(), variable.getIsGlobal());
 
 		} else if (taulaSimbols.obtenirBloc(0).existeixVariable(lexema)) {
 
@@ -920,7 +941,8 @@ public class SemanticAnalyzer {
 
 			data.setValue("llegir.id", lexema);
 			error.insertError(TypeError.ERR_SEM_10, lexema);
-			data.setBlock("variable_aux.h", new Variable(lexema, new TipusIndefinit("indef"), 0),
+			data.setBlock("variable_aux.h", new Variable(lexema, new TipusIndefinit("indef"), 0,
+							blocActual == 0),
 					new TipusIndefinit("indef"), false);
 
 		} else {
@@ -929,9 +951,11 @@ public class SemanticAnalyzer {
 					new Variable(
 							lexema,
 							new TipusIndefinit("indef"),
-							0));
+							0,
+							blocActual == 0));
 			data.setValue("llegir.id", lexema);
-			data.setBlock("variable_aux.h", new Variable(lexema, new TipusIndefinit("indef"), 0),
+			data.setBlock("variable_aux.h", new Variable(lexema, new TipusIndefinit("indef"), 0,
+							blocActual == 0),
 					new TipusIndefinit("indef"), false);
 		}
 		return data;
@@ -1031,6 +1055,7 @@ public class SemanticAnalyzer {
 
 	/**
 	 * Condicional - else
+	 *
 	 * @param exp_si
 	 */
 	public void elseConditional(Data exp_si) {
@@ -1055,6 +1080,7 @@ public class SemanticAnalyzer {
 
 	/**
 	 * Cicle - end
+	 *
 	 * @param info_mentre
 	 * @param label
 	 */
@@ -1064,17 +1090,25 @@ public class SemanticAnalyzer {
 
 	/**
 	 * While - inicialització
+	 *
 	 * @param info_eti
 	 */
-	public void initWhile(Data info_eti) { generator.initWhile(info_eti); }
+	public void initWhile(Data info_eti) {
+		generator.initWhile(info_eti);
+	}
 
 	/**
 	 * While - comprobació de la condició d'iteració en cada volta [beqz reg, E]
+	 *
 	 * @param info_eti
 	 */
-	public void iterationConditionWhile(Data info_eti, Data info_mentre) { generator.iterationConditionWhile(info_eti, info_mentre); }
+	public void iterationConditionWhile(Data info_eti, Data info_mentre) {
+		generator.iterationConditionWhile(info_eti, info_mentre);
+	}
 
-	public void endWhile(Data info_eti) { generator.endWhile(info_eti);}
+	public void endWhile(Data info_eti) {
+		generator.endWhile(info_eti);
+	}
 
 	public void checkCodiReturn(boolean ret) {
 		if (ret)
@@ -1094,15 +1128,14 @@ public class SemanticAnalyzer {
 		data.setValue("regs", reg);
 	}
 
-	public String cridaInvocador(Funcio funcio) {
-		if(funcio.getNumeroParametres() == 0) {
+	public String cridaInvocador(Funcio funcio, ArrayList<Data> exps) {
+		if (funcio.getNumeroParametres() == 0) {
 			generator.saltInvocador(12, funcio.getEtiqueta());
-
 		} else {
 			Parametre parametre = funcio.obtenirParametre(funcio.getNumeroParametres() - 1);
 			generator.saltInvocador(parametre.getDesplacament() + parametre.getTipus().getTamany(), funcio.getEtiqueta());
 		}
-		return generator.retornInvocador();
+		return generator.retornInvocador(funcio, exps);
 	}
 
 	public void initProgram() {

@@ -6,6 +6,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 public class CodeGenerator {
@@ -108,9 +109,9 @@ public class CodeGenerator {
 		}
 	}
 
-	public String loadWord(Variable variable, boolean isGlobal) {
+	public String loadWord(Variable variable) {
 		String reg = registers.getRegister();
-		gc("lw\t" + reg + ",\t-" + variable.getDesplacament() + (isGlobal ? "($gp)" : "($fp)"));
+		gc("lw\t" + reg + ",\t-" + variable.getDesplacament() + (variable.getIsGlobal() ? "($gp)" : "($fp)"));
 		return reg;
 	}
 
@@ -157,8 +158,9 @@ public class CodeGenerator {
 	}
 
 
-	public String getDirs(Variable value, boolean isGlobal) {
-		return "-" + value.getDesplacament() + (isGlobal ? "($gp)" : "($fp)");
+	public String getDirs(Variable value) {
+		System.out.println("VARIABLE GLOBAL -> " + value);
+		return "-" + value.getDesplacament() + (value.getIsGlobal() ? "($gp)" : "($fp)");
 	}
 
 	public void suma(Data data, Data info) {
@@ -530,35 +532,38 @@ public class CodeGenerator {
 		if ((boolean) info.getValue("exp.es")) {
 			String reg = registers.getRegister();
 			gc("#PARAM FUNC");
-			gc("li\t" + reg + ",\t" + info.getValue("exp.vs"));
+			Object value = info.getValue("exp.vs");
+			if (value instanceof Boolean)
+				gc("li\t" + reg + ",\t" + ((boolean) value ? 0x01 : 0x0));
+			else
+				gc("li\t" + reg + ",\t" + value);
+
 			gc("sw\t" + reg + ",\t-" + parametre.getDesplacament() + "($sp)");
 
 			registers.freeRegister(reg);
 		} else {
 			System.out.println("INFOOO PARAM" + info);
 			System.out.println("DATAAA PARAM" + data);
-			if (parametre.getTipusPasParametre().toString().equals("PERVAL")) {
-				gc("#PARAM FUNC");
-				ITipus type = (ITipus) info.getValue("exp.ts");
-				if (type instanceof TipusArray) {
-					int li = (int) ((TipusArray) type).obtenirDimensio(0).getLimitInferior();
-					int ls = (int) ((TipusArray) type).obtenirDimensio(0).getLimitSuperior();
-					String reg = (String) info.getValue("regs");
-					int desp = ((Variable) info.getValue("exp.vs")).getDesplacament();
-					int desp_param = parametre.getDesplacament();
-					for (int i = 1; i <= ls - li + 1; i++) {
-						gc("lw\t" + reg + ",\t-" + desp + (isGlobal ? "($gp)" : "($fp)"));
-						gc("sw\t" + reg + ",\t-" + desp_param + "($sp)");
-						desp += ((TipusArray) type).getTipusElements().getTamany();
-						desp_param += ((TipusArray) type).getTipusElements().getTamany();
-					}
-
-				} else {
-					gc("sw\t" + info.getValue("regs") + ",\t-" + parametre.getDesplacament() + "($sp)");
-
+			gc("#PARAM FUNC");
+			ITipus type = (ITipus) info.getValue("exp.ts");
+			if (type instanceof TipusArray) {
+				int li = (int) ((TipusArray) type).obtenirDimensio(0).getLimitInferior();
+				int ls = (int) ((TipusArray) type).obtenirDimensio(0).getLimitSuperior();
+				String reg = (String) info.getValue("regs");
+				int desp = ((Variable) info.getValue("exp.vs")).getDesplacament();
+				int desp_param = parametre.getDesplacament();
+				for (int i = 1; i <= ls - li + 1; i++) {
+					gc("lw\t" + reg + ",\t-" + desp + (isGlobal ? "($gp)" : "($fp)"));
+					gc("sw\t" + reg + ",\t-" + desp_param + "($sp)");
+					desp += ((TipusArray) type).getTipusElements().getTamany();
+					desp_param += ((TipusArray) type).getTipusElements().getTamany();
 				}
+				registers.freeRegister(reg);
+
 			} else {
-				//TODO: perref
+				String reg = (String) info.getValue("regs");
+				gc("sw\t" + reg + ",\t-" + parametre.getDesplacament() + "($sp)");
+				registers.freeRegister(reg);
 			}
 
 		}
@@ -570,8 +575,32 @@ public class CodeGenerator {
 		gc("jal\t" + etiqueta);
 	}
 
-	public String retornInvocador() {
+	public String retornInvocador(Funcio funcio, ArrayList<Data> exps) {
+
 		String reg = registers.getRegister();
+
+		for (int i = 0; i < funcio.getNumeroParametres(); i++) {
+			Parametre parametre = funcio.obtenirParametre(i);
+			if (parametre.getTipusPasParametre().toString().equals("PERREF")) {
+				Data data = exps.get(i);
+				Variable variable = ((Variable) data.getValue("exp.vs"));
+				if (variable.getTipus() instanceof TipusArray) {
+					int des = variable.getDesplacament();
+					int des_param = parametre.getDesplacament();
+					int li = (int) ((TipusArray) variable.getTipus()).obtenirDimensio(0).getLimitInferior();
+					int ls = (int) ((TipusArray) variable.getTipus()).obtenirDimensio(0).getLimitSuperior();
+					for (int j = 0; j < ls - li + 1; j++) {
+						gc("lw\t" + reg + ",\t-" + (des_param + j * 4) + "($sp)");
+						gc("sw\t" + reg + ",\t-" + (des + j * 4) + (variable.getIsGlobal() ? "($gp)" : "($fp)"));
+
+					}
+				} else {
+					gc("lw\t" + reg + ",\t-" + parametre.getDesplacament() + "($sp)");
+					gc("sw\t" + reg + ",\t-" + variable.getDesplacament() + (variable.getIsGlobal() ? "($gp)" : "($fp)"));
+				}
+			}
+		}
+
 		gc("lw\t" + reg + ",\t-8($sp)");
 		gc("addi\t$sp,\t$sp,\t72");
 		return reg;
@@ -612,6 +641,8 @@ public class CodeGenerator {
 		gc("li\t" + r1 + ",\t" + limitInferior);
 		gc("li\t" + r3 + ",\t" + limitSuperior);
 		gc("move\t" + r2 + ",\t" + access);
+
+		registers.freeRegister(access);
 
 		gc("bgt\t" + r2 + ",\t" + r3 + ",\t_errorAccess");
 		gc("blt\t" + r2 + ",\t" + r1 + ",\t_errorAccess");
@@ -676,7 +707,7 @@ public class CodeGenerator {
 
 	public void endWhile(Data info_eti) {
 		gc("b\t" + info_eti.getValue("eti2"));
-		gc_eti((String)info_eti.getValue("eti1") + ":");
+		gc_eti((String) info_eti.getValue("eti1") + ":");
 	}
 
 	public void printRegs() {
@@ -741,6 +772,7 @@ public class CodeGenerator {
 		}
 		gc("sw\t" + reg + ",\t-8($fp)");
 		registers.freeRegister(reg);
+
 
 		// Lliberar el frame
 		gc("move\t$sp,\t$fp");

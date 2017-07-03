@@ -20,7 +20,7 @@ public class Parametre extends Variable {
      * @param desplacament
      */
     public Parametre(String nom, ITipus tipus, int desplacament) {
-    	super(nom, tipus, desplacament);
+    	super(nom, tipus, desplacament, false);
     }
     
     /**
@@ -31,7 +31,7 @@ public class Parametre extends Variable {
      * @param tipusPas
      */
     public Parametre(String nom, ITipus tipus, int desplacament, TipusPasParametre tipusPas) {
-    	super(nom, tipus, desplacament);
+    	super(nom, tipus, desplacament, false);
     	this.tipusPas = tipusPas;
     }
     
@@ -66,10 +66,11 @@ public class Parametre extends Variable {
     public String toXml() {
     	String result = "";
 		result = "<Parametre Nom=\"" + getNom() +
-				"\" Desplacament=\"" + getDesplacament();
+				"\" Desplacament=\"" + getDesplacament()+"\" isGlobal=\""+getIsGlobal()+"\">";
     	if (tipusPas != null) result += "\" TipusPasParametre=\"" + tipusPas.toString() + "\">";
     	if (getTipus() != null) result += getTipus().toXml();
     	result += "</Parametre>";
         return result;
-    } 
- }
+    }
+
+}

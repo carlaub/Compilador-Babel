@@ -4,6 +4,7 @@ package analyzer;
 import taulaDeSimbols.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Analitzador sintàctic.
@@ -15,6 +16,7 @@ public class SyntacticClean {
 	private static LexicographicAnalyzer lexic;
 	private static SemanticAnalyzer semantic;
 	private static Token lookahead;
+	private static ArrayList<Data> expressions;
 
 	/**
 	 * Mètode públic per a obtenir una instància de l'analitzador sintàctic.
@@ -38,6 +40,7 @@ public class SyntacticClean {
 	private SyntacticClean(String fileName) throws IOException {
 		lexic = LexicographicAnalyzer.getInstance(fileName);
 		semantic = new SemanticAnalyzer(fileName);
+		expressions = new ArrayList<>();
 	}
 
 	/**
@@ -438,7 +441,7 @@ public class SyntacticClean {
 
 				break;
 			default:
-				System.out.println("ERROR - terme()");
+				System.out.println("ERROR - terme() : "+ lookahead.getToken());
 		}
 
 		data.moveBlock("terme_aux.h", "terme.s");
@@ -515,7 +518,7 @@ public class SyntacticClean {
 
 				Funcio funcio = (Funcio) data.getValue("llista_exp.vs");
 
-				String reg = semantic.cridaInvocador(funcio);
+				String reg = semantic.cridaInvocador(funcio, expressions);
 
 				data.move("factor_aux.vs", "llista_exp.vs");
 				data.setValue("factor_aux.ts", funcio.getTipus());
@@ -530,7 +533,7 @@ public class SyntacticClean {
 				}
 
 				System.out.println("DATAAAAAAAAAAAA---> " + data);
-
+				expressions.clear();
 				accept(Type.CPARENT);
 				break;
 
@@ -561,6 +564,9 @@ public class SyntacticClean {
 			case ID:
 			case OPARENT:
 				Data info = exp();
+				expressions.add(info);
+
+				System.out.println("INFO PARAMETRE --> " + info);
 
 				semantic.checkParam(data, info);
 

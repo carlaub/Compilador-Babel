@@ -2,6 +2,7 @@ var integer1 : sencer;
 var integer2 : sencer;
 var v: vector [0 .. 100] de sencer;
 var i : sencer;
+var b : logic;
 
 funcio factorial(perval a: sencer): sencer;
 	var x : sencer;
@@ -21,33 +22,52 @@ func
 	si (num == 0) OR (num == 1) llavors
 		retornar num;
 	sino
-		retornar 1;//fibonacci(num-1)+fibonacci(num-2);
+		retornar fibonacci(num-1)+fibonacci(num-2);
 	fisi;
 fifunc;
 
-funcio fvector(perval v:vector [0 .. 100] de sencer): sencer;
+funcio fvector(perref v:vector [0 .. 100] de sencer, perval p: logic): sencer;
 	var i : sencer;
 func
+	i = 0;
+	cicle
+		v[i] = v[i] + i;
+		i = i+1;
+	fins i > 100;
+	si p llavors
+		retornar i;
+	sino
+		retornar fvector(v, cert);
+	fisi;
+fifunc;
+
+funcio incrementa2(perref num: sencer): sencer;
+func
+	num = num + 1;
+	retornar 3;
+fifunc;
+
+funcio incrementa(perref num: sencer, perref boolean: logic): sencer;
+func
+	i = i + incrementa2(num);
+	boolean = not boolean;
+	retornar 3;
+fifunc;
+
+prog
+	integer1 = 3;
+	b = cert;
+	integer2 = fvector(v, fals);
+
 	i = 0;
 	cicle
 		escriure(i,": ", v[i]);
 		i = i+1;
 	fins i > 100;
-	retornar i;
-fifunc;
+	integer2 = incrementa(integer1, b);
 
-prog
-	i = 0;
-	cicle
-		v[i] = i;
-		i = i+1;
-	fins i > 100;
-
-	// integer1 = fvector(v);
-
-	integer1 = 0;
-	mentre integer1 <> 6 fer
-	    escriure(integer1);
-	    integer1 = integer1 + 1;
-    fimentre;
+	escriure("resultat: ", integer1);
+	escriure("Integer2: ", integer2);
+	escriure("i: ", i);
+	escriure("boolean: ", b);
 fiprog
