@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.regex.Pattern;
 
 public class CodeGenerator {
@@ -583,20 +584,26 @@ public class CodeGenerator {
 			Parametre parametre = funcio.obtenirParametre(i);
 			if (parametre.getTipusPasParametre().toString().equals("PERREF")) {
 				Data data = exps.get(i);
-				Variable variable = ((Variable) data.getValue("exp.vs"));
-				if (variable.getTipus() instanceof TipusArray) {
-					int des = variable.getDesplacament();
-					int des_param = parametre.getDesplacament();
-					int li = (int) ((TipusArray) variable.getTipus()).obtenirDimensio(0).getLimitInferior();
-					int ls = (int) ((TipusArray) variable.getTipus()).obtenirDimensio(0).getLimitSuperior();
-					for (int j = 0; j < ls - li + 1; j++) {
-						gc("lw\t" + reg + ",\t-" + (des_param + j * 4) + "($sp)");
-						gc("sw\t" + reg + ",\t-" + (des + j * 4) + (variable.getIsGlobal() ? "($gp)" : "($fp)"));
+				Object object = data.getValue("exp.vs");
 
+				if (object instanceof Variable) {
+					Variable variable = (Variable) object;
+					if (variable.getTipus() instanceof TipusArray) {
+						int des = variable.getDesplacament();
+						int des_param = parametre.getDesplacament();
+						int li = (int) ((TipusArray) variable.getTipus()).obtenirDimensio(0).getLimitInferior();
+						int ls = (int) ((TipusArray) variable.getTipus()).obtenirDimensio(0).getLimitSuperior();
+						for (int j = 0; j < ls - li + 1; j++) {
+							gc("lw\t" + reg + ",\t-" + (des_param + j * 4) + "($sp)");
+							gc("sw\t" + reg + ",\t-" + (des + j * 4) + (variable.getIsGlobal() ? "($gp)" : "($fp)"));
+
+						}
+					} else {
+						gc("lw\t" + reg + ",\t-" + parametre.getDesplacament() + "($sp)");
+						gc("sw\t" + reg + ",\t-" + variable.getDesplacament() + (variable.getIsGlobal() ? "($gp)" : "($fp)"));
 					}
-				} else {
-					gc("lw\t" + reg + ",\t-" + parametre.getDesplacament() + "($sp)");
-					gc("sw\t" + reg + ",\t-" + variable.getDesplacament() + (variable.getIsGlobal() ? "($gp)" : "($fp)"));
+				} else if(object instanceof Funcio) {
+
 				}
 			}
 		}

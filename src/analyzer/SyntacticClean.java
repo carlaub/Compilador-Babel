@@ -16,7 +16,7 @@ public class SyntacticClean {
 	private static LexicographicAnalyzer lexic;
 	private static SemanticAnalyzer semantic;
 	private static Token lookahead;
-	private static ArrayList<Data> expressions;
+	private static ArrayList<ArrayList<Data>> expressions;
 
 	/**
 	 * Mètode públic per a obtenir una instància de l'analitzador sintàctic.
@@ -514,11 +514,14 @@ public class SyntacticClean {
 			case OPARENT:
 				accept(Type.OPARENT);
 				semantic.initFuncio(data);
+
+				expressions.add(new ArrayList<>());
+
 				llista_exp(data);
 
 				Funcio funcio = (Funcio) data.getValue("llista_exp.vs");
 
-				String reg = semantic.cridaInvocador(funcio, expressions);
+				String reg = semantic.cridaInvocador(funcio, expressions.get(expressions.size() - 1));
 
 				data.move("factor_aux.vs", "llista_exp.vs");
 				data.setValue("factor_aux.ts", funcio.getTipus());
@@ -533,7 +536,7 @@ public class SyntacticClean {
 				}
 
 				System.out.println("DATAAAAAAAAAAAA---> " + data);
-				expressions.clear();
+				expressions.remove(expressions.size() - 1);
 				accept(Type.CPARENT);
 				break;
 
@@ -564,7 +567,7 @@ public class SyntacticClean {
 			case ID:
 			case OPARENT:
 				Data info = exp();
-				expressions.add(info);
+				expressions.get(expressions.size() - 1).add(info);
 
 				System.out.println("INFO PARAMETRE --> " + info);
 

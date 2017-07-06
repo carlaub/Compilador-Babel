@@ -666,6 +666,7 @@ public class SemanticAnalyzer {
 		}
 		System.out.println("CHECK PARAM DATA -> " + data);
 		System.out.println("CHECK PARAM INFO -> " + info);
+
 		if (info.getValue("exp.vs") instanceof Variable)
 			generator.addParamFunction(data, info, ((Variable) info.getValue("exp.vs")).getIsGlobal());
 		else

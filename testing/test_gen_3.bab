@@ -1,0 +1,24 @@
+var integer1 : sencer;
+var integer2 : sencer;
+var v: vector [0 .. 100] de sencer;
+var i : sencer;
+var b : logic;
+
+
+funcio b(perval num: sencer): sencer;
+func
+	retornar num;
+fifunc;
+
+funcio a(perref num1: sencer, perval num2: sencer): sencer;
+func
+	num1 = num1+num2
+	retornar 3;
+fifunc;
+
+prog
+
+	integer2 = 0;
+	integer1 = a(integer2, b(2));
+	escriure("resultat: ", integer2);
+fiprog
