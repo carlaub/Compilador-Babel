@@ -2,7 +2,7 @@ var integer1 : sencer;
 var integer2 : sencer;
 var v: vector [0 .. 100] de sencer;
 var i : sencer;
-var b : logic;
+//var b : logic;
 
 
 funcio b(perval num: sencer): sencer;
@@ -10,15 +10,29 @@ func
 	retornar num;
 fifunc;
 
-funcio a(perref num1: sencer, perval num2: sencer): sencer;
+funcio a(perref num3 : sencer, perval num2: sencer, perref vect: vector [0 .. 100] de sencer, perref num1: sencer): sencer;
+//	var i : sencer;
 func
-	num1 = num1+num2
+	i = 1;
+	v[1] = vect[1];
+	cicle
+		//v[i] = v[i] + i;
+		i = i+1;
+	fins i > 1;
+	num1 = num1+num2;
+	num3 = num3+num2;
 	retornar 3;
 fifunc;
 
 prog
-
-	integer2 = 0;
-	integer1 = a(integer2, b(2));
+	integer2 = 3;
+	i = -3;
+	integer1 = a(i, b(2), v, integer2);
 	escriure("resultat: ", integer2);
+	escriure("i: ", i);
+	i = 0;
+	cicle
+		escriure(i,": ", v[i]);
+		i = i+1;
+	fins i > 10;
 fiprog

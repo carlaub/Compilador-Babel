@@ -12,7 +12,7 @@ func
 	si a == 0 llavors
 		retornar 1;
 	sino
-		retornar a;//*factorial(a-1);
+		retornar a*factorial(a-1);
 	fisi;
 fifunc;
 
@@ -70,4 +70,6 @@ prog
 	escriure("Integer2: ", integer2);
 	escriure("i: ", i);
 	escriure("boolean: ", b);
+	escriure("escriu: ");
+	llegir(integer1);
 fiprog

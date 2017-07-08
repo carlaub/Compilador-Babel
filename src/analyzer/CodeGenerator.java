@@ -521,7 +521,7 @@ public class CodeGenerator {
 		gc("#Init funció");
 		gc("addi\t$sp,\t$sp,\t" + -REGISTERS_SIZE);
 		gc("sw\t$fp,\t0($sp)");
-		//gc("addi\t$sp,\t$sp,\t-12");
+		gc("addi\t$sp,\t$sp,\t-12");
 	}
 
 	public void addParamFunction(Data data, Data info, boolean isGlobal) {
@@ -535,12 +535,12 @@ public class CodeGenerator {
 			gc("#PARAM FUNC");
 			Object value = info.getValue("exp.vs");
 			if (value instanceof Boolean)
-				gc("li\t" + reg + ",\t" + ((boolean) value ? 0x01 : 0x0));
+				gc("li\t" + reg + ",\t" + ((boolean) value ? 0x01 : 0x00));
 			else
 				gc("li\t" + reg + ",\t" + value);
 
-			gc("sw\t" + reg + ",\t-" + parametre.getDesplacament() + "($sp)");
-
+			gc("sw\t" + reg + ",\t0($sp)");
+			gc("addi\t$sp,\t$sp,\t-4");
 			registers.freeRegister(reg);
 		} else {
 			System.out.println("INFOOO PARAM" + info);
@@ -552,27 +552,27 @@ public class CodeGenerator {
 				int ls = (int) ((TipusArray) type).obtenirDimensio(0).getLimitSuperior();
 				String reg = (String) info.getValue("regs");
 				int desp = ((Variable) info.getValue("exp.vs")).getDesplacament();
-				int desp_param = parametre.getDesplacament();
+				//TODO: FER EL PAS DE PARÀMETRES MOVENT SP
 				for (int i = 1; i <= ls - li + 1; i++) {
 					gc("lw\t" + reg + ",\t-" + desp + (isGlobal ? "($gp)" : "($fp)"));
-					gc("sw\t" + reg + ",\t-" + desp_param + "($sp)");
+					gc("sw\t" + reg + ",\t0($sp)");
 					desp += ((TipusArray) type).getTipusElements().getTamany();
-					desp_param += ((TipusArray) type).getTipusElements().getTamany();
+					gc("addi\t$sp,\t$sp,\t-4");
 				}
 				registers.freeRegister(reg);
 
 			} else {
 				String reg = (String) info.getValue("regs");
-				gc("sw\t" + reg + ",\t-" + parametre.getDesplacament() + "($sp)");
+				gc("sw\t" + reg + ",\t0($sp)");
+				gc("addi\t$sp,\t$sp,\t-4");
 				registers.freeRegister(reg);
 			}
-
 		}
 	}
 
 	public void saltInvocador(int desp, String etiqueta) {
 		gc("move\t$fp,\t$sp");
-		gc("addi\t$sp,\t$sp,\t-" + desp);
+		gc("addi\t$fp,\t$fp,\t"+desp);
 		gc("jal\t" + etiqueta);
 	}
 
@@ -602,7 +602,7 @@ public class CodeGenerator {
 						gc("lw\t" + reg + ",\t-" + parametre.getDesplacament() + "($sp)");
 						gc("sw\t" + reg + ",\t-" + variable.getDesplacament() + (variable.getIsGlobal() ? "($gp)" : "($fp)"));
 					}
-				} else if(object instanceof Funcio) {
+				} else if (object instanceof Funcio) {
 
 				}
 			}

@@ -639,7 +639,7 @@ public class SemanticAnalyzer {
 			Parametre parametre = funcio.obtenirParametre(param_index - 1);
 
 			if (parametre.getTipusPasParametre().toString().equals("PERREF") &&
-					(boolean) info.getValue("exp.es") || info.getValue("op") != null) {
+					((boolean) info.getValue("exp.es") || info.getValue("op") != null)) {
 				error.insertError(TypeError.ERR_SEM_17, param_index);
 			}
 
@@ -1125,6 +1125,7 @@ public class SemanticAnalyzer {
 	}
 
 	public void moveToReg(Data data) {
+		generator.debug(data.toString());
 		String reg = generator.moveToReg((String) data.getValue("dirs"));
 		data.setValue("regs", reg);
 	}
