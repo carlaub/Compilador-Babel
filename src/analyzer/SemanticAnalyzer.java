@@ -781,7 +781,12 @@ public class SemanticAnalyzer {
 
 				if (info.getValue("exp.vs") instanceof Integer) {
 					System.out.println("VECTOR ACCESS: " + info);
-					String register = generator.initVector(((Variable) id).getDesplacament(), li, ls, (int) info.getValue("exp.vs"), ((Variable) id).getIsGlobal());
+					String register;
+					if ((boolean)info.getValue("exp.es")){
+						register = generator.initVector(((Variable) id).getDesplacament(), li, ls, info.getValue("exp.vs"), ((Variable) id).getIsGlobal());
+					} else {
+						register = generator.initVector(((Variable) id).getDesplacament(), li, ls, info.getValue("regs"), ((Variable) id).getIsGlobal());
+					}
 					data.setValue("dirs", "0(" + register + ")");
 					int index = (int) info.getValue("exp.vs");
 					if ((boolean) info.getValue("exp.es") && (

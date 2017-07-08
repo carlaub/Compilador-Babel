@@ -1,6 +1,7 @@
-CONST s_opcio = "opción? (1-fib , 2-fac)";	
+CONST s_opcio = "opcion? (1-fib , 2-fac)";
 
-VAR nombre:sencer;var opcio:sencer;
+VAR nombre:sencer;
+var opcio:sencer;
 
 FUNCIO factorial(perval fact:sencer ): sencer;
 func
@@ -23,10 +24,9 @@ fifunc;
 PROG
 	escriure(s_opcio);
 	llegir(opcio);
-	escriure("número a calcular: ");
+	escriure("numero a calcular: ");
  	llegir(nombre);
-	si (opcio <> 1) and (opcio <> 2) 
-	llavors 	
+	si (opcio <> 1) and (opcio <> 2) llavors		//ERROR
 		escriure("No ha escogido ninguna de las opciones disponibles");
 		nombre = 0;
 	sino  

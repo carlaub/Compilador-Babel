@@ -31,7 +31,7 @@ PROG
 	llegir(var_2);
 	escriure ("introduce el valor logic fals:");
 	llegir(var_3);
-	var_1 = ((cert and var_3) and (not var_2));
+	var_1 = ((cert and var_3) and (not var_2));		//ERROR
 	escriure("el resultado debe ser falso y es: ", var_1);
 	v[10] = 0;
 	v[11] = 1;
@@ -41,9 +41,9 @@ PROG
 	v[15] = 5;
 	var_41 = 9; 	 	
 	i=0;
-     	mentre i<= n fer 
-		escriure(V[k]);
-		k=k+1;
+    mentre i<= n fer
+		escriure(V[i]);
+		i=i+1;
 	fimentre;
 	v[var_41 + 10] = 20;
 

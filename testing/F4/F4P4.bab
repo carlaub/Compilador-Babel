@@ -59,7 +59,7 @@ fifunc;
 PROG
 	escriure ("Entra ", N, " valors enteros:\n");
 	i = 0;
-		cicle
+	cicle
 		llegir(v0[i]);
 		i = i + 1;
 	fins i==N ;
@@ -67,7 +67,7 @@ PROG
 	escriure(" leido");
 
 	l = bombollaValor(v0);
-	escriure ("\n\nDespu�s de ordenar el vector por valor(bombollaValor) est� desordenado:\n");
+	escriure ("\n\nDespues de ordenar el vector por valor(bombollaValor) esta desordenado:\n");
 
 	i = 0;
 		cicle
@@ -76,7 +76,7 @@ PROG
 	fins i==N ;
 
 	l = bomboLlaReF(v0);
-	escriure ("\n\nDespu�s de ordenar el vector por referencia (bombollaRefValor) est� ordenado:\n");
+	escriure ("\n\nDespues de ordenar el vector por referencia (bombollaRefValor) esta ordenado:\n");
 	i = 0;
 		cicle
 		escriure(v0[i],"-");

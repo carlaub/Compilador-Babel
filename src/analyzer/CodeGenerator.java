@@ -446,7 +446,6 @@ public class CodeGenerator {
 	public void write(Data data) {
 		ITipus tipus = (ITipus) data.getValue("exp.ts");
 		//Comentari per aclarir el codi en assembler
-		gc("#Escriure");
 
 
 		if (tipus instanceof TipusSimple) {
@@ -455,7 +454,12 @@ public class CodeGenerator {
 
 				// Configuracio print_int
 				gc("li\t$v0,\t1");
-				gc("move\t$a0,\t" + data.getValue("regs"));
+				if ((boolean) data.getValue("exp.es"))
+					gc("li\t$a0,\t" + data.getValue("exp.vs"));
+				else {
+					gc("move\t$a0,\t" + data.getValue("regs"));
+					registers.freeRegister((String) data.getValue("regs"));
+				}
 				gc("syscall");
 			} else {
 				// Cas variable logica
@@ -463,6 +467,8 @@ public class CodeGenerator {
 				//Generam codi per escriure
 				String eti1 = labels.getLabel();
 				String eti2 = labels.getLabel();
+
+				//TODO: Implementar la versió estàtica
 
 				gc("beqz\t" + data.getValue("regs") + ",\t" + eti1);
 
@@ -478,8 +484,8 @@ public class CodeGenerator {
 
 				gc("\n" + eti2 + ":");
 				gc("syscall");
+				registers.freeRegister((String) data.getValue("regs"));
 			}
-			registers.freeRegister((String) data.getValue("regs"));
 			System.out.println("WRITE ---------------");
 			System.out.println(registers);
 			// Generem codi pel salt de linia
@@ -572,7 +578,7 @@ public class CodeGenerator {
 
 	public void saltInvocador(int desp, String etiqueta) {
 		gc("move\t$fp,\t$sp");
-		gc("addi\t$fp,\t$fp,\t"+desp);
+		gc("addi\t$fp,\t$fp,\t" + desp);
 		gc("jal\t" + etiqueta);
 	}
 
@@ -614,16 +620,22 @@ public class CodeGenerator {
 	}
 
 
-	public String initVector(int desp, int limitInferior, int limitSuperior, int value, boolean isGlobal) {
+	public String initVector(int desp, int limitInferior, int limitSuperior, Object value, boolean isGlobal) {
 		String reg = registers.getRegister();
 		String r1 = registers.getRegister();
 		String r2 = registers.getRegister();
 		String r3 = registers.getRegister();
 		gc("#Init vector");
+		debug("INIT VECTOR REGS: " + registers.toString());
 		gc("la\t" + reg + ",\t-" + desp + (isGlobal ? "($gp)" : "($fp)"));
 		gc("li\t" + r1 + ",\t" + limitInferior);
 		gc("li\t" + r3 + ",\t" + limitSuperior);
-		gc("li\t" + r2 + ",\t" + value);
+		if (value instanceof Integer)
+			gc("li\t" + r2 + ",\t" + value);
+		else {
+			gc("move\t"+r2+",\t"+value.toString());
+			registers.freeRegister(value.toString());
+		}
 
 		gc("bgt\t" + r2 + ",\t" + r3 + ",\t_errorAccess");
 		gc("blt\t" + r2 + ",\t" + r1 + ",\t_errorAccess");
@@ -773,7 +785,10 @@ public class CodeGenerator {
 		String reg;
 		if ((boolean) data.getValue("exp.es")) {
 			reg = registers.getRegister();
-			gc("li\t" + reg + ",\t" + data.getValue("exp.vs"));
+			if (((ITipus)data.getValue("exp.ts")).getNom().equals("LOGIC"))
+				gc("li\t" + reg + ",\t" + (((boolean)data.getValue("exp.vs"))?"0x01":"0x00"));
+			else
+				gc("li\t" + reg + ",\t" + data.getValue("exp.vs"));
 		} else {
 			reg = (String) data.getValue("regs");
 		}

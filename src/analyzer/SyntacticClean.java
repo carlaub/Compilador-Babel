@@ -423,6 +423,7 @@ public class SyntacticClean {
 					data.setValue("regs", exp.getValue("regs"));
 
 				accept(Type.CPARENT);
+				System.out.println("LINIA: "+lexic.getActualLine());
 				semantic.checkOp_unari(data);
 				semantic.checkOp_binari(data);
 				break;
@@ -543,6 +544,7 @@ public class SyntacticClean {
 			case OCLAU:
 				data.moveBlock("variable_aux.h", "factor_aux.h");
 				variable_aux(data);
+				System.out.println("LINIA ERROR DIRS -> "+lexic.getActualLine());
 				semantic.moveToReg(data);
 				data.moveBlock("factor_aux.s", "variable_aux.s");
 				break;
