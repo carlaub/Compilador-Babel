@@ -1,0 +1,86 @@
+const 	 N = 10;
+var	 v0: vector[0..N-1] de sencer;
+var      e: sencer;
+var      i: sencer ;
+var      l: logic;
+
+funcio bombollaValor (perval  aa:vector[0..N-1] de sencer  ): logic;
+var	i: sencer ;
+var	j: sencer ;
+var	aux: sencer ;
+
+func
+  i = 1;
+  mentre i<N fer 	
+		escriure("i:", i);
+		j = 0;
+		mentre j<(N-i) fer
+			si aa[j] > aa[j+1] llavors
+				aux = aa[j];
+				aa[j] = aa[j+1];
+				aa[j+1] = aux;
+			fisi;
+			j = j+1;
+		fimentre;
+		i = i + 1;
+ fimentre;
+ escriure("\nDentro de bombollaValor, Vector Ordenado:\n");
+ i = 0;
+ cicle
+	escriure(aa[i],"-");
+	i = i + 1;
+ fins i==N;
+ retornar cert;
+fifunc;
+
+funcio bombollaRef (perref  aa: vector[0..N-1] de sencer): logic;
+var	i: sencer ;
+var	j: sencer ;
+var	aux: sencer ;
+
+func
+	 i = 1;
+ 	 mentre i<N fer 	
+		escriure("i:", i);
+		j = 0;
+		mentre j<(N-i) fer
+			si aa[j] > aa[j+1] llavors
+				aux = aa[j];
+				aa[j] = aa[j+1];
+				aa[j+1] = aux;
+			fisi;
+			j = j+1;
+		fimentre;
+		i = i + 1;
+	fimentre;
+	retornar cert;
+fifunc;
+
+PROG
+	escriure ("Entra ", N, " valors enteros:\n");
+	i = 0;
+		cicle
+		llegir(v0[i]);
+		i = i + 1;
+	fins i==N ;
+	
+	escriure(" leido");
+
+	l = bombollaValor(v0);
+	escriure ("\n\nDespu�s de ordenar el vector por valor(bombollaValor) est� desordenado:\n");
+
+	i = 0;
+		cicle
+		escriure(v0[i],"-");
+		i = i + 1;
+	fins i==N ;
+
+	l = bomboLlaReF(v0);
+	escriure ("\n\nDespu�s de ordenar el vector por referencia (bombollaRefValor) est� ordenado:\n");
+	i = 0;
+		cicle
+		escriure(v0[i],"-");
+		i = i + 1;
+	fins i==N ;
+FIPROG
+

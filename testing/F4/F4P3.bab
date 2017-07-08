@@ -1,0 +1,89 @@
+const MAX = 11;
+var vec:vector [0 .. MAX-1] de sencer;
+var  x:sencer; 
+var  i:sencer;
+var  temp:logic;
+
+funcio particio(perref vec:vector [0 .. MAX-1] de sencer , perval  i:sencer, perval j:sencer, perref  s:sencer): sencer;
+var  t:sencer;
+var  mig:sencer;
+var  pivot:sencer;
+var  temp:sencer;
+
+func
+	s = i;
+	t = j;
+	mig = (i + j) / 2;
+	pivot = vec[mig];
+	mentre s <= t fer
+		
+		mentre  vec[s] < pivot fer
+			s = s + 1;
+		fimentre;
+		mentre  vec[t] > pivot fer
+			t = t - 1; 
+		fimentre;
+		si s < t llavors
+			temp = vec[s];
+			vec[s] = vec[t];
+			vec[t] = temp;
+			s = s + 1;
+			t = t - 1;
+		sino
+			si s == t llavors
+				s = s + 1;
+				t = t - 1;
+			fisi;
+		fisi;
+	fimentre;
+	retornar t;
+fifunc;
+
+funcio quicksorti(perref  vec:vector [0 .. MAX-1] de sencer , perval  i:sencer, perval  j:sencer): logic;
+var s: sencer;var t: sencer;
+func
+	si i < j llavors
+		t = particio(vec, i, j, s);
+		temp = quicksorti(vec, i, t);
+		retornar quicksorti(vec, s, j);
+	fisi;
+	retornar CERT;
+fifunc;
+
+funcio quicksort(perref  vec:vector [0 .. MAX-1] de sencer ): logic;
+func
+		retornar quicksorti(vec, 0, MAX-1);
+fifunc;
+
+PROG
+	vec[0]=10;	
+	vec[1]=9;
+	vec[2]=8;
+	vec[3]=7;
+	vec[4]=6;
+	vec[5]=5;
+	vec[6]=4;
+	i= 7;
+	mentre i <= max - 1 fer
+		escriure("Entra un valor del vector: ");
+		llegir(vec[i]);
+		i = i + 1;
+	fimentre; 
+	escriure("Vector original: "); 
+	i=0;
+	cicle
+		escriure(vec[i], "-");
+		i = i+1;
+	fins i >10;
+	
+	escriure("\n");
+	temp = quicksort(vec);
+	escriure("Vector final:");
+	i=0;	
+	mentre i<=10 fer
+		escriure(vec[i], "-");
+		i=i+1;	
+	fimentre;
+
+
+FIPROG 

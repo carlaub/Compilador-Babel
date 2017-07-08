@@ -1,0 +1,41 @@
+CONST s_opcio = "opción? (1-fib , 2-fac)";	
+
+VAR nombre:sencer;var opcio:sencer;
+
+FUNCIO factorial(perval fact:sencer ): sencer;
+func
+	si fact <> 0 llavors 
+		retornar  fact * factorial(fact - 1) ;
+	sino 
+		retornar  1 ;
+ 	fisi;						
+FIfunc;
+
+funcio fibonacci (perval  num:sencer): sencer;
+func
+	si (num == 0) or (num == 1) llavors
+		retornar  num ;
+	sino
+	    retornar fibonacci(num - 1) + fibonacci(num - 2);
+	fisi;
+fifunc;
+
+PROG
+	escriure(s_opcio);
+	llegir(opcio);
+	escriure("número a calcular: ");
+ 	llegir(nombre);
+	si (opcio <> 1) and (opcio <> 2) 
+	llavors 	
+		escriure("No ha escogido ninguna de las opciones disponibles");
+		nombre = 0;
+	sino  
+		si opcio == 1 
+		llavors 
+			nombre = fibonacci(nombre);
+	    	sino 
+			nombre = factorial(nombre);
+		fisi;
+	fisi;
+	escriure("El resultado es: ", nombre);
+FIPROG 
