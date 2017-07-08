@@ -670,7 +670,7 @@ public class SemanticAnalyzer {
 		if (info.getValue("exp.vs") instanceof Variable)
 			generator.addParamFunction(data, info, ((Variable) info.getValue("exp.vs")).getIsGlobal());
 		else
-			generator.addParamFunction(data, info, blocActual == 0);	//isGlobal és indiferent, només serveix pels vectors
+			generator.addParamFunction(data, info, blocActual == 0);    //isGlobal és indiferent, només serveix pels vectors
 
 	}
 
@@ -782,7 +782,7 @@ public class SemanticAnalyzer {
 				if (info.getValue("exp.vs") instanceof Integer) {
 					System.out.println("VECTOR ACCESS: " + info);
 					String register;
-					if ((boolean)info.getValue("exp.es")){
+					if ((boolean) info.getValue("exp.es")) {
 						register = generator.initVector(((Variable) id).getDesplacament(), li, ls, info.getValue("exp.vs"), ((Variable) id).getIsGlobal());
 					} else {
 						register = generator.initVector(((Variable) id).getDesplacament(), li, ls, info.getValue("regs"), ((Variable) id).getIsGlobal());
@@ -800,7 +800,6 @@ public class SemanticAnalyzer {
 
 					String register = generator.initVectorVar(((Variable) id).getDesplacament(), li, ls, (String) info.getValue("regs"), ((Variable) id).getIsGlobal());
 					data.setValue("dirs", "0(" + register + ")");
-
 				}
 			}
 		}
@@ -933,13 +932,14 @@ public class SemanticAnalyzer {
 			data.setBlock("variable_aux.h", variable, variable.getTipus(), false);
 			System.out.println("LLEGIR VARIABLE -> " + variable);
 			if (variable.getTipus().getNom().equals("SENCER"))
-				generator.read(variable.getDesplacament(), variable.getIsGlobal());
+				generator.read(variable);
 
 		} else if (taulaSimbols.obtenirBloc(0).existeixVariable(lexema)) {
 
 			Variable variable = taulaSimbols.obtenirBloc(0).obtenirVariable(lexema);
 			data.setBlock("variable_aux.h", variable, variable.getTipus(), false);
-			if (variable.getTipus().getNom().equals("SENCER")) generator.read(variable.getDesplacament(), true);
+			if (variable.getTipus().getNom().equals("SENCER"))
+				generator.read(variable);
 
 
 		} else if (taulaSimbols.obtenirBloc(blocActual).existeixID(lexema) ||
@@ -979,11 +979,11 @@ public class SemanticAnalyzer {
 		if (!(tipus instanceof TipusIndefinit) && !(tipus instanceof TipusSimple)) {
 
 			if (tipus instanceof TipusArray)
-
 				error.insertError(TypeError.ERR_SEM_10, ((Variable) data.getValue("variable_aux.vs")).getNom());
-
 			else
 				error.insertError(TypeError.ERR_SEM_10, (String) data.getValue("llegir.id"));
+		} else {
+			generator.read((String) data.getValue("dirs"));
 		}
 	}
 

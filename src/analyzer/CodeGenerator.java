@@ -144,7 +144,8 @@ public class CodeGenerator {
 			System.out.println(lexic.getActualLine() + " - reg_info: " + reg_info);
 			if (reg_info != null)
 				registers.freeRegister(reg_info);
-			else System.out.println("NULL REGISTER AT " + lexic.getActualLine());
+			else
+				System.out.println("NULL REGISTER AT " + lexic.getActualLine());
 			System.out.println("LIBERAMEEE------------------");
 			System.out.println("|" + reg_data + "|");
 			System.out.println(registers);
@@ -488,11 +489,6 @@ public class CodeGenerator {
 			}
 			System.out.println("WRITE ---------------");
 			System.out.println(registers);
-			// Generem codi pel salt de linia
-			gc("li\t$v0,\t11");
-			gc("la\t$a0,\t_ejump");
-			gc("syscall");
-
 		} else if (tipus instanceof TipusCadena) {
 			//Introduim la cadena a l'apartat de .data
 			// Cal una nova etiqueda per la cadena
@@ -509,17 +505,29 @@ public class CodeGenerator {
 
 	}
 
-	public void read(int desp, boolean isGlobal) {
+	public void read(String dir) {
 		gc("#read");
 		gc("li\t$v0,\t5");
 		gc("syscall");
 		String reg = registers.getRegister();
 		gc("move\t" + reg + ",\t$v0");
-		if (isGlobal) {
-			gc("sw\t" + reg + ",\t" + -desp + "($gp)");
+		gc("sw\t" + reg + ",\t" + dir);
+		registers.freeRegister(reg);
+		registers.freeRegister(dir.substring(2, 5));
+	}
+
+	public void read(Variable variable) {
+		gc("#read");
+		gc("li\t$v0,\t5");
+		gc("syscall");
+		String reg = registers.getRegister();
+		gc("move\t" + reg + ",\t$v0");
+		if (variable.getIsGlobal()) {
+			gc("sw\t" + reg + ",\t-" + variable.getDesplacament() + "($gp)");
 		} else {
-			gc("sw\t" + reg + ",\t" + -desp + "($sp)");
+			gc("sw\t" + reg + ",\t-" + variable.getDesplacament() + "($sp)");
 		}
+
 		registers.freeRegister(reg);
 	}
 
@@ -633,7 +641,7 @@ public class CodeGenerator {
 		if (value instanceof Integer)
 			gc("li\t" + r2 + ",\t" + value);
 		else {
-			gc("move\t"+r2+",\t"+value.toString());
+			gc("move\t" + r2 + ",\t" + value.toString());
 			registers.freeRegister(value.toString());
 		}
 
@@ -785,8 +793,8 @@ public class CodeGenerator {
 		String reg;
 		if ((boolean) data.getValue("exp.es")) {
 			reg = registers.getRegister();
-			if (((ITipus)data.getValue("exp.ts")).getNom().equals("LOGIC"))
-				gc("li\t" + reg + ",\t" + (((boolean)data.getValue("exp.vs"))?"0x01":"0x00"));
+			if (((ITipus) data.getValue("exp.ts")).getNom().equals("LOGIC"))
+				gc("li\t" + reg + ",\t" + (((boolean) data.getValue("exp.vs")) ? "0x01" : "0x00"));
 			else
 				gc("li\t" + reg + ",\t" + data.getValue("exp.vs"));
 		} else {

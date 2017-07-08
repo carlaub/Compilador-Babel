@@ -12,7 +12,7 @@ var	aux: sencer ;
 func
   i = 1;
   mentre i<N fer 	
-		escriure("i:", i);
+		escriure("\ni: ", i);
 		j = 0;
 		mentre j<(N-i) fer
 			si aa[j] > aa[j+1] llavors
@@ -41,7 +41,7 @@ var	aux: sencer ;
 func
 	 i = 1;
  	 mentre i<N fer 	
-		escriure("i:", i);
+		escriure("\ni:", i);
 		j = 0;
 		mentre j<(N-i) fer
 			si aa[j] > aa[j+1] llavors
