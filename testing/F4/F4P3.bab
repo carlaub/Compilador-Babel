@@ -1,14 +1,14 @@
 const MAX = 11;
-var vec:vector [0 .. MAX-1] de sencer;
+var v:vector [0 .. MAX-1] de sencer;
 var  x:sencer; 
 var  i:sencer;
 var  temp:logic;
 
 funcio particio(perref vec:vector [0 .. MAX-1] de sencer , perval  i:sencer, perval j:sencer, perref  s:sencer): sencer;
-var  t:sencer;
-var  mig:sencer;
-var  pivot:sencer;
-var  temp:sencer;
+	var  t:sencer;
+	var  mig:sencer;
+	var  pivot:sencer;
+	var  temp:sencer;
 
 func
 	s = i;
@@ -56,33 +56,33 @@ func
 fifunc;
 
 PROG
-	vec[0]=10;	
-	vec[1]=9;
-	vec[2]=8;
-	vec[3]=7;
-	vec[4]=6;
-	vec[5]=5;
-	vec[6]=4;
+	v[0]=10;
+	v[1]=9;
+	v[2]=8;
+	v[3]=7;
+	v[4]=6;
+	v[5]=5;
+	v[6]=4;
 	i= 7;
 	mentre i <= max - 1 fer
 		escriure("Entra un valor del vector: ");
-		llegir(vec[i]);
+		llegir(v[i]);
 		i = i + 1;
 	fimentre; 
 	escriure("Vector original: "); 
 	i=0;
 	cicle
-		escriure(vec[i], "-");
+		escriure(v[i], "-");
 		i = i+1;
 	fins i >10;
 	
 	escriure("\n");
-	temp = quicksort(vec);
+	temp = quicksort(v);
 	escriure("Vector final:");
 	i=0;	
 	mentre i<=10 fer
-		escriure(vec[i], "-");
-		i=i+1;	
+		escriure(v[i], "-");
+		i=i+1;
 	fimentre;
 
 

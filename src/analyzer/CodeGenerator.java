@@ -49,7 +49,7 @@ public class CodeGenerator {
 		gc("_ejump: .asciiz \"\\n\"");
 
 		// error out of bounds
-		gc("_err_out_of_bounds: .asciiz \"Accés invàlid al vector\"");
+		gc("_err_out_of_bounds: .asciiz \"\n\nAccés invàlid al vector\n\n\"");
 
 		gc("\n.text\n");
 		gc_eti("_errorAccess:");
@@ -149,12 +149,12 @@ public class CodeGenerator {
 			System.out.println("LIBERAMEEE------------------");
 			System.out.println("|" + reg_data + "|");
 			System.out.println(registers);
-			if (reg_data.charAt(0) == '0') {
-				System.out.println("LIBERAO------------------");
-				registers.freeRegister(reg_data.substring(2, 5));
-				System.out.println("|" + reg_data.substring(2, 5) + "|");
-				System.out.println(registers);
-			}
+		}
+		if (reg_data.charAt(0) == '0') {
+			System.out.println("LIBERAO------------------");
+			registers.freeRegister(reg_data.substring(2, 5));
+			System.out.println("|" + reg_data.substring(2, 5) + "|");
+			System.out.println(registers);
 		}
 
 	}
@@ -301,6 +301,7 @@ public class CodeGenerator {
 				String reg1 = (String) data.getValue("regs1");
 				String reg2 = (String) data.getValue("regs2");
 				//El resultat ho guardem a reg1
+				System.out.println("ASDF -> "+ data);
 				gc("and\t" + reg1 + ",\t" + reg1 + ",\t" + reg2);
 				data.move("regs", "regs1");
 				registers.freeRegister(reg2);

@@ -418,10 +418,14 @@ public class SyntacticClean {
 
 				data.setBlock("terme.s", exp.getValue("exp.vs"), exp.getValue("exp.ts"), exp.getValue("exp.es"));
 
-				// TODO: solució a la excepció de donava dissabte a la tarda relacionada amb l'atribut regs
-				if (!(boolean) data.getValue("terme.es"))
-					data.setValue("regs", exp.getValue("regs"));
-
+				if (!(boolean) data.getValue("terme.es")) {
+					if (data.getValue("regs") == null) {
+						data.setValue("regs", exp.getValue("regs"));
+					} else {
+						data.move("regs1", "regs");
+						data.setValue("regs2", exp.getValue("regs"));
+					}
+				}
 				accept(Type.CPARENT);
 				System.out.println("LINIA: "+lexic.getActualLine());
 				semantic.checkOp_unari(data);

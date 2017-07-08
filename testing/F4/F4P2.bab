@@ -1,7 +1,8 @@
-CONST s_opcio = "opcion? (1-fib , 2-fac)";
+CONST s_opcio = "opcion? (1-fib , 2-fac)\n";
 
 VAR nombre:sencer;
 var opcio:sencer;
+var vlogic:logic;
 
 FUNCIO factorial(perval fact:sencer ): sencer;
 func

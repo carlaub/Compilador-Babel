@@ -650,8 +650,10 @@ public class SemanticAnalyzer {
 				Object vs = info.getValue("exp.vs");
 
 				if ((vs instanceof Variable && ((Variable) vs).getTipus() instanceof TipusArray &&
-						((Variable) vs).getTipus().getNom().equals(parametre.getTipus().getNom()))) {
+						!((Variable) vs).getTipus().getNom().equals(parametre.getTipus().getNom()))) {
 					if (parametre.getTipus() instanceof TipusArray) {
+						System.out.println("ERROR ACCES VECTOR (DATA) -> " + data);
+						System.out.println("ERROR ACCES VECTOR (INFO) -> " + info);
 
 						DimensioArray dimensioArray = ((TipusArray) parametre.getTipus()).obtenirDimensio(0);
 						error.insertError(TypeError.ERR_SEM_16, param_index,
@@ -982,7 +984,8 @@ public class SemanticAnalyzer {
 				error.insertError(TypeError.ERR_SEM_10, ((Variable) data.getValue("variable_aux.vs")).getNom());
 			else
 				error.insertError(TypeError.ERR_SEM_10, (String) data.getValue("llegir.id"));
-		} else {
+		} else if (((Variable)data.getValue("variable_aux.vs")).getTipus() instanceof TipusArray){
+			generator.debug(data.toString());
 			generator.read((String) data.getValue("dirs"));
 		}
 	}

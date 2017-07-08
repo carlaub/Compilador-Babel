@@ -18,7 +18,7 @@ PROG
 	escriure ("introduce el entero 3:");
 	llegir(var_43);
 	var_41 = var_41 - var_42 - var_43;
-	escriure("el resultado debe ser -6 y es: ",var_41);
+	escriure("el resultado debe ser -6 y es: ",var_41,"\n");
 	escriure ("introduce el entero 2:");
 	llegir(var_41);
 	escriure ("introduce el entero 10:");
@@ -26,20 +26,14 @@ PROG
 	escriure ("introduce el entero 4:");
 	llegir(var_43);
 	var_41 = var_41 * var_42 / var_43;
-	escriure("el resultado debe ser 5 y es: ",var_41);
-	escriure ("introduce el valor logic cert:");
-	llegir(var_2);
-	escriure ("introduce el valor logic fals:");
-	llegir(var_3);
-	var_1 = ((cert and var_3) and (not var_2));		//ERROR
-	escriure("el resultado debe ser falso y es: ", var_1);
+	escriure("el resultado debe ser 5 y es: ",var_41,"\n");
 	v[10] = 0;
 	v[11] = 1;
 	v[12] = 2;
 	v[13] = 3;
 	v[14] = 4;
 	v[15] = 5;
-	var_41 = 9; 	 	
+	var_41 = 9;
 	i=0;
     mentre i<= n fer
 		escriure(V[i]);
