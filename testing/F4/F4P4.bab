@@ -6,6 +6,30 @@ var      e: sencer;
 var      i: sencer ;
 var      l: logic;
 
+funcio printaVector(perval vec1: vector[0..N-1] de sencer, perref vec2: vector[0..N-1] de sencer): logic;
+func
+	i = 0;
+	cicle
+		escriure(v0[i],"-");
+		i = i + 1;
+	fins i == N;
+	escriure("\n");
+	i = 0;
+	cicle
+		escriure(vec1[i],"-");
+		i = i + 1;
+	fins i==N;
+	escriure("\n");
+	i = 0;
+	cicle
+		escriure(vec2[i]*2,"-");
+		vec2[i] = vec2[i] * 2;
+		i = i + 1;
+	fins i==N;
+	escriure("\n");
+	retornar cert;
+fifunc;
+
 funcio bombollaValor (perval  aa:vector[0..N-1] de sencer  ): logic;
 var	i: sencer ;
 var	j: sencer ;
@@ -14,7 +38,7 @@ var	aux: sencer ;
 func
 	i = 0;
 	cicle
-		escriure(aa[i],"-");
+		escriure(v0[i],"-");
 		i = i + 1;
 	fins i==N;
 	escriure("\n");
@@ -82,7 +106,8 @@ PROG
 		i = i + 1;
 	fins i == N ;
 	
-	escriure(" leido");
+	escriure(" leido\nPrinta\n");
+	l = printaVector(v0, v0);
 
 	l = bombollaValor(v0);
 	escriure ("\n\nDespues de ordenar el vector por valor(bombollaValor) esta desordenado:\n");

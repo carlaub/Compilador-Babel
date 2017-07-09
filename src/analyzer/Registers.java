@@ -1,7 +1,5 @@
 package analyzer;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -11,7 +9,8 @@ import java.util.Map;
  */
 public class Registers {
 	private HashMap<String, Boolean> regs;
-	public Registers(){
+
+	public Registers() {
 		regs = new HashMap<>();
 		regs.put("$t0", false);
 		regs.put("$t1", false);
@@ -33,12 +32,12 @@ public class Registers {
 		regs.put("$s7", false);
 	}
 
-	public String getRegister(){
+	public String getRegister() {
 		if (!regs.containsValue(false)) return null;
 		Iterator it = regs.entrySet().iterator();
-		while (it.hasNext()){
-			Map.Entry pair = (Map.Entry)it.next();
-			if (!(boolean)pair.getValue()){
+		while (it.hasNext()) {
+			Map.Entry pair = (Map.Entry) it.next();
+			if (!(boolean) pair.getValue()) {
 				regs.put((String) pair.getKey(), true);
 				return (String) pair.getKey();
 			}
@@ -46,12 +45,12 @@ public class Registers {
 		return null;
 	}
 
-	public void freeRegister(String key){
+	public void freeRegister(String key) {
 		regs.put(key, false);
 	}
 
 	@Override
-	public String toString(){
+	public String toString() {
 		return regs.toString();
 	}
 }

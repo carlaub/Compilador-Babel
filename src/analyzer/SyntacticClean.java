@@ -168,7 +168,7 @@ public class SyntacticClean {
 				break;
 
 			default:
-				return;
+				break;
 		}
 	}
 
@@ -180,7 +180,7 @@ public class SyntacticClean {
 				break;
 
 			default:
-				return;
+				break;
 		}
 	}
 
@@ -209,7 +209,7 @@ public class SyntacticClean {
 				llista_param_aux(idFuncio, desp);
 				break;
 			default:
-				return;
+				break;
 		}
 	}
 
@@ -356,7 +356,7 @@ public class SyntacticClean {
 
 			default:
 				data.moveBlock("terme_simple.s", "terme_simple.h");
-				return;
+				break;
 		}
 	}
 
@@ -427,7 +427,7 @@ public class SyntacticClean {
 					}
 				}
 				accept(Type.CPARENT);
-				System.out.println("LINIA: "+lexic.getActualLine());
+				System.out.println("LINIA: " + lexic.getActualLine());
 				semantic.checkOp_unari(data);
 				semantic.checkOp_binari(data);
 				break;
@@ -446,7 +446,7 @@ public class SyntacticClean {
 
 				break;
 			default:
-				System.out.println("ERROR - terme() : "+ lookahead.getToken());
+				System.out.println("ERROR - terme() : " + lookahead.getToken());
 		}
 
 		data.moveBlock("terme_aux.h", "terme.s");
@@ -548,7 +548,7 @@ public class SyntacticClean {
 			case OCLAU:
 				data.moveBlock("variable_aux.h", "factor_aux.h");
 				variable_aux(data);
-				System.out.println("LINIA ERROR DIRS -> "+lexic.getActualLine());
+				System.out.println("LINIA ERROR DIRS -> " + lexic.getActualLine());
 				semantic.moveToReg(data);
 				data.moveBlock("factor_aux.s", "variable_aux.s");
 				break;
@@ -583,10 +583,10 @@ public class SyntacticClean {
 				llista_exp_aux(data);
 				data.move("llista_exp.vs", "llista_exp_aux.vs");
 				break;
-			default:
 
+			default:
 				data.move("llista_exp.vs", "llista_exp.vh");
-				return;
+				break;
 		}
 
 	}
@@ -602,7 +602,7 @@ public class SyntacticClean {
 			default:
 				semantic.checkParamNext(data);
 				data.move("llista_exp_aux.vs", "llista_exp_aux.vh");
-				return;
+				break;
 		}
 	}
 
@@ -619,7 +619,7 @@ public class SyntacticClean {
 			default:
 				semantic.checkVariableAux(data);
 				data.moveBlock("variable_aux.s", "variable_aux.h");
-				return;
+				break;
 		}
 	}
 
@@ -817,7 +817,7 @@ public class SyntacticClean {
 				break;
 
 			default:
-				return;
+				break;
 		}
 	}
 
@@ -835,7 +835,7 @@ public class SyntacticClean {
 				break;
 
 			default:
-				return;
+				break;
 		}
 	}
 

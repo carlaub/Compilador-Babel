@@ -670,9 +670,9 @@ public class SemanticAnalyzer {
 		System.out.println("CHECK PARAM INFO -> " + info);
 
 		if (info.getValue("exp.vs") instanceof Variable)
-			generator.addParamFunction(data, info, ((Variable) info.getValue("exp.vs")).getIsGlobal());
+			generator.addParamFunction(info, ((Variable) info.getValue("exp.vs")).getIsGlobal());
 		else
-			generator.addParamFunction(data, info, blocActual == 0);    //isGlobal és indiferent, només serveix pels vectors
+			generator.addParamFunction(info, blocActual == 0);    //isGlobal és indiferent, només serveix pels vectors
 
 	}
 
@@ -756,15 +756,15 @@ public class SemanticAnalyzer {
 	public void checkVectorAccess(Data data, Data info) {
 
 		Object id = data.getValue("variable_aux.vh");
-		Object type = data.getValue("variable_aux.th");
-
-		if (!(id instanceof Variable && type instanceof TipusArray)) {
+		generator.debug("D " + data.toString());
+		generator.debug("I " + info.toString());
+		if (!(id instanceof Variable && ((Variable) id).getTipus() instanceof TipusArray)) {
 
 			error.insertError(TypeError.ERR_SEM_23, getNomId(id));
 
 		} else {
-
-			data.setValue("variable_aux.th", ((TipusArray) type).getTipusElements());
+			TipusArray type = (TipusArray) ((Variable) id).getTipus();
+			data.setValue("variable_aux.th", type.getTipusElements());
 
 			if (!((ITipus) info.getValue("exp.ts")).getNom().equals("SENCER")) {
 
@@ -778,8 +778,8 @@ public class SemanticAnalyzer {
 				if (data.getValue("regs") != null)
 					generator.free((String) data.getValue("regs"));
 
-				int li = (int) ((TipusArray) type).obtenirDimensio(0).getLimitInferior();
-				int ls = (int) ((TipusArray) type).obtenirDimensio(0).getLimitSuperior();
+				int li = (int) type.obtenirDimensio(0).getLimitInferior();
+				int ls = (int) type.obtenirDimensio(0).getLimitSuperior();
 
 				if (info.getValue("exp.vs") instanceof Integer) {
 					System.out.println("VECTOR ACCESS: " + info);
@@ -792,15 +792,15 @@ public class SemanticAnalyzer {
 					data.setValue("dirs", "0(" + register + ")");
 					int index = (int) info.getValue("exp.vs");
 					if ((boolean) info.getValue("exp.es") && (
-							(int) ((TipusArray) type).obtenirDimensio(0).getLimitInferior() > index ||
-									(int) ((TipusArray) type).obtenirDimensio(0).getLimitSuperior() < index)) {
+							(int) type.obtenirDimensio(0).getLimitInferior() > index ||
+									(int) type.obtenirDimensio(0).getLimitSuperior() < index)) {
 						error.insertError(TypeError.WAR_OPC_2, getNomId(id));
 					}
 				} else if (info.getValue("exp.vs") instanceof Variable) {
 					generator.debug(info.toString());
 					System.out.println("VECTOR ACCESS: " + info);
 
-					String register = generator.initVectorVar(((Variable) id).getDesplacament(), li, ls, (String) info.getValue("regs"), ((Variable) id).getIsGlobal());
+					String register = generator.initVector(((Variable) id).getDesplacament(), li, ls, info.getValue("regs"), ((Variable) id).getIsGlobal());
 					data.setValue("dirs", "0(" + register + ")");
 				}
 			}
@@ -984,7 +984,7 @@ public class SemanticAnalyzer {
 				error.insertError(TypeError.ERR_SEM_10, ((Variable) data.getValue("variable_aux.vs")).getNom());
 			else
 				error.insertError(TypeError.ERR_SEM_10, (String) data.getValue("llegir.id"));
-		} else if (((Variable)data.getValue("variable_aux.vs")).getTipus() instanceof TipusArray){
+		} else if (((Variable) data.getValue("variable_aux.vs")).getTipus() instanceof TipusArray) {
 			generator.debug(data.toString());
 			generator.read((String) data.getValue("dirs"));
 		}
@@ -1055,29 +1055,28 @@ public class SemanticAnalyzer {
 	/**
 	 * Condicional - inicialització
 	 *
-	 * @param exp_si
+	 * @param data Informació sobre l'expressió
 	 */
-
-	public void initConditional(Data exp_si) {
-		generator.initConditional(exp_si);
+	public void initConditional(Data data) {
+		generator.initConditional(data);
 	}
 
 	/**
 	 * Condicional - else
 	 *
-	 * @param exp_si
+	 * @param data Informació sobre l'expressió
 	 */
-	public void elseConditional(Data exp_si) {
-		generator.elseConditional(exp_si);
+	public void elseConditional(Data data) {
+		generator.elseConditional(data);
 	}
 
 	/**
 	 * Condicional - end
 	 *
-	 * @param exp_si
+	 * @param data Informació sobre l'expressió
 	 */
-	public void endConditional(Data exp_si) {
-		generator.endConditional(exp_si);
+	public void endConditional(Data data) {
+		generator.endConditional(data);
 	}
 
 	/**
@@ -1090,8 +1089,8 @@ public class SemanticAnalyzer {
 	/**
 	 * Cicle - end
 	 *
-	 * @param info_mentre
-	 * @param label
+	 * @param info_mentre Informació sobre l'expressió
+	 * @param label       Etiqueta on s'inicia el bucle
 	 */
 	public void endCicle(Data info_mentre, String label) {
 		generator.endCicle(info_mentre, label);
@@ -1100,7 +1099,7 @@ public class SemanticAnalyzer {
 	/**
 	 * While - inicialització
 	 *
-	 * @param info_eti
+	 * @param info_eti Informació de l'expressió
 	 */
 	public void initWhile(Data info_eti) {
 		generator.initWhile(info_eti);
@@ -1109,35 +1108,65 @@ public class SemanticAnalyzer {
 	/**
 	 * While - comprobació de la condició d'iteració en cada volta [beqz reg, E]
 	 *
-	 * @param info_eti
+	 * @param info_eti    Informació de l'etiqueta
+	 * @param info_mentre Informació de l'expressió
 	 */
 	public void iterationConditionWhile(Data info_eti, Data info_mentre) {
 		generator.iterationConditionWhile(info_eti, info_mentre);
 	}
 
+	/**
+	 * Genera el codi de la part final del mentre.
+	 *
+	 * @param info_eti Informació de l'etiqueta
+	 */
 	public void endWhile(Data info_eti) {
 		generator.endWhile(info_eti);
 	}
 
+	/**
+	 * Loggeja al fitxer d'errors si hi ha codi després d'un RETORNAR.
+	 *
+	 * @param ret Informació del retorn
+	 */
 	public void checkCodiReturn(boolean ret) {
 		if (ret)
 			error.insertError(TypeError.WAR_OPC_3);
 	}
 
+	/**
+	 * Finalitza la generació de codi.
+	 */
 	public void close() {
 		generator.closeBuffer();
 	}
 
+	/**
+	 * Mostra l'estat actual dels registres per consola.
+	 */
 	public void printRegs() {
 		generator.printRegs();
 	}
 
+	/**
+	 * Genera el codi per moure el valor d'una posició de memòria a un registre.
+	 * Si es tracta d'una posició a memòria d'un vector, també allibera el registre que emmagatzema el seu desplaçament.
+	 *
+	 * @param data Informació de l'expressió
+	 */
 	public void moveToReg(Data data) {
 		generator.debug(data.toString());
 		String reg = generator.moveToReg((String) data.getValue("dirs"));
 		data.setValue("regs", reg);
 	}
 
+	/**
+	 * Genera el codi de salt a una funció. Crida al DORs i al DORd.
+	 *
+	 * @param funcio Funció que es crida
+	 * @param exps   Llistat d'expressions amb el que es crida a la funció
+	 * @return Registre amb el valor de retorn de la funció
+	 */
 	public String cridaInvocador(Funcio funcio, ArrayList<Data> exps) {
 		if (funcio.getNumeroParametres() == 0) {
 			generator.saltInvocador(12, funcio.getEtiqueta());
@@ -1148,14 +1177,25 @@ public class SemanticAnalyzer {
 		return generator.retornInvocador(funcio, exps);
 	}
 
+	/**
+	 * Genera el codi d'inici del programa.
+	 */
 	public void initProgram() {
 		generator.initProgram();
 	}
 
+	/**
+	 * Retorna els valors del bloc actual en una cadena.
+	 *
+	 * @return Cadena amb l'estat del bloc actual
+	 */
 	public String showBloc() {
 		return taulaSimbols.obtenirBloc(blocActual).toString();
 	}
 
+	/**
+	 * Mètode per a inicilitzar el desplaçament de les variables d'una funció.
+	 */
 	public void initFuncio() {
 		generator.initFunctionVars(taulaSimbols.obtenirBloc(blocActual));
 	}

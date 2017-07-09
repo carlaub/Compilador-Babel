@@ -7,9 +7,16 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.regex.Pattern;
 
+/**
+ * Generador de codi.
+ * S'encarrega de interpretar la informació llegida del codi font un cop aquesta és correcta i en genera el codi en
+ * el llenguatge d'ensamblador MIPS per a una màquina RISC.<br>
+ * Totes les crides a aquesta classe es fan des de l'analitzador semàntic ({@link SemanticAnalyzer}) perquè
+ * conceptualment sempre es genera codi des d'un punt on s'ha fet una revisió semàntica. <br>
+ * Per a facilitar aquesta quarta fase, suposem que no hi ha errors sintàctics ni semàntics.
+ */
 public class CodeGenerator {
 	private static final int N_REGISTERS = 25 - 8 + 1;
 	private static final int REGISTER_SIZE = 4; //Bytes
@@ -21,6 +28,11 @@ public class CodeGenerator {
 	private int des_func;
 	private boolean isFunction;
 
+	/**
+	 * Constructor del generador de codi.
+	 *
+	 * @param filename Nom del fitxer que contindrà el codi generat
+	 */
 	public CodeGenerator(String filename) {
 		registers = new Registers();
 		labels = new Labels();
@@ -39,10 +51,9 @@ public class CodeGenerator {
 	}
 
 	/**
-	 * Escriptura de les cadenes predefinides per defecte. Per exemple, els
-	 * error en temps d'execucio
+	 * Escriptura de les cadenes predefinides per defecte. Per exemple, els missatges d'errors en temps d'execució
 	 */
-	public void writeDefaultData() {
+	private void writeDefaultData() {
 		gc("\n.data");
 		gc("_ecert: .asciiz \"cert\"");
 		gc("_efals: .asciiz \"fals\"");
@@ -62,6 +73,11 @@ public class CodeGenerator {
 		gc("b\t_end");
 	}
 
+	/**
+	 * Funció per a escriure un comentari al punt actual del codi que es genera.
+	 *
+	 * @param code Comentari a escriure
+	 */
 	public void debug(String code) {
 		gc("#DEBUG -> " + code);
 	}
@@ -71,6 +87,12 @@ public class CodeGenerator {
 		return registers.toString();
 	}
 
+	/**
+	 * Retorna el desplaçament al punt actual del codi i actualitza el desplaçament per la següent variable.
+	 *
+	 * @param type Tipus de variable per a la que es demana espai
+	 * @return El desplaçament que ha de tenir la variable respecte $gp o $fp
+	 */
 	public int getDes(ITipus type) {
 		int desp = des;
 		if (isFunction) {
@@ -81,6 +103,11 @@ public class CodeGenerator {
 		return desp;
 	}
 
+	/**
+	 * Escriu el fragment de codi que rep com a paràmetre al fitxer generat amb tabulat d'instrucció.
+	 *
+	 * @param code Fragment de codi a escriure
+	 */
 	private void gc(String code) {
 		try {
 			bwGC.write("\t" + code + "\n");
@@ -89,6 +116,11 @@ public class CodeGenerator {
 		}
 	}
 
+	/**
+	 * Escriu una etiqueta amb el tabulat d'etiqueta.
+	 *
+	 * @param code Etiqueta a escriure
+	 */
 	private void gc_eti(String code) {
 		try {
 			bwGC.write(code + "\n");
@@ -97,6 +129,9 @@ public class CodeGenerator {
 		}
 	}
 
+	/**
+	 * Finalitza la generació de codi.
+	 */
 	public void closeBuffer() {
 		// Escriure la finalitzacio del programa
 		System.out.println(registers);
@@ -110,12 +145,24 @@ public class CodeGenerator {
 		}
 	}
 
+	/**
+	 * Carrega una variable a un registre i el retorna.
+	 *
+	 * @param variable Variable a moure a un registre
+	 * @return Registre que conté el valor de la variable
+	 */
 	public String loadWord(Variable variable) {
 		String reg = registers.getRegister();
 		gc("lw\t" + reg + ",\t-" + variable.getDesplacament() + (variable.getIsGlobal() ? "($gp)" : "($fp)"));
 		return reg;
 	}
 
+	/**
+	 * Genera el codi d'assignació a una variable.
+	 *
+	 * @param data Conté la informació de la variable a assignar
+	 * @param info Conté la informació de la expressió a assignar
+	 */
 	public void assignate(Data data, Data info) {
 		String reg_data = (String) data.getValue("dirs");
 		String reg_info = (String) info.getValue("regs");
@@ -159,12 +206,23 @@ public class CodeGenerator {
 
 	}
 
-
-	public String getDirs(Variable value) {
-		System.out.println("VARIABLE GLOBAL -> " + value);
-		return "-" + value.getDesplacament() + (value.getIsGlobal() ? "($gp)" : "($fp)");
+	/**
+	 * Rep una variable i en retorna el seu accés en memòria.
+	 *
+	 * @param variable Variable de la que es vol obtenir l'adreça a memòria
+	 * @return Direcció de memòria
+	 */
+	public String getDirs(Variable variable) {
+		System.out.println("VARIABLE GLOBAL -> " + variable);
+		return "-" + variable.getDesplacament() + (variable.getIsGlobal() ? "($gp)" : "($fp)");
 	}
 
+	/**
+	 * Genera el codi per a sumar dos termes.
+	 *
+	 * @param data Informació del primer terme
+	 * @param info Informació del segon terme
+	 */
 	public void suma(Data data, Data info) {
 		System.out.println("DATA: " + data);
 		System.out.println("INFO: " + info);
@@ -187,9 +245,14 @@ public class CodeGenerator {
 				data.setValue("regs", reg2);
 			}
 		}
-
 	}
 
+	/**
+	 * Genera el codi per a restar dos termes.
+	 *
+	 * @param data Informació del primer terme
+	 * @param info Informació del segon terme
+	 */
 	public void resta(Data data, Data info) {
 		System.out.println("DATA: " + data);
 		System.out.println("INFO: " + info);
@@ -215,6 +278,11 @@ public class CodeGenerator {
 
 	}
 
+	/**
+	 * Genera el codi per a multiplicar dos termes.
+	 *
+	 * @param data Informació dels termes a multiplicar
+	 */
 	public void mul(Data data) {
 
 		System.out.println("DATA -------------------------: " + data);
@@ -241,6 +309,11 @@ public class CodeGenerator {
 		}
 	}
 
+	/**
+	 * Genera el codi per a dividir dos termes.
+	 *
+	 * @param data Informació dels termes a multiplicar
+	 */
 	public void div(Data data) {
 
 		if (!(boolean) data.getValue("terme.eh")) {
@@ -278,9 +351,9 @@ public class CodeGenerator {
 	}
 
 	/**
-	 * Generació de codi per l'operació AND
+	 * Genera el codi per a multiplicar lògicament dos termes.
 	 *
-	 * @param data
+	 * @param data Informació dels termes a multiplicar
 	 */
 	public void and(Data data) {
 
@@ -301,7 +374,7 @@ public class CodeGenerator {
 				String reg1 = (String) data.getValue("regs1");
 				String reg2 = (String) data.getValue("regs2");
 				//El resultat ho guardem a reg1
-				System.out.println("ASDF -> "+ data);
+				System.out.println("ASDF -> " + data);
 				gc("and\t" + reg1 + ",\t" + reg1 + ",\t" + reg2);
 				data.move("regs", "regs1");
 				registers.freeRegister(reg2);
@@ -322,9 +395,9 @@ public class CodeGenerator {
 	}
 
 	/**
-	 * Generació codi OR
+	 * Genera el codi per a sumar lògicament dos termes.
 	 *
-	 * @param data
+	 * @param data Informació dels termes a sumar
 	 */
 	public void or(Data data, Data info) {
 		if (!(boolean) data.getValue("terme_simple.eh")) {
@@ -361,9 +434,9 @@ public class CodeGenerator {
 	}
 
 	/**
-	 * Generacio de codi per la negacio d'una variable
+	 * Genera el codi per a negar un terme.
 	 *
-	 * @param data
+	 * @param data Informació del terme a negar
 	 */
 	public void opUnariResta(Data data) {
 		gc("#Negacio");
@@ -371,12 +444,13 @@ public class CodeGenerator {
 	}
 
 	/**
-	 * Generacio de codi per la not de les variables de tipus LOGIC
-	 * Caldrà aplicar una mascara, ja que la representaicó dels logics escollida es (0x0000000F)
-	 * 0x00000001 -> true
-	 * 0x00000000 -> false
+	 * Genera el codi per a negar logicament un terme.<br>
+	 * Fa una negació lògica i hi aplica una màscara per a mantenir tots els bits sense significat a 0
+	 * (només utilitzem l'últim bit per a representar els dos possibles valors).<br>
+	 * 0x00000001 -> cert<br>
+	 * 0x00000000 -> fals
 	 *
-	 * @param data
+	 * @param data Informació del terme a negar
 	 */
 	public void opUnariNot(Data data) {
 		gc("#NOT");
@@ -385,10 +459,10 @@ public class CodeGenerator {
 	}
 
 	/**
-	 * Gestió de la generació de codi dels operadors relacionas ==, <, <=, >, >=, <>
+	 * Gestiona la generació de codi dels operadors relacionals (==, <, <=, >, >=, <>).
 	 *
-	 * @param data
-	 * @param info
+	 * @param data Informació del terme de l'esquerra
+	 * @param info Informació del terme de la dreta
 	 */
 	public void opRelacionals(Data data, Data info) {
 		System.out.println("CI DATA " + data);
@@ -417,7 +491,14 @@ public class CodeGenerator {
 		}
 	}
 
-	public void opRelacional(Data data, Data info, String op) {
+	/**
+	 * Genera el codi per a comparar dos valors sencers segons l'operació rebuda.
+	 *
+	 * @param data Informació del terme de l'esquerra
+	 * @param info Informació del terme de la dreta
+	 * @param op   Operació a realitzar
+	 */
+	private void opRelacional(Data data, Data info, String op) {
 		if (!(boolean) data.getValue("exp_aux.eh")) {
 			String reg1 = (String) data.getValue("regs");
 			if ((boolean) info.getValue("exp_simple.es")) {
@@ -441,14 +522,12 @@ public class CodeGenerator {
 	}
 
 	/**
-	 * Funcio encarregada de mostrar per pantalla.
+	 * Genera el codi per a escriure al terminal.
 	 *
-	 * @param data Informació de l'expressió
+	 * @param data Informació de l'expressió a mostrar
 	 */
 	public void write(Data data) {
 		ITipus tipus = (ITipus) data.getValue("exp.ts");
-		//Comentari per aclarir el codi en assembler
-
 
 		if (tipus instanceof TipusSimple) {
 			if (tipus.getNom().equals("SENCER")) {
@@ -506,6 +585,11 @@ public class CodeGenerator {
 
 	}
 
+	/**
+	 * Genera el codi per a escriure a una posició de memòria.
+	 *
+	 * @param dir Posició de memòria a escriure
+	 */
 	public void read(String dir) {
 		gc("#read");
 		gc("li\t$v0,\t5");
@@ -517,6 +601,11 @@ public class CodeGenerator {
 		registers.freeRegister(dir.substring(2, 5));
 	}
 
+	/**
+	 * Genera el codi per a escriure a una posició de memòria.
+	 *
+	 * @param variable Variable sobre la que s'escriu
+	 */
 	public void read(Variable variable) {
 		gc("#read");
 		gc("li\t$v0,\t5");
@@ -532,6 +621,9 @@ public class CodeGenerator {
 		registers.freeRegister(reg);
 	}
 
+	/**
+	 * Genera el codi prèvi a una crida a una funció. Equival al DORa.
+	 */
 	public void initFunction() {
 		gc("#Init funció");
 		gc("addi\t$sp,\t$sp,\t" + -REGISTERS_SIZE);
@@ -539,12 +631,15 @@ public class CodeGenerator {
 		gc("addi\t$sp,\t$sp,\t-12");
 	}
 
-	public void addParamFunction(Data data, Data info, boolean isGlobal) {
+	/**
+	 * Genera el codi per a passar les expressions de la crida a la pila de crides. Estem al final del DORa.
+	 *
+	 * @param info     Informació de l'expressió
+	 * @param isGlobal Booleà indicant si és una variable global o no
+	 */
+	public void addParamFunction(Data info, boolean isGlobal) {
 
-		int numParam = (int) data.getValue("param.index");
-		Parametre parametre = ((Funcio) data.getValue("llista_exp.vh")).obtenirParametre(numParam - 1);
-
-		// Mirem estàtic
+		// Mirem si és estàtic
 		if ((boolean) info.getValue("exp.es")) {
 			String reg = registers.getRegister();
 			gc("#PARAM FUNC");
@@ -559,7 +654,6 @@ public class CodeGenerator {
 			registers.freeRegister(reg);
 		} else {
 			System.out.println("INFOOO PARAM" + info);
-			System.out.println("DATAAA PARAM" + data);
 			gc("#PARAM FUNC");
 			ITipus type = (ITipus) info.getValue("exp.ts");
 			if (type instanceof TipusArray) {
@@ -567,7 +661,6 @@ public class CodeGenerator {
 				int ls = (int) ((TipusArray) type).obtenirDimensio(0).getLimitSuperior();
 				String reg = (String) info.getValue("regs");
 				int desp = ((Variable) info.getValue("exp.vs")).getDesplacament();
-				//TODO: FER EL PAS DE PARÀMETRES MOVENT SP
 				for (int i = 1; i <= ls - li + 1; i++) {
 					gc("lw\t" + reg + ",\t-" + desp + (isGlobal ? "($gp)" : "($fp)"));
 					gc("sw\t" + reg + ",\t0($sp)");
@@ -585,12 +678,25 @@ public class CodeGenerator {
 		}
 	}
 
+	/**
+	 * Genera el codi de salt a una funció. Equival al DORs.
+	 *
+	 * @param desp     Desplaçament a causa dels paràmetres
+	 * @param etiqueta Etiqueta de la funció a la que saltem
+	 */
 	public void saltInvocador(int desp, String etiqueta) {
 		gc("move\t$fp,\t$sp");
 		gc("addi\t$fp,\t$fp,\t" + desp);
 		gc("jal\t" + etiqueta);
 	}
 
+	/**
+	 * Genera el codi per a actualitzar el valor d'aquelles variables passades per referència. Equival al DORd.
+	 *
+	 * @param funcio Funció cridada
+	 * @param exps   Llista d'expressions usada per a cridar la funció
+	 * @return Registre amb el valor de retorn de la funció
+	 */
 	public String retornInvocador(Funcio funcio, ArrayList<Data> exps) {
 
 		String reg = registers.getRegister();
@@ -617,8 +723,6 @@ public class CodeGenerator {
 						gc("lw\t" + reg + ",\t-" + parametre.getDesplacament() + "($sp)");
 						gc("sw\t" + reg + ",\t-" + variable.getDesplacament() + (variable.getIsGlobal() ? "($gp)" : "($fp)"));
 					}
-				} else if (object instanceof Funcio) {
-
 				}
 			}
 		}
@@ -628,7 +732,16 @@ public class CodeGenerator {
 		return reg;
 	}
 
-
+	/**
+	 * Genera el codi per a obtenir un registre amb el desplaçament d'una posició d'un vector.
+	 *
+	 * @param desp          Desplaçament de la primera posició del vector
+	 * @param limitInferior Límit inferior del vector
+	 * @param limitSuperior Límit superior del vector
+	 * @param value         Informació del valor d'accés
+	 * @param isGlobal      Booleà indicant si és una variable global o no
+	 * @return Retorna un registre amb el desplaçament d'una posició del vector
+	 */
 	public String initVector(int desp, int limitInferior, int limitSuperior, Object value, boolean isGlobal) {
 		String reg = registers.getRegister();
 		String r1 = registers.getRegister();
@@ -659,89 +772,125 @@ public class CodeGenerator {
 		return reg;
 	}
 
-	public String initVectorVar(int desp, int limitInferior, int limitSuperior, String access, boolean isGlobal) {
-		String reg = registers.getRegister();
-		String r1 = registers.getRegister();
-		String r2 = registers.getRegister();
-		String r3 = registers.getRegister();
-		gc("#Init vector");
-		gc("la\t" + reg + ",\t-" + desp + (isGlobal ? "($gp)" : "($fp)"));
-		gc("li\t" + r1 + ",\t" + limitInferior);
-		gc("li\t" + r3 + ",\t" + limitSuperior);
-		gc("move\t" + r2 + ",\t" + access);
-
-		registers.freeRegister(access);
-
-		gc("bgt\t" + r2 + ",\t" + r3 + ",\t_errorAccess");
-		gc("blt\t" + r2 + ",\t" + r1 + ",\t_errorAccess");
-
-		gc("sub\t" + r2 + ",\t" + r1 + ",\t" + r2);
-		gc("li\t" + r1 + ",\t4");
-		gc("mul\t" + r2 + ",\t" + r2 + ",\t" + r1);
-		gc("add\t" + reg + ",\t" + reg + ",\t" + r2);
-		registers.freeRegister(r1);
-		registers.freeRegister(r2);
-		registers.freeRegister(r3);
-		return reg;
-	}
-
-	public void initConditional(Data exp_si) {
+	/**
+	 * Genera el codi per a la part inicial d'un condicional.
+	 *
+	 * @param data Informació sobre l'expressió
+	 */
+	public void initConditional(Data data) {
 		String label_1 = labels.getLabel();
 		String label_2 = labels.getLabel();
 
 		gc("#Condicional");
-		gc("beqz\t" + exp_si.getValue("regs") + ",\t" + label_1);
+		if ((boolean) data.getValue("exp.es")) {
+			if (!(boolean) data.getValue("exp.vs"))
+				gc("b\t" + label_1);
+		} else
+			gc("beqz\t" + data.getValue("regs") + ",\t" + label_1);
 
-		exp_si.setValue("label_1", label_1);
-		exp_si.setValue("label_2", label_2);
+		data.setValue("label_1", label_1);
+		data.setValue("label_2", label_2);
 	}
 
-	public void elseConditional(Data exp_si) {
-		gc("b\t" + exp_si.getValue("label_2"));
-		gc_eti(exp_si.getValue("label_1") + ":");
+	/**
+	 * Genera el codi de l'else d'un condicional.
+	 *
+	 * @param data Informació sobre l'expressió
+	 */
+	public void elseConditional(Data data) {
+		gc("b\t" + data.getValue("label_2"));
+		gc_eti(data.getValue("label_1") + ":");
 	}
 
-	public void endConditional(Data exp_si) {
-		gc_eti(exp_si.getValue("label_2") + ":");
+	/**
+	 * Genera el codi final d'un condicional.
+	 *
+	 * @param data Informació sobre l'expressió
+	 */
+	public void endConditional(Data data) {
+		gc_eti(data.getValue("label_2") + ":");
 	}
 
+	/**
+	 * Genera el codi per a la part inicial d'un cicle.
+	 *
+	 * @return Etiqueta on inicia el cicle
+	 */
 	public String initCicle() {
 		String label = labels.getLabel();
 		gc("#Cicle");
 		gc_eti(label + ":");
-
 		return label;
 	}
 
-	public void endCicle(Data info_mentre, String label) {
-		//TODO: cas condició sortida estàtica (bucle infinit si "true")
-		gc("beqz\t" + info_mentre.getValue("regs") + ",\t" + label);
+	/**
+	 * Genera el codi per a la part final d'un cicle.
+	 *
+	 * @param data  Informació de l'expressió
+	 * @param label Etiqueta on s'inicia el cicle
+	 */
+	public void endCicle(Data data, String label) {
+		if ((boolean) data.getValue("exp.es")) {
+			if (!(boolean) data.getValue("exp.vs"))
+				gc("b\t" + label);
+		} else
+			gc("beqz\t" + data.getValue("regs") + ",\t" + label);
 	}
 
-	public void initWhile(Data info_eti) {
+	/**
+	 * Genera el codi de la part inicial del mentre.
+	 *
+	 * @param data Informació de l'expressió
+	 */
+	public void initWhile(Data data) {
 		String eti1 = labels.getLabel();
 		String eti2 = labels.getLabel();
 
 		gc("#While");
 		gc_eti(eti2 + ":");
 
-		info_eti.setValue("eti1", eti1);
-		info_eti.setValue("eti2", eti2);
+		data.setValue("eti1", eti1);
+		data.setValue("eti2", eti2);
 	}
 
-	public void iterationConditionWhile(Data info_eti, Data info_mentre) {
-		gc("beqz\t" + info_mentre.getValue("regs") + ",\t" + info_eti.getValue("eti1"));
+	/**
+	 * Genera el codi de l'avaluació de l'expressió del mentre.
+	 *
+	 * @param data Informació de l'etiqueta
+	 * @param info Informació de l'expressió
+	 */
+	public void iterationConditionWhile(Data data, Data info) {
+		if ((boolean) info.getValue("exp.es")) {
+			if (!(boolean) info.getValue("exp.vs"))
+				gc("b\t" + data.getValue("eti1"));
+		} else
+			gc("beqz\t" + info.getValue("regs") + ",\t" + data.getValue("eti1"));
 	}
 
-	public void endWhile(Data info_eti) {
-		gc("b\t" + info_eti.getValue("eti2"));
-		gc_eti((String) info_eti.getValue("eti1") + ":");
+	/**
+	 * Genera el codi de la part final del mentre.
+	 *
+	 * @param data Informació de l'etiqueta
+	 */
+	public void endWhile(Data data) {
+		gc("b\t" + data.getValue("eti2"));
+		gc_eti(data.getValue("eti1") + ":");
 	}
 
+	/**
+	 * Mostra l'estat actual dels registres per consola.
+	 */
 	public void printRegs() {
 		System.out.println(registers);
 	}
 
+	/**
+	 * Genera el codi per moure el valor d'una posició de memòria a un registre.
+	 * Si es tracta d'una posició a memòria d'un vector, també allibera el registre que emmagatzema el seu desplaçament.
+	 *
+	 * @param dirs Direcció de memòria
+	 * @return Registre amb el valor de la direcció de memòria
+	 */
 	public String moveToReg(String dirs) {
 		String reg = registers.getRegister();
 		System.out.println("MOVE TO REG: " + registers);
@@ -754,10 +903,20 @@ public class CodeGenerator {
 		return reg;
 	}
 
+	/**
+	 * Allibera un registre.
+	 *
+	 * @param regs Registre a alliberar
+	 */
 	public void free(String regs) {
 		registers.freeRegister(regs);
 	}
 
+	/**
+	 * Genera el codi de l'inici de la declaració d'una funció. Equival al DOe.
+	 *
+	 * @param funcio Funció a iniciar
+	 */
 	public void declaracioFuncio(Funcio funcio) {
 		gc_eti(funcio.getEtiqueta() + ":");
 		isFunction = true;
@@ -772,15 +931,26 @@ public class CodeGenerator {
 		gc("addi\t$sp,\t$sp,\t-" + des_func);
 	}
 
+	/**
+	 * Genera el codi d'inici del programa.
+	 */
 	public void initProgram() {
 		gc_eti("\nmain:");
 		gc("move\t$fp,\t$sp\n");
 	}
 
+	/**
+	 * Mètode per a indicar que ha finalitzat la declaració d'una funció.
+	 */
 	public void endFunctionDeclaration() {
 		isFunction = false;
 	}
 
+	/**
+	 * Mètode per a inicilitzar el desplaçament de les variables d'una funció.
+	 *
+	 * @param bloc Bloc actual de la funció
+	 */
 	public void initFunctionVars(Bloc bloc) {
 		int n = bloc.getNumParams();
 		if (n > 0) {
@@ -789,6 +959,11 @@ public class CodeGenerator {
 		} else des_func = 12;
 	}
 
+	/**
+	 * Genera el codi de final de la declaració d'una funció. Equival al DOs.
+	 *
+	 * @param data Informació de l'expressió de retorn
+	 */
 	public void endFunction(Data data) {
 		System.out.println("END FUNCTION DATA: " + data);
 		String reg;

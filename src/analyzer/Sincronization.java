@@ -6,7 +6,7 @@ package analyzer;
  */
 class Sincronization {
 	static final Type[] cnj_var_const = {Type.SEMICOLON, Type.FUNCIO, Type.VAR, Type.CONST, Type.PROG, Type.FUNC, Type.EOF};
-	static final Type[] cnj_var_const_prev = {Type.FUNCIO, Type.VAR, Type.CONST, Type.PROG, Type.FUNC, Type.EOF, };
+	static final Type[] cnj_var_const_prev = {Type.FUNCIO, Type.VAR, Type.CONST, Type.PROG, Type.FUNC, Type.EOF,};
 	static final Type[] cnj_decl_func = {Type.SEMICOLON, Type.FUNCIO, Type.PROG, Type.EOF, Type.FUNC};
 	static final Type[] cnj_decl_func_prev = {Type.PROG, Type.FUNCIO, Type.EOF};
 	static final Type[] cnj_exp = {Type.SUMA, Type.RESTA, Type.NOT, Type.SENCER_CST, Type.LOGIC_CST, Type.CADENA, Type.ID,
