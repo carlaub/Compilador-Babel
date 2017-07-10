@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.regex.Pattern;
 
 /**
@@ -16,7 +15,6 @@ import java.util.regex.Pattern;
  * En cas que es tracti d'un warning escriu el seu tractament.
  */
 public class Error {
-	private static HashMap<TypeError, String> errorCodes;
 	private static Error instance;
 	private static BufferedWriter bwErr;
 	private static LexicographicAnalyzer lexic;
@@ -46,7 +44,6 @@ public class Error {
 	 */
 	private Error(String fileName) {
 		File err = new File(fileName.split(Pattern.quote("."))[0] + ".err");
-		loadCodes();
 		lexic = LexicographicAnalyzer.getInstance();
 
 		try {
@@ -54,26 +51,6 @@ public class Error {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	/**
-	 * Mètode per a relacionar els codis d'error amb una petita descripció a {@link #errorCodes}.
-	 * Actualment en desús.
-	 */
-	private void loadCodes() {
-		errorCodes = new HashMap<>();
-		errorCodes.put(TypeError.ERR_LEX_1, "Unknown character");
-		errorCodes.put(TypeError.WAR_LEX_1, "Max length reached");
-		errorCodes.put(TypeError.WAR_LEX_2, "String not closed");
-		errorCodes.put(TypeError.ERR_SIN_1, "Unexpected token found");
-		errorCodes.put(TypeError.ERR_SIN_2, "Missing token");
-		errorCodes.put(TypeError.ERR_SIN_3, "Bad constant definition");
-		errorCodes.put(TypeError.ERR_SIN_4, "Bad variable definition");
-		errorCodes.put(TypeError.ERR_SIN_5, "Bad function definition");
-		errorCodes.put(TypeError.ERR_SIN_6, "Unexpected token found after end of program");
-		errorCodes.put(TypeError.ERR_SIN_7, "Bad instruction definition");
-		errorCodes.put(TypeError.ERR_SIN_8, "Bad expression definition");
-		errorCodes.put(TypeError.ERR_SIN_9, "FATAL ERROR");
 	}
 
 	/**
@@ -358,7 +335,7 @@ public class Error {
 			bwErr.write("[" + error + "] " + numLine + ", La funció en declaració té " + interger2 +
 					" paràmetres mentre que en ús té " + integer1 + ".\n");
 		} catch (IOException e) {
-
+			e.printStackTrace();
 		}
 
 	}

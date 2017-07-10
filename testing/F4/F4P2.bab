@@ -28,7 +28,7 @@ PROG
 	escriure("numero a calcular: ");
  	llegir(nombre);
 	si (opcio <> 1) and (opcio <> 2) llavors		//ERROR
-		escriure("No ha escogido ninguna de las opciones disponibles");
+		escriure("No ha escogido ninguna de las opciones disponibles\n");
 		nombre = 0;
 	sino  
 		si opcio == 1 

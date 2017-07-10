@@ -549,9 +549,14 @@ public class CodeGenerator {
 				String eti1 = labels.getLabel();
 				String eti2 = labels.getLabel();
 
-				//TODO: Implementar la versió estàtica
-
-				gc("beqz\t" + data.getValue("regs") + ",\t" + eti1);
+				System.out.println("PRINT BOOLEAN: " + data);
+				if ((boolean) data.getValue("exp.es")) {
+					if (!(boolean) data.getValue("exp.vs"))
+						gc("b\t" + eti1);
+				} else {
+					gc("beqz\t" + data.getValue("regs") + ",\t" + eti1);
+					registers.freeRegister((String) data.getValue("regs"));
+				}
 
 				// Cert
 				gc("li\t$v0,\t4");
@@ -565,7 +570,6 @@ public class CodeGenerator {
 
 				gc("\n" + eti2 + ":");
 				gc("syscall");
-				registers.freeRegister((String) data.getValue("regs"));
 			}
 			System.out.println("WRITE ---------------");
 			System.out.println(registers);
@@ -991,6 +995,6 @@ public class CodeGenerator {
 
 		// Saltar a l'invocador
 		gc("lw\t$ra,\t-4($sp)");
-		gc("jr $ra");
+		gc("jr\t$ra");
 	}
 }
